@@ -1,0 +1,34 @@
+#pragma once
+#include <d3d12.h>
+#include "SimpleMath.h"
+
+using namespace DirectX;
+using namespace SimpleMath;
+
+class BECamera
+{
+public:
+
+	float viewPortRatio = 2.0f / 3.0f;
+	Vector3 viewPort = { 1.0f, viewPortRatio, 1.0f };
+
+	float focalLength = 1.0f;
+
+	Vector3 position = { 0.0f, 0.0f, 5.0f };
+	Vector3 direction;
+	Vector3 centre;
+
+	BECamera();
+
+	void LookAt(Vector3 target);
+
+	inline Vector3 WorldToScreen(Vector3 coord);
+
+	void Translate(Vector3 movement);
+
+	void RunTestCases();
+
+private:
+
+};
+
