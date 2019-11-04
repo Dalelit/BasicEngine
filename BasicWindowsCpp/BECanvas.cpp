@@ -2,18 +2,18 @@
 #include "BEHelpers.h"
 
 
-int BECanvas::Initialise(int width, int height)
+int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 {
 	if (buffer != NULL) free(buffer);
 
-	this->width = width;
-	this->height = height;
-	this->halfWidth = floorf(width * 0.5f);
-	this->halfHeight = floorf(height * 0.5f);
+	width = _width;
+	height = _height;
+	halfWidth = floorf(width * 0.5f);
+	halfHeight = floorf(height * 0.5f);
 
-	this->size = width * height;
-	this->buffer = (Color*)malloc(width * height * sizeof(Color));
-	this->bmp = (Pixel*)malloc(width * height * sizeof(Pixel));
+	size = width * height;
+	buffer = (Color*)malloc(size * sizeof(Color));
+	bmp = (Pixel*)malloc(size * sizeof(Pixel));
 
 	Clear();
 
@@ -31,8 +31,8 @@ void BECanvas::BufferToBMP() // To Do - optimise or is there another way? Especi
 	Pixel* pp = bmp;
 	Color* pc = buffer;
 
-	for (int y = 0; y < size; y += width)
-		for (int x = 0; x < width; x++)
+	for (unsigned int y = 0; y < size; y += width)
+		for (unsigned int x = 0; x < width; x++)
 		{
 			pp->r = (unsigned char)(pc->R() * 255);
 			pp->g = (unsigned char)(pc->G() * 255);

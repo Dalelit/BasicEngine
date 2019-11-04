@@ -24,11 +24,11 @@ public:
 	Color* buffer = NULL;
 	Pixel* bmp = NULL;
 
-	int width = 0;
-	int height = 0;
-	int size = 0;
+	unsigned int width = 0;
+	unsigned int height = 0;
+	unsigned int size = 0;
 
-	int Initialise(int width, int height);
+	int Initialise(unsigned int width, unsigned int height);
 
 	void Clear();
 

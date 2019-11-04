@@ -15,8 +15,8 @@ public:
 	float focalLength = 1.0f;
 
 	Vector3 position = { 0.0f, 0.0f, 5.0f };
-	Vector3 direction;
-	Vector3 centre;
+
+	//Vector3 up = Vector3::Up; // To Do - stop flipping
 
 	BECamera();
 
@@ -29,6 +29,8 @@ public:
 	void RunTestCases();
 
 private:
+	Vector3 direction;
+	Vector3 centre;
 
 };
 
