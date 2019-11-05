@@ -6,9 +6,34 @@
 using namespace DirectX;
 using namespace SimpleMath;
 
+// TO DO - Max to heap not stack - Urgent?
+#define BERENDERPIPELINE_MAX_EDGES    200
+#define BERENDERPIPELINE_MAX_TRIEDGES 100
+#define BERENDERPIPELINE_MAX_VERTICES 200
+
 class BERenderPipeline
 {
 public:
+	struct BEEdge
+	{
+		unsigned int y;
+		unsigned int yEnd;
+		float x;
+		float dx;
+		float z;
+		float dz;
+		Color c;
+		Color dc;
+	};
+
+	struct BETriEdge
+	{
+		unsigned int yStart;
+		BEEdge* e0;
+		BEEdge* e1;
+		BETriEdge* next;
+	};
+
 	BEWorld* pWorld;
 	BECamera* pCamera;
 	BECanvas* pCanvas;
@@ -17,26 +42,43 @@ public:
 
 	void UpdateScreenSpace();
 	void Draw();
+	void DrawV1();
 
 	void DrawModel(BEModel* pModel);
 
 	void DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3, Color color);
 
-	struct Edge
-	{
-		unsigned int yEnd;
-		float x;
-		float dx;
-	};
+private:
+	// preallocated memory for the number crunching
+	BEEdge edges[BERENDERPIPELINE_MAX_EDGES] = {};
+	BETriEdge triedges[BERENDERPIPELINE_MAX_TRIEDGES] = {};
+	Vector3 screenSpaceVerticies[BERENDERPIPELINE_MAX_VERTICES] = {};
 
 	// Ensure vFrom is lowest y
-	inline void InitEdge(Edge* e, Vector3* vFrom, Vector3* vTo)
+	inline void InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo)
 	{
 		e->yEnd = (int)vTo->y;
 		e->x = vFrom->x;
-		float yDiff = (vTo->y - vFrom->y);
-		if (yDiff == 0) e->dx = vTo->x; // if parallel set dx to the target x
-		else e->dx = (vTo->x - vFrom->x) / yDiff;
+		e->z = vFrom->z;
+		e->c = cFrom;
+		float yDiff = vTo->y - vFrom->y;
+		if (yDiff != 0) // check that not parallel
+		{
+			e->dx = (vTo->x - vFrom->x) / yDiff;
+			e->dz = (vTo->z - vFrom->z) / yDiff;
+			e->dc = (cTo - cFrom) / yDiff;
+		}
+		//else // otherwise... ignore for now as not using
+		//{
+		//	e->dx = vTo->x;
+		//	e->dz = vTo->z;
+		//}
+	}
+
+	inline void UpdateEdge(BEEdge* e)
+	{
+		e->x += e->dx;
+		e->z += e->dz;
 	}
 
 	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color)

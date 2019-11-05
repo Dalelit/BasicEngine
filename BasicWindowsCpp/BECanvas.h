@@ -38,9 +38,13 @@ public:
 
 	inline void DrawLineSafe(Vector3 from, Vector3 to, Color color) { DrawLineSafe(from, to, color, color); };
 
+	inline Vector3 ScreenToPixel(Vector3 screenPoint) { return (screenPoint + x1y1z0) * halfWH; }
+
 	void Tests();
 
 private:
 	float halfWidth;
 	float halfHeight;
+	Vector3 x1y1z0 = { 1.0f, 1.0f, 0.0f };
+	Vector3 halfWH;
 };

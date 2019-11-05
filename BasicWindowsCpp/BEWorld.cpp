@@ -8,7 +8,36 @@ void BEWorld::AddModel(BEModel* pModel)
 	modelCount++;
 }
 
+
+BEEntity* BEWorld::CreateAddEntity()
+{
+	BEEntity* e = new BEEntity();
+	AddEntity(e);
+	return e;
+}
+
+void BEWorld::AddEntity(BEEntity* pEntity)
+{
+	assert(entityCount < BEWORLD_MAX_ENTITIES);
+
+	entities[entityCount] = pEntity;
+	entityCount++;
+}
+
 void BEWorld::Create()
+{
+	BEEntity* e;
+
+	e = CreateAddEntity();
+	e->mesh = BEModel::TriangleMesh();
+	e->Translate({ 2,0,0 });
+
+	e = CreateAddEntity();
+	e->mesh = BEModel::TriangleMesh();
+	e->Translate({ -2,-1,0 });
+}
+
+void BEWorld::CreateV1()
 {
 	BEModel* tri1 = BEModel::TrianglePrimative();
 	tri1->Translate({ 1.5f,0.0f,0.0f });

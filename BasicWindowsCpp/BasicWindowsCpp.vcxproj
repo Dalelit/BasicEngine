@@ -125,6 +125,8 @@
   <ItemGroup>
     <ClCompile Include="BECamera.cpp" />
     <ClCompile Include="BECanvas.cpp" />
+    <ClCompile Include="BEEntity.cpp" />
+    <ClCompile Include="BEMesh.cpp" />
     <ClCompile Include="BEModel.cpp" />
     <ClCompile Include="BERenderPipeline.cpp" />
     <ClCompile Include="BEWorld.cpp" />
@@ -135,7 +137,9 @@
   <ItemGroup>
     <ClInclude Include="BECamera.h" />
     <ClInclude Include="BECanvas.h" />
+    <ClInclude Include="BEEntity.h" />
     <ClInclude Include="BEHelpers.h" />
+    <ClInclude Include="BEMesh.h" />
     <ClInclude Include="BEModel.h" />
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BEWorld.h" />

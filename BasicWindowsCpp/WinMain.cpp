@@ -183,12 +183,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (clearBackBuffer) backBuffer.Clear();
 
-		pipeline.UpdateScreenSpace();
-		//pipeline.Draw();
+		//pipeline.UpdateScreenSpace();
+		pipeline.Draw();
 
-		pipeline.DrawTriangle({ 100,100,0 }, { 100,400,0 }, { 250,400,0 }, { 1,1,1,1 });
-		pipeline.DrawTriangle({ 300,400,0 }, { 300,100,0 }, { 550,100,0 }, { 0,1,1,1 });
-		pipeline.DrawTriangle({ 600,300,0 }, { 750,350,0 }, { 650,400,0 }, { 1,0,1,1 });
+		//pipeline.DrawTriangle({ 100,100,0 }, { 100,400,0 }, { 250,400,0 }, { 1,1,1,1 });
+		//pipeline.DrawTriangle({ 300,400,0 }, { 300,100,0 }, { 550,100,0 }, { 0,1,1,1 });
+		//pipeline.DrawTriangle({ 600,300,0 }, { 750,350,0 }, { 650,400,0 }, { 1,0,1,1 });
 
 		//backBuffer.DrawTestPattern();
 		//backBuffer.TestStuff();

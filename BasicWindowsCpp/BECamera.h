@@ -28,6 +28,10 @@ public:
 
 	void RunTestCases();
 
+	inline bool IsOnScreen(Vector3 v) { return (v.x >= -1.0f && v.x <= 1.0f &&
+													v.y >= -1.0f && v.y <= 1.0f &&
+													v.z > 0.0f); }
+
 private:
 	Vector3 direction;
 	Vector3 centre;

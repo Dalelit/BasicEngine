@@ -123,3 +123,19 @@ BEModel* BEModel::CubePrimative()
 
 	return mp;
 }
+
+BEMesh* BEModel::TriangleMesh()
+{
+	BEMesh* m = new BEMesh(3, 3);
+
+	m->verticies[0] = { 0,0,0 };
+	m->verticies[1] = { 1,0.5,0 };
+	m->verticies[2] = { 0.5,1,0 };
+
+	m->triangles[0] = 0;
+	m->triangles[1] = 1;
+	m->triangles[2] = 2;
+
+	return m;
+}
+

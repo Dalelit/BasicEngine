@@ -1,6 +1,5 @@
 #pragma once
-#include <d3d12.h>
-#include "SimpleMath.h"
+#include "BEEntity.h"
 
 using namespace DirectX;
 using namespace SimpleMath;
@@ -27,5 +26,7 @@ public:
 	static BEModel* AxisPrimative();
 	static BEModel* TrianglePrimative();
 	static BEModel* CubePrimative();
+
+	static BEMesh* TriangleMesh();
 };
 

@@ -10,6 +10,7 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 	height = _height;
 	halfWidth = floorf(width * 0.5f);
 	halfHeight = floorf(height * 0.5f);
+	halfWH = { halfWidth, halfHeight, 1.0f };
 
 	size = width * height;
 	buffer = (Color*)malloc(size * sizeof(Color));
