@@ -8,5 +8,6 @@ public:
 	BEMesh* mesh = NULL;
 
 	inline void Translate(Vector3 v) { position += v; if (mesh != NULL) mesh->Translate(v); }
+	inline void Scale(Vector3 v) { if (mesh != NULL) mesh->Scale(v); }
 };
 

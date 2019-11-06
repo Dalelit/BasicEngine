@@ -1,11 +1,23 @@
 #include "BEHelpers.h"
 #include "BERenderPipeline.h"
 
+
 BERenderPipeline::BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 {
 	pWorld = _pWorld;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
+
+	edges = new BEEdge[BERENDERPIPELINE_MAX_EDGES];
+	triedges = new BETriEdge[BERENDERPIPELINE_MAX_TRIEDGES];
+	screenSpaceVerticies = new Vector3[BERENDERPIPELINE_MAX_VERTICES];
+}
+
+BERenderPipeline::~BERenderPipeline()
+{
+	delete edges;
+	delete triedges;
+	delete screenSpaceVerticies;
 }
 
 void BERenderPipeline::UpdateScreenSpace()
@@ -23,12 +35,58 @@ void BERenderPipeline::UpdateScreenSpace()
 	}
 }
 
+// Ensure vFrom is lowest y
+inline void BERenderPipeline::InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo)
+{
+	e->yEnd = (int)vTo->y;
+	e->x = vFrom->x;
+	e->z = vFrom->z;
+	e->c = cFrom;
+	float yDiff = vTo->y - vFrom->y;
+	if (yDiff != 0) // check that not parallel
+	{
+		e->dx = (vTo->x - vFrom->x) / yDiff;
+		e->dz = (vTo->z - vFrom->z) / yDiff;
+		e->dc = (cTo - cFrom) / yDiff;
+	}
+}
+
+inline void BERenderPipeline::UpdateEdge(BEEdge* e)
+{
+	e->x += e->dx;
+	e->z += e->dz;
+	e->c += e->dc;
+}
+
+inline void BERenderPipeline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color)
+{
+	unsigned int line = y * pCanvas->width;
+
+	unsigned int x, xt;
+	if (x1 < x2) { x = x1; xt = x2; }
+	else { x = x2; xt = x1; }
+
+	if (x < 0) x = 0;
+
+	while (x < pCanvas->width && x <= xt)
+	{
+		pCanvas->buffer[line + x] = color;
+		x++;
+	}
+}
+
+// To Do:
+// - triangles get clipped in the corners
+// - edge color has artifacts
+//
 void BERenderPipeline::Draw()
 {
 	// loop through each entity/mesh/triangle
 	//   convert to screen space
 	//   if inside screen space, then create edges in pixel space
 	// draw edges
+
+	// To Do - break up the function?
 
 	BETriEdge* sortedList = NULL;
 
@@ -67,7 +125,7 @@ void BERenderPipeline::Draw()
 					Color c2 = { 0,0,1 };
 
 					// check it's in the screen bounds
-					if (pCamera->IsOnScreen(v0) && pCamera->IsOnScreen(v1) && pCamera->IsOnScreen(v2))
+					if (pCamera->OveralpsScreen(v0) && pCamera->OveralpsScreen(v1) && pCamera->OveralpsScreen(v2))
 					{
 						// convert to pixel coords
 						v0 = pCanvas->ScreenToPixel(v0);
@@ -77,11 +135,11 @@ void BERenderPipeline::Draw()
 						// order the verticies lowest to highest // To do - is there something more efficient?
 						Vector3 tmp;
 						if (v0.y > v1.y) SWAPVECTOR3(v0, v1)
-						if (v1.y > v2.y)
-						{
-							SWAPVECTOR3(v1, v2)
-							if (v0.y > v1.y) SWAPVECTOR3(v0, v1)
-						}
+							if (v1.y > v2.y)
+							{
+								SWAPVECTOR3(v1, v2)
+									if (v0.y > v1.y) SWAPVECTOR3(v0, v1)
+							}
 
 						// create the edges and triedge
 						InitEdge(edge, &v0, &v1, c0, c1);
@@ -114,7 +172,7 @@ void BERenderPipeline::Draw()
 								previous = current;
 								current = current->next;
 							}
-						
+
 							if (!current) // reached the end of the list
 							{
 								previous->next = triedage;
@@ -136,6 +194,7 @@ void BERenderPipeline::Draw()
 
 						triedage++;
 					}
+					else int dummybp = 0;
 				}
 			}
 		}
@@ -149,10 +208,10 @@ void BERenderPipeline::Draw()
 		BETriEdge* activeList = sortedList;
 		sortedList = sortedList->next;
 		activeList->next = NULL;
-		unsigned int y = activeList->yStart;
-		unsigned int line = y * pCanvas->width;
+		int y = activeList->yStart;
+		int line = y * pCanvas->width;
 
-		while ((sortedList || activeList) && y < pCanvas->height)
+		while ((sortedList || activeList) && y < (int)pCanvas->height) // To Do: not cast to (int) all the time?
 		{
 			// add to active list
 			while (sortedList && sortedList->yStart <= y)
@@ -170,14 +229,25 @@ void BERenderPipeline::Draw()
 			{
 				while (current)
 				{
-					unsigned int x = (unsigned int)current->e0->x;
-					unsigned int xt = (unsigned int)current->e1->x;
+					// To Do: the floats are converted to int... should there be something to align the x,y,z,color?
+					//        e.g. reclaulte the y=1.1 becoming y=1... so move the x,z,color by -0.1 first
+					//        Haven't thought this one through
+
+					int x = (int)current->e0->x;
+					int xt = (int)current->e1->x;
 
 					float z = current->e0->z;
-					float dz = (current->e1->z - current->e0->z) / (current->e1->z - current->e0->z);
+					float dz = 0.0f;
 
 					Color c = current->e0->c;
-					Color dc = (current->e1->c - current->e0->c) / (current->e1->x - current->e0->x);
+					Color dc = {};
+
+					if (x != xt) // not a single x step
+					{
+						float dx = current->e1->x - current->e0->x;
+						dz = (current->e1->z - current->e0->z) / dx;
+						dc = (current->e1->c - current->e0->c) / dx;
+					}
 
 					if (xt < x)
 					{
@@ -192,7 +262,7 @@ void BERenderPipeline::Draw()
 
 					if (x < 0) x = 0; // move onto the screen if off it
 
-					while (x <= xt && x < pCanvas->width)
+					while (x <= xt && x < (int)pCanvas->width) // To Do: not cast to (int) all the time?
 					{
 						pCanvas->buffer[line + x] = c;
 						x++;
@@ -202,6 +272,7 @@ void BERenderPipeline::Draw()
 					current = current->next;
 				}
 			}
+			else int dummybreakpoint = 0; // To do: remove!
 
 			// remove edges from active if finished or update them
 			current = activeList;
@@ -230,7 +301,6 @@ void BERenderPipeline::Draw()
 				}
 				else
 				{
-
 					if (current->e1->yEnd == y) // e1 finished, not e0
 					{
 						UpdateEdge(current->e0);

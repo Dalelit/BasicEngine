@@ -31,7 +31,7 @@ inline Vector3 BECamera::WorldToScreen(Vector3 coord)
 	{
 		v = ray * t + coord; // world space intersection
 		v = v - centre;      // view space location
-		v = v / viewPort;    // normalised
+		v = v / viewPort;    // normalised with size of the view port
 	}
 	v.z = t;                 // distance from location to viewer, negative if behind viewer
 

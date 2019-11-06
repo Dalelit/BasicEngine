@@ -30,6 +30,10 @@ void BEWorld::Create()
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
+	e->Scale({ 2,2,2 });
+
+	e = CreateAddEntity();
+	e->mesh = BEModel::TriangleMesh();
 	e->Translate({ 2,0,0 });
 
 	e = CreateAddEntity();
