@@ -41,13 +41,14 @@ public:
 	BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipeline();
 
-	void UpdateScreenSpace();
 	void Draw();
-	void DrawV1();
+	void Raytrace();
 
-	void DrawModel(BEModel* pModel);
-
-	void DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3, Color color);
+	// to delete
+	//void UpdateScreenSpace();
+	//void DrawV1();
+	//void DrawModel(BEModel* pModel);
+	//void DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3, Color color);
 
 private:
 	// preallocated memory for the number crunching

@@ -1,4 +1,7 @@
 #pragma once
+#include <d3d12.h>
+#include "SimpleMath.h"
+#include "SimpleMath.inl"
 
 #define SWAPINT(A,B)   {int temp = A; A = B; B = temp; }
 #define SWAPFLOAT(A,B) {float temp = A; A = B; B = temp; }

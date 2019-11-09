@@ -50,9 +50,6 @@
     <ClInclude Include="BECanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BEHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BEModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEEntity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BECommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

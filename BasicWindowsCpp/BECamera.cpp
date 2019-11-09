@@ -7,10 +7,27 @@ BECamera::BECamera()
 
 void BECamera::LookAt(Vector3 target)
 {
+	lookAtPosition = target;
 	direction = target - position;
 	direction.Normalize();
 
+	right = direction.Cross(Vector3::Up);
+	right.Normalize();
+
+	up = right.Cross(direction);
+	up.Normalize();
+	up *= viewPortRatio;
+
 	centre = position + (direction * focalLength);
+}
+
+Ray BECamera::RelativeScreenPositionToRay(float x, float y)
+{
+	Vector3 point = centre + x * right + y * up;
+	Vector3 rayDir = (point - position);
+	rayDir.Normalize();
+
+	return Ray(position, rayDir);
 }
 
 void BECamera::Translate(Vector3 movement)
@@ -36,6 +53,17 @@ inline Vector3 BECamera::WorldToScreen(Vector3 coord)
 	v.z = t;                 // distance from location to viewer, negative if behind viewer
 
 	return v;
+}
+
+void BECamera::Pan(float x, float y, float z)
+{
+	position = position + right * x + (right.Cross(direction)) * y + direction * z;
+}
+
+void BECamera::RotateDirection(float yaw, float pitch, float roll)
+{
+	Matrix m = Matrix::CreateFromYawPitchRoll(yaw, pitch, roll);
+	direction = Vector3::Transform(direction, m);
 }
 
 void BECamera::RunTestCases()

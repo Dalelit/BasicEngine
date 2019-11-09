@@ -1,6 +1,6 @@
 #pragma once
-#include <d3d12.h>
-#include "SimpleMath.h"
+#include "BECommon.h"
+
 
 using namespace DirectX;
 using namespace SimpleMath;

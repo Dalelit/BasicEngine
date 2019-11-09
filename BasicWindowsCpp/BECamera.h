@@ -1,6 +1,6 @@
 #pragma once
-#include <d3d12.h>
-#include "SimpleMath.h"
+#include "BECommon.h"
+
 
 using namespace DirectX;
 using namespace SimpleMath;
@@ -15,6 +15,7 @@ public:
 	float focalLength = 1.0f;
 
 	Vector3 position = { 0.0f, 0.0f, 5.0f };
+	Vector3 up = Vector3::Up;
 
 	//Vector3 up = Vector3::Up; // To Do - stop flipping
 
@@ -24,17 +25,24 @@ public:
 
 	inline Vector3 WorldToScreen(Vector3 coord);
 
+	Ray RelativeScreenPositionToRay(float x, float y);
+
 	void Translate(Vector3 movement);
 
-	void RunTestCases();
+	void Pan(float x, float y, float z);
+	void RotateDirection(float yaw, float pitch, float roll);
 
 	inline bool OveralpsScreen(Vector3 v) { return ((v.x >= -1.0f && v.x <= 1.0f) || // (x or
 		                                            (v.y >= -1.0f && v.y <= 1.0f))   // y in the screen)
 													&& v.z > 0.0f; }                 // and infront of screen
 
+	void RunTestCases();
+
 private:
 	Vector3 direction;
 	Vector3 centre;
+	Vector3 lookAtPosition;
+	Vector3 right;
 
 };
 

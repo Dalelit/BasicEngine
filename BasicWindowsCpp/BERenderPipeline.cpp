@@ -1,4 +1,3 @@
-#include "BEHelpers.h"
 #include "BERenderPipeline.h"
 
 
@@ -8,6 +7,7 @@ BERenderPipeline::BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanva
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
 
+	// pre allocate memory
 	edges = new BEEdge[BERENDERPIPELINE_MAX_EDGES];
 	triedges = new BETriEdge[BERENDERPIPELINE_MAX_TRIEDGES];
 	screenSpaceVerticies = new Vector3[BERENDERPIPELINE_MAX_VERTICES];
@@ -18,21 +18,6 @@ BERenderPipeline::~BERenderPipeline()
 	delete edges;
 	delete triedges;
 	delete screenSpaceVerticies;
-}
-
-void BERenderPipeline::UpdateScreenSpace()
-{
-	for (unsigned int m = 0; m < pWorld->modelCount; m++)
-	{
-		BEModel* pModel = pWorld->models[m];
-		if (pModel != 0)
-		{
-			for (unsigned int v = 0; v < pModel->vCount; v++)
-			{
-				pModel->screenPoints[v] = pCamera->WorldToScreen(pModel->verticies[v]);
-			}
-		}
-	}
 }
 
 // Ensure vFrom is lowest y
@@ -322,51 +307,118 @@ void BERenderPipeline::Draw()
 	} // done drawing
 }
 
-void BERenderPipeline::DrawV1()
+void BERenderPipeline::Raytrace()
 {
-	BEModel* pModel;
+	float dx = 2.0f / pCanvas->width;
+	float dy = 2.0f / pCanvas->height;
+	float px = -1;
+	float py = -1;
 
-	for (unsigned int m = 0; m < pWorld->modelCount; m++)
+	Color c = { 1,1,1,1 };
+
+	int line = 0;
+
+	for (unsigned int y = 0; y < pCanvas->height; y++)
 	{
-		pModel = pWorld->models[m];
-		if (pModel != 0)
-		{
-			for (unsigned int l = 0; l < pModel->lCount;)
-			{
-				unsigned int indx1 = l++;
-				unsigned int indx2 = l++;
+		px = -1;
 
-				Vector3* pv1 = pModel->screenPoints + pModel->lines[indx1];
-				Vector3* pv2 = pModel->screenPoints + pModel->lines[indx2];
-				if (pv1->z > 0.0f && pv2->z > 0.0f) // cull line is either point is off the viewer
+		for (unsigned int x = 0; x < pCanvas->width; x++)
+		{
+			Ray r = pCamera->RelativeScreenPositionToRay(px, py);
+			float distance = 10000.0f; // to do: what distance is the max starting?
+
+			for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
+			{
+				BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
+
+				if (m) // if it has a mesh
 				{
-					if (pModel->colors == NULL)
+					unsigned int tindx = 0;
+
+					while (tindx < m->tCount) // look at each triangle
 					{
-						pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
-					}
-					else
-					{
-						pCanvas->DrawLineSafe(*pv1, *pv2, *(pModel->colors + pModel->lines[indx1]), *(pModel->colors + pModel->lines[indx2]));
+						Vector3 v0 = m->verticies[m->triangles[tindx++]];
+						Vector3 v1 = m->verticies[m->triangles[tindx++]];
+						Vector3 v2 = m->verticies[m->triangles[tindx++]];
+
+						if (r.Intersects(v0, v1, v2, distance))
+						{
+							pCanvas->buffer[line + x] = c;
+						}
 					}
 				}
 			}
+
+			px += dx;
 		}
+
+		py += dy;
+		line += pCanvas->width;
 	}
 }
 
-void BERenderPipeline::DrawModel(BEModel* pModel)
-{
-	unsigned int i = 0;
-	while (i < pModel->lCount)
-	{
-		Vector3* pv1 = pModel->screenPoints + pModel->lines[i++];
-		Vector3* pv2 = pModel->screenPoints + pModel->lines[i++];
-		if (pv1->z > 0.0f && pv2->z > 0.0f)
-		{
-			pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
-		}
-	}
-}
+// to delete
+
+//void BERenderPipeline::UpdateScreenSpace()
+//{
+//	for (unsigned int m = 0; m < pWorld->modelCount; m++)
+//	{
+//		BEModel* pModel = pWorld->models[m];
+//		if (pModel != 0)
+//		{
+//			for (unsigned int v = 0; v < pModel->vCount; v++)
+//			{
+//				pModel->screenPoints[v] = pCamera->WorldToScreen(pModel->verticies[v]);
+//			}
+//		}
+//	}
+//}
+
+//void BERenderPipeline::DrawV1()
+//{
+//	BEModel* pModel;
+//
+//	for (unsigned int m = 0; m < pWorld->modelCount; m++)
+//	{
+//		pModel = pWorld->models[m];
+//		if (pModel != 0)
+//		{
+//			for (unsigned int l = 0; l < pModel->lCount;)
+//			{
+//				unsigned int indx1 = l++;
+//				unsigned int indx2 = l++;
+//
+//				Vector3* pv1 = pModel->screenPoints + pModel->lines[indx1];
+//				Vector3* pv2 = pModel->screenPoints + pModel->lines[indx2];
+//				if (pv1->z > 0.0f && pv2->z > 0.0f) // cull line is either point is off the viewer
+//				{
+//					if (pModel->colors == NULL)
+//					{
+//						pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
+//					}
+//					else
+//					{
+//						pCanvas->DrawLineSafe(*pv1, *pv2, *(pModel->colors + pModel->lines[indx1]), *(pModel->colors + pModel->lines[indx2]));
+//					}
+//				}
+//			}
+//		}
+//	}
+//}
+
+//void BERenderPipeline::DrawModel(BEModel* pModel)
+//{
+//	unsigned int i = 0;
+//	while (i < pModel->lCount)
+//	{
+//		Vector3* pv1 = pModel->screenPoints + pModel->lines[i++];
+//		Vector3* pv2 = pModel->screenPoints + pModel->lines[i++];
+//		if (pv1->z > 0.0f && pv2->z > 0.0f)
+//		{
+//			pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
+//		}
+//	}
+//}
 
 //void BERenderPipeline::DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3, Color color)
 //{

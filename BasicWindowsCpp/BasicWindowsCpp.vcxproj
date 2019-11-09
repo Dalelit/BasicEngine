@@ -139,7 +139,7 @@
     <ClInclude Include="BECamera.h" />
     <ClInclude Include="BECanvas.h" />
     <ClInclude Include="BEEntity.h" />
-    <ClInclude Include="BEHelpers.h" />
+    <ClInclude Include="BECommon.h" />
     <ClInclude Include="BEMesh.h" />
     <ClInclude Include="BEModel.h" />
     <ClInclude Include="BERenderPipeline.h" />

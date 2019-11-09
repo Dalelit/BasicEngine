@@ -1,5 +1,4 @@
 #include "BECanvas.h"
-#include "BEHelpers.h"
 
 
 int BECanvas::Initialise(unsigned int _width, unsigned int _height)

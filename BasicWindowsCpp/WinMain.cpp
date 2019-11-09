@@ -5,6 +5,7 @@
 // - add/test the alpha channel
 // - add error checking
 // - add window size change... maybe... or have graphics engine render to one size, and blit to window size... decisions!!
+// - assuming all windows are the same size so a single buffer w,h variable at the moment.
 //
 // Maybe To Do
 // - fix frame rate?
@@ -16,57 +17,62 @@
 #include "BERenderPipeline.h"
 
 // global windows variables
-HWND hwnd;
-HDC hdc;
+HWND hwnd[2];
+HDC hdc[2];
+int windowPosX = 0;
+int windowPosY = 0;
+int windowSizeW = 800;
+int windowSizeH = 600;
+
 
 // global control variables
 bool running = true;
 float deltaTime = 0.0f;
-bool clearBackBuffer = true;
 
 // global back buffer variables
-int width = 0;
-int height = 0;
-BECanvas backBuffer;
-BITMAPINFO bmpInfo = { 0 };
+int bufferWidth = 0;
+int bufferHeight = 0;
+BECanvas backBuffer[2];
+BITMAPINFO bmpInfo[2] = { 0 };
 
 // global engine variables
 BECamera camera;
 BEWorld world;
+BERenderPipeline* pipeline[2];
 
 /////////////////////////////////
 // back buffer functions
 
-void CreateBackBuffer()
+void BECreateBackBuffer(int indx)
 {
-	if (width == 0 || height == 0) return;
+	if (bufferWidth == 0 || bufferHeight == 0) return;
 
-	backBuffer.Initialise(width, height);
+	backBuffer[indx].Initialise(bufferWidth, bufferHeight);
 
-	bmpInfo.bmiHeader.biSize = sizeof(bmpInfo.bmiHeader);
-	bmpInfo.bmiHeader.biWidth = width;
-	bmpInfo.bmiHeader.biHeight = height; // use - for top-down DIB and its origin is the upper-left corner
-	bmpInfo.bmiHeader.biPlanes = 1;
-	bmpInfo.bmiHeader.biBitCount = 32;
-	bmpInfo.bmiHeader.biCompression = BI_RGB;
+	bmpInfo[indx].bmiHeader.biSize = sizeof(bmpInfo[indx].bmiHeader);
+	bmpInfo[indx].bmiHeader.biWidth = bufferWidth;
+	bmpInfo[indx].bmiHeader.biHeight = bufferHeight; // use - for top-down DIB and its origin is the upper-left corner
+	bmpInfo[indx].bmiHeader.biPlanes = 1;
+	bmpInfo[indx].bmiHeader.biBitCount = 32;
+	bmpInfo[indx].bmiHeader.biCompression = BI_RGB;
 }
 
-void DrawBackBuffer()
+void BEDrawBackBuffer(int indx)
 {
-	backBuffer.BufferToBMP();
+	backBuffer[indx].BufferToBMP();
 
 	StretchDIBits(
-		hdc,
+		hdc[indx],
 		0,
 		0,
-		width,
-		height,
+		bufferWidth,
+		bufferHeight,
 		0,
 		0,
-		width,
-		height,
-		backBuffer.bmp,
-		&(bmpInfo),
+		bufferWidth,
+		bufferHeight,
+		backBuffer[indx].bmp,
+		&(bmpInfo[indx]),
 		DIB_RGB_COLORS,
 		SRCCOPY
 	);
@@ -97,22 +103,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case VK_SPACE:
 			break;
 		case VK_UP:
-			camera.Translate({ 0,0.1f,0 });
+			camera.Pan(0, 0.1f, 0);
 			break;
 		case VK_DOWN:
-			camera.Translate({ 0,-0.1f,0 });
+			camera.Pan(0, -0.1f, 0);
 			break;
 		case VK_RIGHT:
-			camera.Translate({ 0.1f,0,0 });
+			camera.Pan(0.1f, 0, 0);
 			break;
 		case VK_LEFT:
-			camera.Translate({ -0.1f,0,0 });
+			camera.Pan(-0.1f, 0, 0);
 			break;
 		case VK_ADD:
 			camera.Translate({ 0,0,0.1f });
 			break;
 		case VK_SUBTRACT:
 			camera.Translate({ 0,0,-0.1f });
+			break;
+		case 0x44: // D
+			camera.RotateDirection(0.1f, 0, 0);
+			break;
+		case 0x41: // A
+			//camera.Pan(-1, 0, 0);
+			camera.RotateDirection(-0.1f, 0, 0);
+			break;
+		case 0x57: // W
+			//camera.Pan(0, 1, 0);
+			camera.RotateDirection(0, 0.1f, 0);
+			break;
+		case 0x53: // S
+			//camera.Pan(0, -1, 0);
+			camera.RotateDirection(0, -0.1f, 0);
 			break;
 		}
 		break;
@@ -128,44 +149,68 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+WNDCLASS wc = { 0 };
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int BECreateWindowClass(HINSTANCE hInstance)
 {
-
-	MSG msg = { 0 };
-	WNDCLASS wc = { 0 };
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInstance;
 	wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
-	wc.lpszClassName = L"minWinApp";
+	wc.lpszClassName = L"BasicEngingWindow";
 
 	if (!RegisterClass(&wc))
 		return 1;
 
-	hwnd = CreateWindow(wc.lpszClassName,
+	return 0;
+}
+
+int BECreateWindow(int indx, HINSTANCE hInstance)
+{
+	hwnd[indx] = CreateWindow(wc.lpszClassName,
 		L"Minimal Windows Application",
 		WS_VISIBLE, // WS_OVERLAPPEDWINDOW |
-		0, 0,
-		800, 600, ///////////////// window size!!!!
-		0, 0, hInstance, NULL);
+		windowPosX, windowPosY,
+		windowSizeW, windowSizeH,
+		(indx == 0 ? 0 : hwnd[0]), // parent window
+		0, hInstance, NULL);
 
-	if (!hwnd)
+	windowPosX += windowSizeW;
+
+	if (!hwnd[indx])
 		return 2;
 
-	hdc = GetDC(hwnd);
+	hdc[indx] = GetDC(hwnd[indx]);
 
 	RECT dcRect;
-	GetClientRect(hwnd, &dcRect);
-	width = dcRect.right;
-	height = dcRect.bottom;
+	GetClientRect(hwnd[indx], &dcRect);
+	bufferWidth = dcRect.right;
+	bufferHeight = dcRect.bottom;
 
-	CreateBackBuffer();
-	backBuffer.Clear();
+	BECreateBackBuffer(indx);
+	backBuffer[indx].Clear();
+
+	return 0;
+}
+
+void BECleanupWindow(int indx)
+{
+	ReleaseDC(hwnd[indx], hdc[indx]);
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	MSG msg = { 0 };
+
+	BECreateWindowClass(hInstance);
+	BECreateWindow(0, hInstance);
+	BECreateWindow(1, hInstance);
 
 	world.Create();
 
-	BERenderPipeline pipeline(&world, &camera, &backBuffer);
+	pipeline[0] = new BERenderPipeline(&world, &camera, &backBuffer[0]);
+	pipeline[1] = new BERenderPipeline(&world, &camera, &backBuffer[1]);
 
 	clock_t lastTime = clock();
 
@@ -181,22 +226,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		deltaTime = (float)(currentTime - lastTime);
 		lastTime = currentTime;
 
-		if (clearBackBuffer) backBuffer.Clear();
+		backBuffer[0].Clear();
+		backBuffer[1].Clear();
 
-		//pipeline.UpdateScreenSpace();
-		pipeline.Draw();
+		pipeline[0]->Draw();
+		pipeline[1]->Raytrace();
 
-		//pipeline.DrawTriangle({ 100,100,0 }, { 100,400,0 }, { 250,400,0 }, { 1,1,1,1 });
-		//pipeline.DrawTriangle({ 300,400,0 }, { 300,100,0 }, { 550,100,0 }, { 0,1,1,1 });
-		//pipeline.DrawTriangle({ 600,300,0 }, { 750,350,0 }, { 650,400,0 }, { 1,0,1,1 });
-
-		//backBuffer.DrawTestPattern();
-		//backBuffer.TestStuff();
-
-		DrawBackBuffer();
+		BEDrawBackBuffer(0);
+		BEDrawBackBuffer(1);
 	}
 
-	ReleaseDC(hwnd, hdc);
+	BECleanupWindow(0);
+	BECleanupWindow(1);
 
 	return 0;
 }
