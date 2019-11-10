@@ -105,9 +105,22 @@ void BERenderPipeline::Draw()
 					Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
 					Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
 					Vector3 v2 = screenSpaceVerticies[m->triangles[tindx++]];
-					Color c0 = { 1,0,0 };
-					Color c1 = { 0,1,0 };
-					Color c2 = { 0,0,1 };
+
+					Color c0, c1, c2;
+
+					if (m->colors)
+					{
+						// To do
+						c0 = { 1,0,0 };
+						c1 = { 0,1,0 };
+						c2 = { 0,0,1 };
+					}
+					else
+					{
+						c0 = pWorld->entities[eindx]->color;
+						c1 = c0;
+						c2 = c0;
+					}
 
 					// check it's in the screen bounds
 					if (pCamera->OveralpsScreen(v0) && pCamera->OveralpsScreen(v1) && pCamera->OveralpsScreen(v2))
@@ -249,7 +262,15 @@ void BERenderPipeline::Draw()
 
 					while (x <= xt && x < (int)pCanvas->width) // To Do: not cast to (int) all the time?
 					{
-						pCanvas->buffer[line + x] = c;
+						float* depthBuffer = pCanvas->depthBuffer + y * pCanvas->width + x; // to do: clean this up
+						float depth = *depthBuffer;
+
+						if (z < depth) // closer so draw it
+						{
+							pCanvas->buffer[line + x] = c;
+							*depthBuffer = z; // update the depth buffer
+						}
+
 						x++;
 						c += dc;
 					}
@@ -314,8 +335,6 @@ void BERenderPipeline::Raytrace()
 	float px = -1;
 	float py = -1;
 
-	Color c = { 1,1,1,1 };
-
 	int line = 0;
 
 	for (unsigned int y = 0; y < pCanvas->height; y++)
@@ -325,7 +344,8 @@ void BERenderPipeline::Raytrace()
 		for (unsigned int x = 0; x < pCanvas->width; x++)
 		{
 			Ray r = pCamera->RelativeScreenPositionToRay(px, py);
-			float distance = 10000.0f; // to do: what distance is the max starting?
+			float hitDistance = 10000.0f; // to do: what distance is the max starting?
+			float distance;
 
 			for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
 			{
@@ -343,7 +363,11 @@ void BERenderPipeline::Raytrace()
 
 						if (r.Intersects(v0, v1, v2, distance))
 						{
-							pCanvas->buffer[line + x] = c;
+							if (distance < hitDistance)
+							{
+								pCanvas->buffer[line + x] = pWorld->entities[eindx]->color;
+								hitDistance = distance;
+							}
 						}
 					}
 				}

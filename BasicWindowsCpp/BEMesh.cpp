@@ -6,7 +6,7 @@ BEMesh::BEMesh(unsigned int _vCount, unsigned int _tCount)
 
 	vCount = _vCount;
 	verticies = new Vector3[vCount];
-	colors = new Color[vCount];
+	//colors = new Color[vCount];
 
 	tCount = _tCount;
 	triangles = new unsigned int[tCount];

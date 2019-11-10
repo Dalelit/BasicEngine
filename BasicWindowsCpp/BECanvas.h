@@ -23,12 +23,17 @@ class BECanvas
 public:
 	Color* buffer = NULL;
 	Pixel* bmp = NULL;
+	float* depthBuffer = NULL;
 
 	unsigned int width = 0;
 	unsigned int height = 0;
 	unsigned int size = 0;
 
+	float defaultDepthValue = FLT_MAX;
+
 	int Initialise(unsigned int width, unsigned int height);
+
+	void AddDepthBuffer();
 
 	void Clear();
 

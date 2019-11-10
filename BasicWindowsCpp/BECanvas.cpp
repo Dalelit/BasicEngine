@@ -11,9 +11,11 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 	halfHeight = floorf(height * 0.5f);
 	halfWH = { halfWidth, halfHeight, 1.0f };
 
+	// to do: work out what mem allocation to use... malloc? new? etc?
 	size = width * height;
 	buffer = (Color*)malloc(size * sizeof(Color));
 	bmp = (Pixel*)malloc(size * sizeof(Pixel));
+	depthBuffer = NULL;
 
 	Clear();
 
@@ -22,8 +24,20 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 void BECanvas::Clear()
 {
-	memset(buffer, 0, size * sizeof(Color));
-	memset(bmp, 0, size * sizeof(Pixel));
+	memset(buffer, 0, size);
+	memset(bmp, 0, size);
+
+	if (depthBuffer)
+	{
+		// to do : work out an efficient method
+		//memset(depthBuffer, defaultDepthValue, size);
+		for (unsigned int i = 0; i < size; i++) depthBuffer[i] = defaultDepthValue;
+	}
+}
+
+void BECanvas::AddDepthBuffer()
+{
+	depthBuffer = (float*)malloc(size * sizeof(float));
 }
 
 void BECanvas::BufferToBMP() // To Do - optimise or is there another way? Especially Color -> Pixel conversion

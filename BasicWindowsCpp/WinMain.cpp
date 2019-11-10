@@ -227,6 +227,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	world.Create();
 
 	pipeline[0] = new BERenderPipeline(&world, &camera, &backBuffer[0]);
+	backBuffer[0].AddDepthBuffer(); // to do: automatically add a depth buffer?
+
 	pipeline[1] = new BERenderPipeline(&world, &camera, &backBuffer[1]);
 
 	// ready to go...
