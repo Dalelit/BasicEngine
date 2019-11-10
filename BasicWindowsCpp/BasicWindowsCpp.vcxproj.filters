@@ -33,9 +33,6 @@
     <ClCompile Include="SimpleMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BERenderPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BEWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BELight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BERenderScanline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BERenderRaytrace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BERenderWireframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

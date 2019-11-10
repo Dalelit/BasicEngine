@@ -1,7 +1,6 @@
 #include "BERenderPipeline.h"
 
-
-BERenderPipeline::BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+BERenderPipelineScanline::BERenderPipelineScanline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 {
 	pWorld = _pWorld;
 	pCamera = _pCamera;
@@ -13,7 +12,7 @@ BERenderPipeline::BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanva
 	screenSpaceVerticies = new Vector3[BERENDERPIPELINE_MAX_VERTICES];
 }
 
-BERenderPipeline::~BERenderPipeline()
+BERenderPipelineScanline::~BERenderPipelineScanline()
 {
 	delete edges;
 	delete triedges;
@@ -21,7 +20,7 @@ BERenderPipeline::~BERenderPipeline()
 }
 
 // Ensure vFrom is lowest y
-inline void BERenderPipeline::InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo)
+inline void BERenderPipelineScanline::InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo)
 {
 	e->yEnd = (int)vTo->y;
 	e->x = vFrom->x;
@@ -36,14 +35,14 @@ inline void BERenderPipeline::InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, 
 	}
 }
 
-inline void BERenderPipeline::UpdateEdge(BEEdge* e)
+inline void BERenderPipelineScanline::UpdateEdge(BEEdge* e)
 {
 	e->x += e->dx;
 	e->z += e->dz;
 	e->c += e->dc;
 }
 
-inline void BERenderPipeline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color)
+inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color)
 {
 	unsigned int line = y * pCanvas->width;
 
@@ -64,7 +63,7 @@ inline void BERenderPipeline::DrawScanLine(unsigned int y, unsigned int x1, unsi
 // - triangles get clipped in the corners
 // - edge color has artifacts
 //
-void BERenderPipeline::ScanLine()
+void BERenderPipelineScanline::Draw()
 {
 	// loop through each entity/mesh/triangle
 	//   convert to screen space
@@ -262,7 +261,7 @@ void BERenderPipeline::ScanLine()
 
 					while (x <= xt && x < (int)pCanvas->width) // To Do: not cast to (int) all the time?
 					{
-						float* depthBuffer = pCanvas->depthBuffer + y * pCanvas->width + x; // to do: clean this up
+						float* depthBuffer = pCanvas->depthBuffer + y * pCanvas->width + x; // to do: clean this up.. and think about int types
 						float depth = *depthBuffer;
 
 						if (z < depth) // closer so draw it
@@ -326,203 +325,3 @@ void BERenderPipeline::ScanLine()
 		}
 	} // done drawing
 }
-
-void BERenderPipeline::Raytrace()
-{
-	float dx = 2.0f / pCanvas->width;
-	float dy = 2.0f / pCanvas->height;
-	float px = -1;
-	float py = -1;
-
-	int line = 0;
-
-	for (unsigned int y = 0; y < pCanvas->height; y++)
-	{
-		px = -1;
-
-		for (unsigned int x = 0; x < pCanvas->width; x++)
-		{
-			Ray r = pCamera->RelativeScreenPositionToRay(px, py);
-			float hitDistance = 10000.0f; // to do: what distance is the max starting?
-			float distance;
-
-			for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
-			{
-				BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
-
-				if (m) // if it has a mesh
-				{
-					unsigned int tindx = 0;
-
-					while (tindx < m->tCount) // look at each triangle
-					{
-						Vector3 v0 = m->verticies[m->triangles[tindx++]];
-						Vector3 v1 = m->verticies[m->triangles[tindx++]];
-						Vector3 v2 = m->verticies[m->triangles[tindx++]];
-
-						if (r.Intersects(v0, v1, v2, distance))
-						{
-							if (distance < hitDistance)
-							{
-								pCanvas->buffer[line + x] = pWorld->entities[eindx]->color;
-								hitDistance = distance;
-							}
-						}
-					}
-				}
-			}
-
-			px += dx;
-		}
-
-		py += dy;
-		line += pCanvas->width;
-	}
-}
-
-void BERenderPipeline::WireFrame()
-{
-	for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
-	{
-		BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
-
-		if (m) // if it has a mesh
-		{
-			// create screen space version of all verticies
-			{
-				Vector3* src = m->verticies;
-				Vector3* tgt = screenSpaceVerticies;
-				for (unsigned int vindx = 0; vindx < m->vCount; vindx++)
-				{
-					*tgt = pCamera->WorldToScreen(*src);
-					tgt++;
-					src++;
-				}
-			}
-
-			unsigned int tindx = 0;
-
-			while (tindx < m->tCount) // look at each triangle
-			{
-				Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
-				Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
-				Vector3 v2 = screenSpaceVerticies[m->triangles[tindx++]];
-
-				Color c = pWorld->entities[eindx]->color;
-
-				// check it's in the screen bounds
-				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
-				{
-					pCanvas->DrawLineSafe(v0, v1, c);
-					pCanvas->DrawLineSafe(v1, v2, c);
-					pCanvas->DrawLineSafe(v2, v0, c);
-				}
-			}
-		}
-	}
-}
-
-// to delete
-
-//void BERenderPipeline::UpdateScreenSpace()
-//{
-//	for (unsigned int m = 0; m < pWorld->modelCount; m++)
-//	{
-//		BEModel* pModel = pWorld->models[m];
-//		if (pModel != 0)
-//		{
-//			for (unsigned int v = 0; v < pModel->vCount; v++)
-//			{
-//				pModel->screenPoints[v] = pCamera->WorldToScreen(pModel->verticies[v]);
-//			}
-//		}
-//	}
-//}
-
-//void BERenderPipeline::DrawV1()
-//{
-//	BEModel* pModel;
-//
-//	for (unsigned int m = 0; m < pWorld->modelCount; m++)
-//	{
-//		pModel = pWorld->models[m];
-//		if (pModel != 0)
-//		{
-//			for (unsigned int l = 0; l < pModel->lCount;)
-//			{
-//				unsigned int indx1 = l++;
-//				unsigned int indx2 = l++;
-//
-//				Vector3* pv1 = pModel->screenPoints + pModel->lines[indx1];
-//				Vector3* pv2 = pModel->screenPoints + pModel->lines[indx2];
-//				if (pv1->z > 0.0f && pv2->z > 0.0f) // cull line is either point is off the viewer
-//				{
-//					if (pModel->colors == NULL)
-//					{
-//						pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
-//					}
-//					else
-//					{
-//						pCanvas->DrawLineSafe(*pv1, *pv2, *(pModel->colors + pModel->lines[indx1]), *(pModel->colors + pModel->lines[indx2]));
-//					}
-//				}
-//			}
-//		}
-//	}
-//}
-
-//void BERenderPipeline::DrawModel(BEModel* pModel)
-//{
-//	unsigned int i = 0;
-//	while (i < pModel->lCount)
-//	{
-//		Vector3* pv1 = pModel->screenPoints + pModel->lines[i++];
-//		Vector3* pv2 = pModel->screenPoints + pModel->lines[i++];
-//		if (pv1->z > 0.0f && pv2->z > 0.0f)
-//		{
-//			pCanvas->DrawLineSafe(*pv1, *pv2, pModel->color);
-//		}
-//	}
-//}
-
-//void BERenderPipeline::DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3, Color color)
-//{
-//	Vector3* v[3];
-//	v[0] = &v1;
-//	v[1] = &v2;
-//	v[2] = &v3;
-//
-//	// sort - To Do - rethink this
-//	Vector3* tmp;
-//	if (v[0]->y > v[1]->y) { tmp = v[0]; v[0] = v[1]; v[1] = tmp; }
-//	if (v[1]->y > v[2]->y) { tmp = v[1]; v[1] = v[2]; v[2] = tmp; }
-//	if (v[0]->y > v[1]->y) { tmp = v[0]; v[0] = v[1]; v[1] = tmp; }
-//
-//	BEEdge edges[3];
-//	InitEdge(edges,   v[0], v[1]);
-//	InitEdge(edges+1, v[0], v[2]);
-//	InitEdge(edges+2, v[1], v[2]);
-//
-//	unsigned int y = (int)v[0]->y;
-//
-//	if (y == edges[0].yEnd) // special case of the first edge being flat
-//	{
-//		DrawScanLine(y, (int)edges[0].x, (int)edges[0].dx, color);
-//		y++;
-//	}
-//	else while (y <= edges[0].yEnd)
-//	{
-//		DrawScanLine(y, (int)edges[0].x, (int)edges[1].x, color);
-//		edges[0].x += edges[0].dx;
-//		edges[1].x += edges[1].dx;
-//		y++;
-//	}
-//	while (y <= edges[1].yEnd)
-//	{
-//		DrawScanLine(y, (int)edges[1].x, (int)edges[2].x, color);
-//		edges[1].x += edges[1].dx;
-//		edges[2].x += edges[2].dx;
-//		y++;
-//	}
-//}
-

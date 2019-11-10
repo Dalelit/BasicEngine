@@ -130,7 +130,9 @@
     <ClCompile Include="BELight.cpp" />
     <ClCompile Include="BEMesh.cpp" />
     <ClCompile Include="BEModel.cpp" />
-    <ClCompile Include="BERenderPipeline.cpp" />
+    <ClCompile Include="BERenderRaytrace.cpp" />
+    <ClCompile Include="BERenderScanline.cpp" />
+    <ClCompile Include="BERenderWireframe.cpp" />
     <ClCompile Include="BEWorld.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="SimpleMath.cpp" />

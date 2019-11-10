@@ -208,7 +208,7 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	while (running)
 	{
 		backBuffer[indx].Clear();
-		pipeline[indx]->Raytrace();
+		pipeline[indx]->Draw();
 		BEDrawBackBuffer(indx);
 	}
 
@@ -228,14 +228,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	world.Create();
 
 	// for scanline rendering
-	pipeline[0] = new BERenderPipeline(&world, &camera, &backBuffer[0]);
+	pipeline[0] = new BERenderPipelineScanline(&world, &camera, &backBuffer[0]);
 	backBuffer[0].AddDepthBuffer(); // to do: automatically add a depth buffer?
 
 	// for raytrace rendering
-	pipeline[1] = new BERenderPipeline(&world, &camera, &backBuffer[1]);
+	pipeline[1] = new BERenderPipelineRaytrace(&world, &camera, &backBuffer[1]);
 
 	// for wireframe rendering
-	pipeline[2] = new BERenderPipeline(&world, &camera, &backBuffer[2]);
+	pipeline[2] = new BERenderPipelineWireframe(&world, &camera, &backBuffer[2]);
 
 
 	// ready to go...
@@ -261,7 +261,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		lastTime = currentTime;
 
 		backBuffer[0].Clear();
-		pipeline[0]->ScanLine();
+		pipeline[0]->Draw();
 		BEDrawBackBuffer(0);
 
 		//backBuffer[1].Clear();
@@ -269,7 +269,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//BEDrawBackBuffer(1);
 
 		backBuffer[2].Clear();
-		pipeline[2]->WireFrame();
+		pipeline[2]->Draw();
 		BEDrawBackBuffer(2);
 	}
 
