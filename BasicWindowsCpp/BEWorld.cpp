@@ -34,11 +34,11 @@ void BEWorld::Create()
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
-	e->Translate({ 2,0,0 });
+	e->Translate({ 1,0,1 });
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
-	e->Translate({ -2,-1,0 });
+	e->Translate({ 0,-0.5,-1 });
 }
 
 void BEWorld::CreateV1()

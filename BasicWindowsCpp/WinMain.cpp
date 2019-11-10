@@ -6,6 +6,8 @@
 // - add error checking
 // - add window size change... maybe... or have graphics engine render to one size, and blit to window size... decisions!!
 // - assuming all windows are the same size so a single buffer w,h variable at the moment.
+// - more threading?... each window/render should be on a separate thread. Raytracing in it's own thread
+// - create an interupt for the ray tracing thread to restart rendering when something changes?
 //
 // Maybe To Do
 // - fix frame rate?
@@ -17,8 +19,9 @@
 #include "BERenderPipeline.h"
 
 // global windows variables
-HWND hwnd[2];
-HDC hdc[2];
+#define BENUMBER_WINDOWS 2
+HWND hwnd[BENUMBER_WINDOWS];
+HDC hdc[BENUMBER_WINDOWS];
 int windowPosX = 0;
 int windowPosY = 0;
 int windowSizeW = 800;
@@ -32,13 +35,13 @@ float deltaTime = 0.0f;
 // global back buffer variables
 int bufferWidth = 0;
 int bufferHeight = 0;
-BECanvas backBuffer[2];
-BITMAPINFO bmpInfo[2] = { 0 };
+BECanvas backBuffer[BENUMBER_WINDOWS];
+BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
 BECamera camera;
 BEWorld world;
-BERenderPipeline* pipeline[2];
+BERenderPipeline* pipeline[BENUMBER_WINDOWS];
 
 /////////////////////////////////
 // back buffer functions
@@ -198,6 +201,20 @@ void BECleanupWindow(int indx)
 	ReleaseDC(hwnd[indx], hdc[indx]);
 }
 
+DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
+{
+	int indx = *((int*)lpParam);
+
+	while (running)
+	{
+		backBuffer[indx].Clear();
+		pipeline[indx]->Raytrace();
+		BEDrawBackBuffer(indx);
+	}
+
+	return 0;
+}
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -211,6 +228,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	pipeline[0] = new BERenderPipeline(&world, &camera, &backBuffer[0]);
 	pipeline[1] = new BERenderPipeline(&world, &camera, &backBuffer[1]);
+
+	// ready to go...
+
+	// put ray tracer in a separate thread
+	DWORD threadId;
+	int arg = 1;
+	HANDLE thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
+	if (thread == NULL) return -1;
 
 	clock_t lastTime = clock();
 
@@ -227,14 +252,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		lastTime = currentTime;
 
 		backBuffer[0].Clear();
-		backBuffer[1].Clear();
-
 		pipeline[0]->Draw();
-		pipeline[1]->Raytrace();
-
 		BEDrawBackBuffer(0);
-		BEDrawBackBuffer(1);
+
+		//backBuffer[1].Clear();
+		//pipeline[1]->Raytrace();
+		//BEDrawBackBuffer(1);
 	}
+
+	WaitForSingleObject(thread, 3000);
+	CloseHandle(thread);
 
 	BECleanupWindow(0);
 	BECleanupWindow(1);
