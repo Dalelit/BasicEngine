@@ -24,8 +24,8 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 void BECanvas::Clear()
 {
-	memset(buffer, 0, size);
-	memset(bmp, 0, size);
+	memset(buffer, 0, size * sizeof(Color));
+	memset(bmp, 0, size * sizeof(Pixel));
 
 	if (depthBuffer)
 	{

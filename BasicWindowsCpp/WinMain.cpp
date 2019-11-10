@@ -19,7 +19,7 @@
 #include "BERenderPipeline.h"
 
 // global windows variables
-#define BENUMBER_WINDOWS 2
+#define BENUMBER_WINDOWS 3
 HWND hwnd[BENUMBER_WINDOWS];
 HDC hdc[BENUMBER_WINDOWS];
 int windowPosX = 0;
@@ -223,13 +223,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	BECreateWindowClass(hInstance);
 	BECreateWindow(0, hInstance);
 	BECreateWindow(1, hInstance);
+	BECreateWindow(2, hInstance);
 
 	world.Create();
 
+	// for scanline rendering
 	pipeline[0] = new BERenderPipeline(&world, &camera, &backBuffer[0]);
 	backBuffer[0].AddDepthBuffer(); // to do: automatically add a depth buffer?
 
+	// for raytrace rendering
 	pipeline[1] = new BERenderPipeline(&world, &camera, &backBuffer[1]);
+
+	// for wireframe rendering
+	pipeline[2] = new BERenderPipeline(&world, &camera, &backBuffer[2]);
+
 
 	// ready to go...
 
@@ -254,12 +261,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		lastTime = currentTime;
 
 		backBuffer[0].Clear();
-		pipeline[0]->Draw();
+		pipeline[0]->ScanLine();
 		BEDrawBackBuffer(0);
 
 		//backBuffer[1].Clear();
 		//pipeline[1]->Raytrace();
 		//BEDrawBackBuffer(1);
+
+		backBuffer[2].Clear();
+		pipeline[2]->WireFrame();
+		BEDrawBackBuffer(2);
 	}
 
 	WaitForSingleObject(thread, 3000);

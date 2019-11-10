@@ -21,6 +21,4 @@ public:
 	void AddEntity(BEEntity* pEntity);
 
 	void Create();
-	void CreateV1();
 };
-

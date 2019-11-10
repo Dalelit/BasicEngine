@@ -64,7 +64,7 @@ inline void BERenderPipeline::DrawScanLine(unsigned int y, unsigned int x1, unsi
 // - triangles get clipped in the corners
 // - edge color has artifacts
 //
-void BERenderPipeline::Draw()
+void BERenderPipeline::ScanLine()
 {
 	// loop through each entity/mesh/triangle
 	//   convert to screen space
@@ -123,7 +123,7 @@ void BERenderPipeline::Draw()
 					}
 
 					// check it's in the screen bounds
-					if (pCamera->OveralpsScreen(v0) && pCamera->OveralpsScreen(v1) && pCamera->OveralpsScreen(v2))
+					if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 					{
 						// convert to pixel coords
 						v0 = pCanvas->ScreenToPixel(v0);
@@ -278,7 +278,6 @@ void BERenderPipeline::Draw()
 					current = current->next;
 				}
 			}
-			else int dummybreakpoint = 0; // To do: remove!
 
 			// remove edges from active if finished or update them
 			current = activeList;
@@ -378,6 +377,48 @@ void BERenderPipeline::Raytrace()
 
 		py += dy;
 		line += pCanvas->width;
+	}
+}
+
+void BERenderPipeline::WireFrame()
+{
+	for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
+	{
+		BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
+
+		if (m) // if it has a mesh
+		{
+			// create screen space version of all verticies
+			{
+				Vector3* src = m->verticies;
+				Vector3* tgt = screenSpaceVerticies;
+				for (unsigned int vindx = 0; vindx < m->vCount; vindx++)
+				{
+					*tgt = pCamera->WorldToScreen(*src);
+					tgt++;
+					src++;
+				}
+			}
+
+			unsigned int tindx = 0;
+
+			while (tindx < m->tCount) // look at each triangle
+			{
+				Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
+				Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
+				Vector3 v2 = screenSpaceVerticies[m->triangles[tindx++]];
+
+				Color c = pWorld->entities[eindx]->color;
+
+				// check it's in the screen bounds
+				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
+				{
+					pCanvas->DrawLineSafe(v0, v1, c);
+					pCanvas->DrawLineSafe(v1, v2, c);
+					pCanvas->DrawLineSafe(v2, v0, c);
+				}
+			}
+		}
 	}
 }
 

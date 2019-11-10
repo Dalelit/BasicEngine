@@ -41,8 +41,9 @@ public:
 	BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipeline();
 
-	void Draw();
+	void ScanLine();
 	void Raytrace();
+	void WireFrame();
 
 	// to delete
 	//void UpdateScreenSpace();
