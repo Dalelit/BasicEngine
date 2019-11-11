@@ -28,6 +28,8 @@ public:
 	BECamera* pCamera = NULL;
 	BECanvas* pCanvas = NULL;
 	bool exitLoop = false; // used to exit the rendering loops early... mainly for slower renderers
+	bool restartLoop = false; // used to force the loop to exit and restart
+	bool showBuffer = false; // used to tell the main thread to show the back buffer for progressive results
 
 	//BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 	//{
@@ -91,6 +93,12 @@ public:
 	~BERenderPipelineRaytrace();
 
 	void Draw();
+	void DrawByLine();
+	void DrawBySampling();
+
+private:
+	void InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line);
+	inline void InnerLoop(float px, float py, unsigned int x, unsigned int y) { InnerLoop(px, py, x, y, y * pCanvas->width); };
 };
 
 //////////////////////////////////////////////////////

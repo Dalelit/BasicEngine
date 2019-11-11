@@ -129,11 +129,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 0x41: // A
 			camera.RotateDirection(-0.1f, 0, 0);
 			break;
+		case 0x53: // S
+			camera.RotateDirection(0, -0.1f, 0);
+			break;
 		case 0x57: // W
 			camera.RotateDirection(0, 0.1f, 0);
 			break;
-		case 0x53: // S
-			camera.RotateDirection(0, -0.1f, 0);
+		case 0x52: // R
+			pipeline[1]->restartLoop = true;
+			break;
+		case 0x54: // T
+			BEDrawBackBuffer(1);
 			break;
 		}
 		break;
@@ -204,9 +210,10 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 
 	while (running)
 	{
+		pipeline[indx]->restartLoop = false;
 		backBuffer[indx].Clear();
 		pipeline[indx]->Draw();
-		BEDrawBackBuffer(indx);
+		//BEDrawBackBuffer(indx); // using the showBuffer flag now
 	}
 
 	return 0;
@@ -261,9 +268,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		pipeline[0]->Draw();
 		BEDrawBackBuffer(0);
 
-		//backBuffer[1].Clear();
+		//backBuffer[1].Clear(); // in the thread loop
 		//pipeline[1]->Raytrace();
-		//BEDrawBackBuffer(1);
+		if (pipeline[1]->showBuffer)
+		{
+			BEDrawBackBuffer(1);
+			pipeline[1]->showBuffer = false;
+		}
 
 		backBuffer[2].Clear();
 		pipeline[2]->Draw();
