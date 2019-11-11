@@ -1,5 +1,8 @@
 #include "BERenderPipeline.h"
 
+// To Do
+// - scan line has issues as the verticies, scan line keeps running past the edge :-(
+
 BERenderPipelineScanline::BERenderPipelineScanline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 {
 	pWorld = _pWorld;
@@ -99,7 +102,7 @@ void BERenderPipelineScanline::Draw()
 
 				unsigned int tindx = 0;
 
-				while (tindx < m->tCount) // look at each triangle
+				while (tindx < m->tBufferSize) // look at each triangle
 				{
 					Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
 					Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];

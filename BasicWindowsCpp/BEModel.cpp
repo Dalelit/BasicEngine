@@ -2,7 +2,7 @@
 
 BEMesh* BEModel::TriangleMesh()
 {
-	BEMesh* m = new BEMesh(3, 1 * 3);
+	BEMesh* m = new BEMesh(3, 1);
 
 	m->verticies[0] = { 0,0,0 };
 	m->verticies[1] = { 1,0.5,0 };
@@ -19,7 +19,7 @@ BEMesh* BEModel::TriangleMesh()
 
 BEMesh* BEModel::CubeMesh()
 {
-	BEMesh* m = new BEMesh(8, 12 * 3);
+	BEMesh* m = new BEMesh(8, 12);
 
 	//    3--2
 	//   /  /|
@@ -57,129 +57,20 @@ BEMesh* BEModel::CubeMesh()
 	return m;
 }
 
-// To do: delete
+BEMesh* BEModel::AxisMesh()
+{
+	BEMesh* m = new BEMesh(4, 0);
 
-//BEModel::BEModel()
-//{
-//}
-//
-//BEModel::~BEModel()
-//{
-//	if (lCount > 0)
-//	{
-//		delete verticies;
-//		delete screenPoints;
-//		delete lines;
-//	}
-//}
-//
-//void BEModel::Translate(Vector3 v)
-//{
-//	unsigned int i = 0;
-//
-//	while (i < vCount)
-//	{
-//		verticies[i++] += v;
-//	}
-//}
-//
-//void BEModel::CreateColorData()
-//{
-//	if (colors != NULL) return; // already created
-//
-//	colors = new Color[vCount];
-//
-//	for (unsigned int i = 0; i < vCount; i++) colors[i] = color;
-//}
+	m->verticies[0] = { 0,0,0 };
+	m->verticies[1] = { 1,0,0 };
+	m->verticies[2] = { 0,1,0 };
+	m->verticies[3] = { 0,0,1 };
 
-///////////////////// primatives
+	m->AddLines(3);
 
-//BEModel* BEModel::TrianglePrimative()
-//{
-//	BEModel* mp = new BEModel();
-//
-//	mp->vCount = 3;
-//	mp->lCount = 2 * 3;
-//	mp->verticies = new Vector3[mp->vCount];
-//	mp->screenPoints = new Vector3[mp->vCount];
-//	mp->lines = new unsigned int[mp->lCount];
-//
-//	int i = 0;
-//	mp->verticies[i++] = { 0,0,0 };
-//	mp->verticies[i++] = { 1,0,0 };
-//	mp->verticies[i++] = { 0,1,0 };
-//
-//	i = 0;
-//	mp->lines[i++] = 0; mp->lines[i++] = 1;
-//	mp->lines[i++] = 1; mp->lines[i++] = 2;
-//	mp->lines[i++] = 2; mp->lines[i++] = 0;
-//
-//	return mp;
-//}
-//
-//BEModel* BEModel::AxisPrimative()
-//{
-//	BEModel* mp = new BEModel();
-//
-//	mp->vCount = 4;
-//	mp->lCount = 2 * 3;
-//	mp->verticies = new Vector3[mp->vCount];
-//	mp->screenPoints = new Vector3[mp->vCount];
-//	mp->colors = new Color[mp->vCount];
-//	mp->lines = new unsigned int[mp->lCount];
-//
-//	int i = 0;
-//	mp->verticies[i] = { 0,0,0 };
-//	mp->colors[i++]  = { 1,1,1 };
-//	mp->verticies[i] = { 1,0,0 };
-//	mp->colors[i++]  = { 1,0,0 };
-//	mp->verticies[i] = { 0,1,0 };
-//	mp->colors[i++]  = { 0,1,0 };
-//	mp->verticies[i] = { 0,0,1 };
-//	mp->colors[i++]  = { 0,0,1 };
-//
-//	i = 0;
-//	mp->lines[i++] = 0; mp->lines[i++] = 1;
-//	mp->lines[i++] = 0; mp->lines[i++] = 2;
-//	mp->lines[i++] = 0; mp->lines[i++] = 3;
-//
-//	return mp;
-//}
-//
-//BEModel* BEModel::CubePrimative()
-//{
-//	BEModel* mp = new BEModel();
-//
-//	mp->vCount = 8;
-//	mp->lCount = 2 * 12;
-//	mp->verticies = new Vector3[mp->vCount];
-//	mp->screenPoints = new Vector3[mp->vCount];
-//	mp->lines = new unsigned int[mp->lCount];
-//
-//	int i = 0;
-//	mp->verticies[i++] = { -0.5f, 0.5f, -0.5f };
-//	mp->verticies[i++] = { 0.5f, 0.5f, -0.5f };
-//	mp->verticies[i++] = { 0.5f, 0.5f,  0.5f };
-//	mp->verticies[i++] = { -0.5f, 0.5f,  0.5f };
-//	mp->verticies[i++] = { -0.5f, -0.5f, -0.5f };
-//	mp->verticies[i++] = { 0.5f, -0.5f, -0.5f };
-//	mp->verticies[i++] = { 0.5f, -0.5f,  0.5f };
-//	mp->verticies[i++] = { -0.5f, -0.5f,  0.5f };
-//
-//	i = 0;
-//	mp->lines[i++] = 0; mp->lines[i++] = 1;
-//	mp->lines[i++] = 1; mp->lines[i++] = 2;
-//	mp->lines[i++] = 2; mp->lines[i++] = 3;
-//	mp->lines[i++] = 3; mp->lines[i++] = 0;
-//	mp->lines[i++] = 0; mp->lines[i++] = 4;
-//	mp->lines[i++] = 1; mp->lines[i++] = 5;
-//	mp->lines[i++] = 2; mp->lines[i++] = 6;
-//	mp->lines[i++] = 3; mp->lines[i++] = 7;
-//	mp->lines[i++] = 4; mp->lines[i++] = 5;
-//	mp->lines[i++] = 5; mp->lines[i++] = 6;
-//	mp->lines[i++] = 6; mp->lines[i++] = 7;
-//	mp->lines[i++] = 7; mp->lines[i++] = 4;
-//
-//	return mp;
-//}
+	m->lines[0] = 0; m->lines[1] = 1;
+	m->lines[2] = 0; m->lines[3] = 2;
+	m->lines[4] = 0; m->lines[5] = 3;
 
+	return m;
+}

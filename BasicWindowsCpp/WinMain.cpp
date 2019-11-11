@@ -39,7 +39,7 @@ BECanvas backBuffer[BENUMBER_WINDOWS];
 BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
-BECamera camera;
+BECamera camera({0,0,3}, {0,0,-1});
 BEWorld world;
 BERenderPipeline* pipeline[BENUMBER_WINDOWS];
 
@@ -118,24 +118,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			camera.Pan(-0.1f, 0, 0);
 			break;
 		case VK_ADD:
-			camera.Translate({ 0,0,0.1f });
+			camera.Pan(0, 0, 0.1f);
 			break;
 		case VK_SUBTRACT:
-			camera.Translate({ 0,0,-0.1f });
+			camera.Pan(0, 0, -0.1f);
 			break;
 		case 0x44: // D
 			camera.RotateDirection(0.1f, 0, 0);
 			break;
 		case 0x41: // A
-			//camera.Pan(-1, 0, 0);
 			camera.RotateDirection(-0.1f, 0, 0);
 			break;
 		case 0x57: // W
-			//camera.Pan(0, 1, 0);
 			camera.RotateDirection(0, 0.1f, 0);
 			break;
 		case 0x53: // S
-			//camera.Pan(0, -1, 0);
 			camera.RotateDirection(0, -0.1f, 0);
 			break;
 		}
@@ -273,6 +270,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		BEDrawBackBuffer(2);
 	}
 
+	pipeline[1]->exitLoop = true; // tell it to stop!
 	WaitForSingleObject(thread, 3000);
 	CloseHandle(thread);
 

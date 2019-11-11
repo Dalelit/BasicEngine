@@ -38,7 +38,7 @@ void BERenderPipelineRaytrace::Draw()
 				{
 					unsigned int tindx = 0;
 
-					while (tindx < m->tCount) // look at each triangle
+					while (tindx < m->tBufferSize) // look at each triangle
 					{
 						Vector3 v0 = m->verticies[m->triangles[tindx++]];
 						Vector3 v1 = m->verticies[m->triangles[tindx++]];
@@ -57,6 +57,8 @@ void BERenderPipelineRaytrace::Draw()
 			}
 
 			px += dx;
+
+			if (exitLoop) return;
 		}
 
 		py += dy;

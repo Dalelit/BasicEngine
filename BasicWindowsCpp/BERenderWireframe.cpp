@@ -1,5 +1,9 @@
 #include "BERenderPipeline.h"
 
+//
+// To Do
+// - could add depth buffer so the lines overlap correctly, not just based on enitity/model order?
+
 BERenderPipelineWireframe::BERenderPipelineWireframe(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 {
 	pWorld = _pWorld;
@@ -37,7 +41,7 @@ void BERenderPipelineWireframe::Draw()
 
 			unsigned int tindx = 0;
 
-			while (tindx < m->tCount) // look at each triangle
+			while (tindx < m->tBufferSize) // look at each triangle
 			{
 				Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
 				Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
@@ -51,6 +55,21 @@ void BERenderPipelineWireframe::Draw()
 					pCanvas->DrawLineSafe(v0, v1, c);
 					pCanvas->DrawLineSafe(v1, v2, c);
 					pCanvas->DrawLineSafe(v2, v0, c);
+				}
+			}
+
+			unsigned int lindx = 0;
+			while (lindx < m->lBufferSize)
+			{
+				Vector3 v0 = screenSpaceVerticies[m->lines[lindx++]];
+				Vector3 v1 = screenSpaceVerticies[m->lines[lindx++]];
+
+				Color c = pWorld->entities[eindx]->color;
+
+				// check it's in the screen bounds
+				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1))
+				{
+					pCanvas->DrawLineSafe(v0, v1, c);
 				}
 			}
 		}

@@ -27,6 +27,7 @@ public:
 	BEWorld* pWorld = NULL;
 	BECamera* pCamera = NULL;
 	BECanvas* pCanvas = NULL;
+	bool exitLoop = false; // used to exit the rendering loops early... mainly for slower renderers
 
 	//BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 	//{

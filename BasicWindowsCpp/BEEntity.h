@@ -9,6 +9,7 @@ public:
 	Color color = { 1,1,1,1 };
 
 	inline void Translate(Vector3 v) { position += v; if (mesh != NULL) mesh->Translate(v); }
+	inline void Scale(float f) { if (mesh != NULL) mesh->Scale(f); }
 	inline void Scale(Vector3 v) { if (mesh != NULL) mesh->Scale(v); }
 };
 
