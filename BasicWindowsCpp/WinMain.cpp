@@ -18,8 +18,9 @@
 #include <time.h>
 #include "BERenderPipeline.h"
 
-// global windows variables
-#define BENUMBER_WINDOWS 3
+// global windows variables and macros
+#define BENUMBER_WINDOWS 4
+#define BE_SWBUFFERSIZE 1000
 HWND hwnd[BENUMBER_WINDOWS];
 HDC hdc[BENUMBER_WINDOWS];
 int windowPosX = 0;
@@ -60,12 +61,12 @@ void BECreateBackBuffer(int indx)
 	bmpInfo[indx].bmiHeader.biCompression = BI_RGB;
 }
 
-void BEDrawBackBuffer(int indx)
+void BEDrawBackBuffer(int bufferindx, int windowIndx)
 {
-	backBuffer[indx].BufferToBMP();
+	backBuffer[bufferindx].BufferToBMP();
 
 	StretchDIBits(
-		hdc[indx],
+		hdc[windowIndx],
 		0,
 		0,
 		bufferWidth,
@@ -74,11 +75,30 @@ void BEDrawBackBuffer(int indx)
 		0,
 		bufferWidth,
 		bufferHeight,
-		backBuffer[indx].bmp,
-		&(bmpInfo[indx]),
+		backBuffer[bufferindx].bmp,
+		&(bmpInfo[bufferindx]),
 		DIB_RGB_COLORS,
 		SRCCOPY
 	);
+}
+
+void BEDrawBackBuffer(int indx)
+{
+	BEDrawBackBuffer(indx, indx);
+}
+
+//HFONT hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
+void BEWriteOverlayToWindow(int indx, LPCWSTR lpwString)
+{
+	RECT rect;
+	GetClientRect(hwnd[indx], &rect);
+
+	//SetBkColor(hdc[indx], RGB(0, 0, 0));
+	//SelectObject(hdc[indx], hFont);
+	SetTextColor(hdc[indx], RGB(255, 255, 255));
+	SetBkMode(hdc[indx], TRANSPARENT);
+	//	DrawText(hdc[indx], lpwString, wcslen(lpwString), &rect, DT_LEFT);
+	DrawText(hdc[indx], lpwString, -1, &rect, DT_LEFT);
 }
 
 /////////////////////////////////
@@ -186,12 +206,22 @@ int BECreateWindow(int indx, HINSTANCE hInstance)
 	if (!hwnd[indx])
 		return 2;
 
+	RECT rect;
+	GetWindowRect(GetDesktopWindow(), &rect);
+	if (windowPosX + windowSizeW > rect.right)
+	{
+		// next window would be off screen so shuffle down.
+		// To Do: tidy up this hack?
+		windowPosX = 0;
+		windowPosY += windowSizeH;
+	}
+
+
 	hdc[indx] = GetDC(hwnd[indx]);
 
-	RECT dcRect;
-	GetClientRect(hwnd[indx], &dcRect);
-	bufferWidth = dcRect.right;
-	bufferHeight = dcRect.bottom;
+	GetClientRect(hwnd[indx], &rect);
+	bufferWidth = rect.right;
+	bufferHeight = rect.bottom;
 
 	BECreateBackBuffer(indx);
 	backBuffer[indx].Clear();
@@ -206,14 +236,32 @@ void BECleanupWindow(int indx)
 
 DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 {
+	WCHAR swbuffer[BE_SWBUFFERSIZE];
+
 	int indx = *((int*)lpParam);
+	int resultIndx = 3; // to do: hard coded the window indx
+
+	BEWriteOverlayToWindow(resultIndx, L"Starting...");
+	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
+
+	clock_t lastTime = clock();
 
 	while (running)
 	{
 		pipeline[indx]->restartLoop = false;
 		backBuffer[indx].Clear();
 		pipeline[indx]->Draw();
-		//BEDrawBackBuffer(indx); // using the showBuffer flag now
+		
+		clock_t currentTime = clock();
+		float deltaTime = (float)(currentTime - lastTime) / CLOCKS_PER_SEC; // seconds
+		lastTime = currentTime;
+
+		// add an extra window, and show the completed image
+		BEDrawBackBuffer(indx, resultIndx);
+
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Render time: %7.2fs", deltaTime);
+		BEWriteOverlayToWindow(resultIndx, swbuffer);
+		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 	}
 
 	return 0;
@@ -223,11 +271,13 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	MSG msg = { 0 };
+	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
 	BECreateWindowClass(hInstance);
 	BECreateWindow(0, hInstance);
 	BECreateWindow(1, hInstance);
 	BECreateWindow(2, hInstance);
+	BECreateWindow(3, hInstance);
 
 	world.Create();
 
@@ -237,6 +287,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for raytrace rendering
 	pipeline[1] = new BERenderPipelineRaytrace(&world, &camera, &backBuffer[1]);
+	BERenderPipelineRaytrace* pRT = (BERenderPipelineRaytrace*)pipeline[1];
 
 	// for wireframe rendering
 	pipeline[2] = new BERenderPipelineWireframe(&world, &camera, &backBuffer[2]);
@@ -251,6 +302,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (thread == NULL) return -1;
 
 	clock_t lastTime = clock();
+	clock_t startRend, endRend;
 
 	while (running)
 	{
@@ -260,25 +312,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DispatchMessage(&msg);
 		}
 
-		clock_t currentTime = clock();
-		deltaTime = (float)(currentTime - lastTime);
-		lastTime = currentTime;
+
+		//
+		// scanline..........
+		//
 
 		backBuffer[0].Clear();
+		startRend = clock();
 		pipeline[0]->Draw();
+		endRend = clock();
 		BEDrawBackBuffer(0);
 
-		//backBuffer[1].Clear(); // in the thread loop
-		//pipeline[1]->Raytrace();
-		if (pipeline[1]->showBuffer)
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims", (endRend - startRend));
+		BEWriteOverlayToWindow(0, swbuffer);
+
+		//
+		// raytrace.......... running in a thread so showing only
+		//
+
+		//if (pipeline[1]->showBuffer)
 		{
 			BEDrawBackBuffer(1);
 			pipeline[1]->showBuffer = false;
+
+			int todo = pRT->raysToProcess;
+			int done = pRT->raysProcessed;
+			float pcnt = (float)done / (float)todo * 100.0f;
+			swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rays to process %i\nRays processed %i(%3.2f%%)", todo, done, pcnt);
+			BEWriteOverlayToWindow(1, swbuffer);
 		}
 
+		//
+		// wireframe.............
+		//
+
 		backBuffer[2].Clear();
+		startRend = clock();
 		pipeline[2]->Draw();
+		endRend = clock();
 		BEDrawBackBuffer(2);
+
+		// to use for the overall loop...
+		// to do: limit framerate? Worry about that when it actually works quick
+		clock_t currentTime = clock();
+		deltaTime = (float)(currentTime - lastTime) / (float)CLOCKS_PER_SEC; // time in seconds
+		lastTime = currentTime;
+
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nLoop time: %3.3fs\nfps: %f", (endRend - startRend), deltaTime, 1.0f / deltaTime);
+		BEWriteOverlayToWindow(2, swbuffer);
+
 	}
 
 	pipeline[1]->exitLoop = true; // tell it to stop!

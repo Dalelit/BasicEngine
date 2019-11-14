@@ -30,7 +30,7 @@ void BECanvas::Clear()
 	if (depthBuffer)
 	{
 		// to do : work out an efficient method
-		//memset(depthBuffer, defaultDepthValue, size);
+		memset(depthBuffer, defaultDepthValue, size);
 		for (unsigned int i = 0; i < size; i++) depthBuffer[i] = defaultDepthValue;
 	}
 }
@@ -40,7 +40,8 @@ void BECanvas::AddDepthBuffer()
 	depthBuffer = (float*)malloc(size * sizeof(float));
 }
 
-void BECanvas::BufferToBMP() // To Do - optimise or is there another way? Especially Color -> Pixel conversion
+// To Do - optimise or is there another way? Especially Color -> Pixel conversion
+void BECanvas::BufferToBMP()
 {
 	Pixel* pp = bmp;
 	Color* pc = buffer;
@@ -48,10 +49,11 @@ void BECanvas::BufferToBMP() // To Do - optimise or is there another way? Especi
 	for (unsigned int y = 0; y < size; y += width)
 		for (unsigned int x = 0; x < width; x++)
 		{
-			pp->r = (unsigned char)(pc->R() * 255);
-			pp->g = (unsigned char)(pc->G() * 255);
-			pp->b = (unsigned char)(pc->B() * 255);
-			pp->a = (unsigned char)(pc->A() * 255);
+			XMFLOAT4 xmf = *pc;
+			pp->r = (unsigned char)(xmf.x * 255);
+			pp->g = (unsigned char)(xmf.y * 255);
+			pp->b = (unsigned char)(xmf.z * 255);
+			pp->a = (unsigned char)(xmf.w * 255);
 
 			pp++;
 			pc++;

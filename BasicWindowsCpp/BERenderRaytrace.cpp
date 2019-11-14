@@ -52,6 +52,9 @@ void BERenderPipelineRaytrace::Draw()
 
 void BERenderPipelineRaytrace::DrawByLine()
 {
+	raysToProcess = pCanvas->size;
+	raysProcessed = 0;
+
 	float dx = 2.0f / pCanvas->width;
 	float dy = 2.0f / pCanvas->height;
 	float px = -1;
@@ -71,6 +74,8 @@ void BERenderPipelineRaytrace::DrawByLine()
 
 			showBuffer = true; // every full line show the buffer
 
+			raysProcessed++;
+
 			if (exitLoop || restartLoop) return;
 		}
 
@@ -82,6 +87,9 @@ void BERenderPipelineRaytrace::DrawByLine()
 // to do: tidy up types... check for efficiency
 void BERenderPipelineRaytrace::DrawBySampling()
 {
+	raysToProcess = pCanvas->size;
+	raysProcessed = 0;
+
 	int size = (int)pCanvas->size;
 	int width = (int)pCanvas->width;
 
@@ -89,11 +97,11 @@ void BERenderPipelineRaytrace::DrawBySampling()
 	unsigned int x, y;
 
 	int indx = 0;
-	int offset = 11;
+	int offset = 13;
 	int startingOffset = offset - 1;
 
-	float invWidth = 1.0f / (float)pCanvas->width;
-	float invHeight = 1.0f / (float)pCanvas->height;
+	float invWidthx2 = 2.0f / (float)pCanvas->width;
+	float invHeightx2 = 2.0f / (float)pCanvas->height;
 
 	int counter = 0;
 
@@ -105,8 +113,8 @@ void BERenderPipelineRaytrace::DrawBySampling()
 		{
 			x = indx % width;
 			y = indx / width;
-			px = (float)x * invWidth * 2.0f - 1.0f;
-			py = (float)y * invHeight * 2.0f - 1.0f;
+			px = (float)x * invWidthx2 - 1.0f;
+			py = (float)y * invHeightx2 - 1.0f;
 			InnerLoop(px, py, x, y);
 			counter++;
 
@@ -117,9 +125,9 @@ void BERenderPipelineRaytrace::DrawBySampling()
 			}
 
 			indx += offset;
+			raysProcessed++;
 		}
 
 		startingOffset--;
-
 	}
 }
