@@ -30,7 +30,7 @@ void BECanvas::Clear()
 	if (depthBuffer)
 	{
 		// to do : work out an efficient method
-		memset(depthBuffer, defaultDepthValue, size);
+		//memset(depthBuffer, defaultDepthValue, size);
 		for (unsigned int i = 0; i < size; i++) depthBuffer[i] = defaultDepthValue;
 	}
 }
