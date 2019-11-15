@@ -49,11 +49,10 @@ void BECanvas::BufferToBMP()
 	for (unsigned int y = 0; y < size; y += width)
 		for (unsigned int x = 0; x < width; x++)
 		{
-			XMFLOAT4 xmf = *pc;
-			pp->r = (unsigned char)(xmf.x * 255);
-			pp->g = (unsigned char)(xmf.y * 255);
-			pp->b = (unsigned char)(xmf.z * 255);
-			pp->a = (unsigned char)(xmf.w * 255);
+			pp->r = (unsigned char)((*pc).x * 255.0f);
+			pp->g = (unsigned char)((*pc).y * 255.0f);
+			pp->b = (unsigned char)((*pc).z * 255.0f);
+			pp->a = (unsigned char)((*pc).w * 255.0f);
 
 			pp++;
 			pc++;
