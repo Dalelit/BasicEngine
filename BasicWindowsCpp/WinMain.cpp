@@ -17,9 +17,10 @@
 #include <windows.h>
 #include <time.h>
 #include "BERenderPipeline.h"
+#include "BEDirectX.h"
 
 // global windows variables and macros
-#define BENUMBER_WINDOWS 4
+#define BENUMBER_WINDOWS 5
 #define BE_SWBUFFERSIZE 1000
 HWND hwnd[BENUMBER_WINDOWS];
 HDC hdc[BENUMBER_WINDOWS];
@@ -143,23 +144,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case VK_SUBTRACT:
 			camera.Pan(0, 0, -0.1f);
 			break;
-		case 0x44: // D
+		case 'D': //0x44: // D
 			camera.RotateDirection(0.1f, 0, 0);
 			break;
-		case 0x41: // A
+		case 'A': //0x41: // A
 			camera.RotateDirection(-0.1f, 0, 0);
 			break;
-		case 0x53: // S
+		case 'S': //0x53: // S
 			camera.RotateDirection(0, -0.1f, 0);
 			break;
-		case 0x57: // W
+		case 'W': //0x57: // W
 			camera.RotateDirection(0, 0.1f, 0);
 			break;
-		case 0x52: // R
+		case 'R': //0x52: // R
 			pipeline[1]->restartLoop = true;
-			break;
-		case 0x54: // T
-			BEDrawBackBuffer(1);
 			break;
 		}
 		break;
@@ -177,9 +175,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 WNDCLASS wc = { 0 };
 
-int BECreateWindowClass(HINSTANCE hInstance)
+int BERegisterWindowClass(HINSTANCE hInstance)
 {
-	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.style = CS_OWNDC; //CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInstance;
 	wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
@@ -191,10 +189,15 @@ int BECreateWindowClass(HINSTANCE hInstance)
 	return 0;
 }
 
-int BECreateWindow(int indx, HINSTANCE hInstance)
+bool BEUnregisterWindowClass()
+{
+	return UnregisterClass(wc.lpszClassName, wc.hInstance);
+}
+
+int BECreateWindow(int indx, HINSTANCE hInstance, LPCWSTR name)
 {
 	hwnd[indx] = CreateWindow(wc.lpszClassName,
-		L"Minimal Windows Application",
+		name,
 		WS_VISIBLE, // WS_OVERLAPPEDWINDOW |
 		windowPosX, windowPosY,
 		windowSizeW, windowSizeH,
@@ -273,11 +276,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MSG msg = { 0 };
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
-	BECreateWindowClass(hInstance);
-	BECreateWindow(0, hInstance);
-	BECreateWindow(1, hInstance);
-	BECreateWindow(2, hInstance);
-	BECreateWindow(3, hInstance);
+	BERegisterWindowClass(hInstance);
+	BECreateWindow(0, hInstance, L"Scanline");
+	BECreateWindow(1, hInstance, L"Ray tracing");
+	BECreateWindow(2, hInstance, L"Wireframe");
+	BECreateWindow(3, hInstance, L"Raytrace final");
+	BECreateWindow(4, hInstance, L"Direct3D");
 
 	world.Create();
 
@@ -292,6 +296,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// for wireframe rendering
 	pipeline[2] = new BERenderPipelineWireframe(&world, &camera, &backBuffer[2]);
 
+	// for DirectX rendering
+	BEDirectX dx;
+	dx.Initialise(hwnd[4]);
+	dx.LoadScene(&world, &camera);
 
 	// ready to go...
 
@@ -343,6 +351,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		//
+		// directx.............
+		//
+		//dx.DoFrame();
+
+		//
 		// wireframe.............
 		//
 
@@ -369,6 +382,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	BECleanupWindow(0);
 	BECleanupWindow(1);
+	BECleanupWindow(2);
+	BECleanupWindow(3);
+	BECleanupWindow(4);
+	BEUnregisterWindowClass();
+
 
 	return 0;
 }

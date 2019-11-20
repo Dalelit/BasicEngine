@@ -22,12 +22,14 @@ public:
 
 	void LookAt(Vector3 target);
 
-	inline Vector3 WorldToScreen(Vector3 coord);
+	inline Vector3 WorldToScreen(Vector3 coord) { return XMVector3TransformCoord(coord, XMMatrixMultiply(viewMatrix, projectionMatrix)); }
 
 	Ray RelativeScreenPositionToRay(float x, float y);
 
 	void Pan(float _right, float _up, float _forward);
 	void RotateDirection(float yaw, float pitch, float roll);
+
+	float DirectionDot(Vector3 v) { return direction.Dot(v); };
 
 	inline bool OveralpsScreen(Vector3 v) { return ((v.x >= -1.0f && v.x <= 1.0f) || // (x or
 		                                            (v.y >= -1.0f && v.y <= 1.0f))   // y in the screen)

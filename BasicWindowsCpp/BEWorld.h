@@ -1,24 +1,29 @@
 #pragma once
 #include "BEModel.h"
+#include "BELight.h"
 
 using namespace DirectX;
 using namespace SimpleMath;
 
-#define BEWORLD_MAX_MODELS 100000
 #define BEWORLD_MAX_ENTITIES 100000
+#define BEWORLD_MAX_LIGHTS 100
 
 class BEWorld
 {
 public:
-	BEModel* models[BEWORLD_MAX_MODELS] = {};
-	unsigned int modelCount = 0;
-	void AddModel(BEModel* pModel);
+	BEWorld();
+	~BEWorld();
 
-	BEEntity* entities[BEWORLD_MAX_ENTITIES] = {};
+	BEEntity** entities = NULL;
 	unsigned int entityCount = 0;
+
+	BELight** lights = NULL;
+	unsigned int lightCount = 0;
 
 	BEEntity* CreateAddEntity();
 	void AddEntity(BEEntity* pEntity);
+
+	void AddLight(BELight* pLight);
 
 	void Create();
 };

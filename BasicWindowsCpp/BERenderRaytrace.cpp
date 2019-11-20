@@ -24,6 +24,7 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 		if (m) // if it has a mesh
 		{
 			unsigned int tindx = 0;
+			unsigned int triNum = 0;
 
 			while (tindx < m->tBufferSize) // look at each triangle
 			{
@@ -35,10 +36,28 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 				{
 					if (distance < hitDistance)
 					{
-						pCanvas->buffer[line + x] = pWorld->entities[eindx]->color;
+						Color ambient = pWorld->entities[eindx]->color;
+
+						Color lights = { 0,0,0,1 };
+
+						Vector3 normal = m->normals[triNum];
+
+						for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
+						{
+							lights += pWorld->lights[lindx]->CalculateColor(normal);
+						}
+
+						lights = lights / (float)pWorld->lightCount;
+
+						Color c = 0.5f * ambient + 0.5f * lights;
+						c.Saturate();
+
+						pCanvas->buffer[line + x] = c;
 						hitDistance = distance;
 					}
 				}
+
+				triNum++;
 			}
 		}
 	}

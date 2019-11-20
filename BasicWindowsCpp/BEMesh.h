@@ -11,6 +11,9 @@ public:
 	Vector3* verticies = NULL;
 	Color* colors = NULL;
 
+	unsigned int nCount = 0;
+	Vector3* normals = NULL;
+
 	unsigned int tCount = 0;
 	unsigned int tBufferSize = 0;
 	unsigned int* triangles = NULL;
@@ -25,8 +28,12 @@ public:
 
 	void AddLines(unsigned int _lCount);
 
+	void CalculateNormals();
+
 	inline void Translate(Vector3 v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] += v; }
 	inline void Scale(float f) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= f; }
 	inline void Scale(Vector3 v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= v; }
+
+	inline void Transform(Matrix m) { for (unsigned int i = 0; i < vCount; i++) verticies[i] = Vector3::Transform(verticies[i], m); }
 };
 

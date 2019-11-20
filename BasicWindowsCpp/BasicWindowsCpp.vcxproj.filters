@@ -54,6 +54,9 @@
     <ClCompile Include="BERenderWireframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEDirectX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -89,10 +92,21 @@
     <ClInclude Include="BELight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEDirectX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
       <Filter>Header Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

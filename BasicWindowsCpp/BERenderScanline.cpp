@@ -63,7 +63,6 @@ inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int 
 }
 
 // To Do:
-// - triangles get clipped in the corners
 // - edge color has artifacts
 //
 void BERenderPipelineScanline::Draw()
@@ -101,25 +100,57 @@ void BERenderPipelineScanline::Draw()
 				}
 
 				unsigned int tindx = 0;
+				unsigned int trinum = 0;
 
 				while (tindx < m->tBufferSize) // look at each triangle
 				{
+					Vector3 normal = m->normals[trinum];
+
 					Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
 					Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
 					Vector3 v2 = screenSpaceVerticies[m->triangles[tindx++]];
 
+					// check if the triangle is facing the same direction as the camera, then it is facing away so cull
+					//if (v0.Dot(normal) < 0.0f)
+					//{
+					//	tindx += 3;
+					//	trinum++;
+					//	break;
+					//}
+
+					//if (pCamera->Dot(normal) > 0.0f)
+					//{
+					//	tindx += 3;
+					//	trinum++;
+					//	break;
+					//}
+
+					// sort out lighiting value
+					Color lights = { 0,0,0,0 };
+					for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
+					{
+						lights += pWorld->lights[lindx]->CalculateColor(normal);
+					}
+
+					lights = lights / (float)pWorld->lightCount;
+
+					//Color c = 0.5f * ambient + 0.5f * lights;
+					//c.Saturate();
+
+
 					Color c0, c1, c2;
 
-					if (m->colors)
+					//if (m->colors)
+					//{
+					//	// To do
+					//	c0 = { 1,0,0 };
+					//	c1 = { 0,1,0 };
+					//	c2 = { 0,0,1 };
+					//}
+					//else
 					{
-						// To do
-						c0 = { 1,0,0 };
-						c1 = { 0,1,0 };
-						c2 = { 0,0,1 };
-					}
-					else
-					{
-						c0 = pWorld->entities[eindx]->color;
+						c0 = pWorld->entities[eindx]->color * 0.5f + lights * 0.5f;
+						c0.Saturate();
 						c1 = c0;
 						c2 = c0;
 					}
@@ -195,6 +226,8 @@ void BERenderPipelineScanline::Draw()
 						triedage++;
 					}
 					else int dummybp = 0;
+
+					trinum++;
 				}
 			}
 		}
