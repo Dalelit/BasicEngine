@@ -16,6 +16,10 @@ BEDirectX::~BEDirectX()
 	if (pBackBuffer) pBackBuffer->Release();
 	if (pRenderTargetView) pRenderTargetView->Release();
 	if (pTriangleBuffer) pTriangleBuffer->Release();
+	if (pVertexShaderBlob) pVertexShaderBlob->Release();
+	if (pPixelShaderBlob) pPixelShaderBlob->Release();
+	if (pVertexShader) pVertexShader->Release();
+	if (pPixelShader) pPixelShader->Release();
 }
 
 int BEDirectX::Initialise(HWND hwnd)
@@ -64,9 +68,80 @@ int BEDirectX::Initialise(HWND hwnd)
 	return hresult;
 }
 
-int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera)
+int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera, unsigned int width, unsigned int height)
 {
 	HRESULT hr;
+
+	/////////////////// Input Assembler stage
+	// In draw
+
+	/////////////////// Vertex Shader stage
+	hr = D3DReadFileToBlob(L"VertexShader.cso", &pVertexShaderBlob);
+	if (FAILED(hr)) return hr;
+
+	hr = pDevice->CreateVertexShader(
+		pVertexShaderBlob->GetBufferPointer(),
+		pVertexShaderBlob->GetBufferSize(),
+		nullptr, &pVertexShader);
+
+	if (FAILED(hr)) return hr;
+
+	pImmediateContext->VSSetShader(pVertexShader, nullptr, 0u);
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[1] = {};
+	inputDesc[0].SemanticName = "Position";
+	inputDesc[0].SemanticIndex = 0;
+	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[0].InputSlot = 0u;
+	inputDesc[0].AlignedByteOffset = 0u;
+	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[0].InstanceDataStepRate = 0u;
+
+	hr = pDevice->CreateInputLayout(
+		inputDesc, 1u,
+		pVertexShaderBlob->GetBufferPointer(),
+		pVertexShaderBlob->GetBufferSize(),
+		&pInputLayout);
+
+	if (FAILED(hr)) return hr;
+
+	pImmediateContext->IASetInputLayout(pInputLayout);
+
+	/////////////////// Rasterizer stage
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = (float)width;
+	viewport.Height = (float)height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	pImmediateContext->RSSetViewports(1, &viewport);
+
+	/////////////////// Pixel Shader stage
+	hr = D3DReadFileToBlob(L"PixelShader.cso", &pPixelShaderBlob);
+	if (FAILED(hr)) return hr;
+
+	hr = pDevice->CreatePixelShader(
+		pPixelShaderBlob->GetBufferPointer(),
+		pPixelShaderBlob->GetBufferSize(),
+		nullptr, &pPixelShader);
+
+	if (FAILED(hr)) return hr;
+
+	pImmediateContext->PSSetShader(pPixelShader, nullptr, 0u);
+
+	/////////////////// Output merger stage
+	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, nullptr);
+
+	return 0;
+}
+
+int BEDirectX::DoFrame()
+{
+	if (color[2] > 1.0f) color[2] = 0.0f;
+
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView, color);
+
 
 	/////////////////// Input Assembler stage
 
@@ -76,8 +151,8 @@ int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera)
 
 	Vertex verts[] = {
 		{0.0f, 0.0f, 0.0f},
-		{0.5f, 0.0f, 0.0f},
 		{0.0f, 0.5f, 0.0f},
+		{0.5f, 0.0f, 0.0f},
 	};
 
 	// create triangle data
@@ -95,50 +170,23 @@ int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera)
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(Vertex);
 
-	hr = pDevice->CreateBuffer(&bufferDesc, &triangleData, &pTriangleBuffer);
+	if (pTriangleBuffer) pTriangleBuffer->Release();
+	HRESULT hr = pDevice->CreateBuffer(&bufferDesc, &triangleData, &pTriangleBuffer);
 	if (FAILED(hr)) return hr;
 
 	// set the triangle vertex buffer
-	UINT bufferStrides[] = { sizeof(verts) };
+	UINT bufferStrides[] = { sizeof(Vertex) };
 	UINT bufferOffsets[] = { 0 };
 	pImmediateContext->IASetVertexBuffers(0, 1, &pTriangleBuffer, bufferStrides, bufferOffsets);
 	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	/////////////////// Vertex Shader stage
-	ID3DBlob* pBlob = nullptr;
-	hr = D3DReadFileToBlob(L"VertexShader.cso", &pBlob);
-	if (FAILED(hr)) return hr;
+	/////////////////// Draw
+	unsigned int vertCount = (UINT)std::size(verts);
+	pImmediateContext->Draw(vertCount, 0u);
+	pSwapChain->Present(1u, 0u);
 
-
-	if (pBlob) pBlob->Release();
-
-	/////////////////// Rasterizer stage
-
-	//pImmediateContext->RSSetViewports
-
-	/////////////////// Pixel Shader stage
-	//pImmediateContext->PSSetShader(nullptr, nullptr, 0);
-
-	/////////////////// Output merger stage
-
-	//pImmediateContext->OMSetRenderTargets
-
-
-	// draw
-	pImmediateContext->Draw((UINT)std::size(verts), 0u);
-
-	return 0;
-}
-
-int BEDirectX::DoFrame()
-{
-	if (color[2] > 1.0f) color[2] = 0.0f;
-
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView, color);
 
 	color[2] += 0.01f;
-
-	pSwapChain->Present(1u, 0u);
 
 	return 0;
 }

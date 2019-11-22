@@ -28,6 +28,7 @@ int windowPosX = 0;
 int windowPosY = 0;
 int windowSizeW = 800;
 int windowSizeH = 600;
+RECT windowRect = {};
 
 
 // global control variables
@@ -277,6 +278,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
 	BERegisterWindowClass(hInstance);
+
+	windowRect.right = windowSizeW;
+	windowRect.bottom = windowSizeH;
+	AdjustWindowRect(&windowRect, wc.style, false);
+
 	BECreateWindow(0, hInstance, L"Scanline");
 	BECreateWindow(1, hInstance, L"Ray tracing");
 	BECreateWindow(2, hInstance, L"Wireframe");
@@ -299,7 +305,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// for DirectX rendering
 	BEDirectX dx;
 	dx.Initialise(hwnd[4]);
-	dx.LoadScene(&world, &camera);
+	dx.LoadScene(&world, &camera, windowSizeW, windowSizeH);
+	dx.DoFrame();
 
 	// ready to go...
 
@@ -386,7 +393,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	BECleanupWindow(3);
 	BECleanupWindow(4);
 	BEUnregisterWindowClass();
-
 
 	return 0;
 }
