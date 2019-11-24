@@ -24,6 +24,9 @@ BEDirectX::~BEDirectX()
 	if (pVertexShader) pVertexShader->Release();
 	if (pPixelShader) pPixelShader->Release();
 	if (pConstantBuffer) pConstantBuffer->Release();
+	if (pDepthStencilState) pDepthStencilState->Release();
+	if (pDepthStencilView) pDepthStencilView->Release();
+	if (pDepthTexture) pDepthTexture->Release();
 
 	if (verticies) delete verticies;
 }
@@ -75,6 +78,50 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	hr = pDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
 
 	if (FAILED(hr)) return hr;
+
+	/////////////////// Depth buffer
+
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = TRUE;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	hr = pDevice->CreateDepthStencilState(&dsDesc, &pDepthStencilState);
+
+	if (FAILED(hr)) return hr;
+
+	pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 1u);
+
+	D3D11_TEXTURE2D_DESC dtDesc = {};
+	dtDesc.Width = width;
+	dtDesc.Height = height;
+	dtDesc.MipLevels = 1u;
+	dtDesc.ArraySize = 1u;
+	dtDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dtDesc.SampleDesc.Count = 1u;
+	dtDesc.SampleDesc.Quality = 0u;
+	dtDesc.Usage = D3D11_USAGE_DEFAULT;
+	dtDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	dtDesc.CPUAccessFlags = 0u;
+	dtDesc.MiscFlags = 0u;
+
+	hr = pDevice->CreateTexture2D(&dtDesc, nullptr, &pDepthTexture);
+
+	if (FAILED(hr)) return hr;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = 0;
+	dsvDesc.Texture2D.MipSlice = 0u;
+
+	hr = pDevice->CreateDepthStencilView(pDepthTexture, &dsvDesc, &pDepthStencilView);
+
+	if (FAILED(hr)) return hr;
+
+	// happens in the draw loop
+	//pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, pDepthStencilView);
+
 
 	/////////////////// Vertex Shader stage
 	hr = D3DReadFileToBlob(L"VertexShader.cso", &pVertexShaderBlob);
@@ -234,9 +281,10 @@ int BEDirectX::UpdateScene(BECamera* pCamera)
 
 int BEDirectX::DoFrame()
 {
-	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, nullptr);
+	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, pDepthStencilView);
 
 	pImmediateContext->ClearRenderTargetView(pRenderTargetView, clearColor);
+	pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
 	pImmediateContext->Draw(vertCount, 0u);
 

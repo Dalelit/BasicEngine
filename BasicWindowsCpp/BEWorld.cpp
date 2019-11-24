@@ -46,20 +46,20 @@ void BEWorld::Create()
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
-	e->Scale({ 2,2,2 });
+	//e->Scale({ 2,2,2 });
 	e->color = {1,0,0};
-	Matrix m = Matrix::CreateFromYawPitchRoll(3.14f / 4.0f, 0, 0);
-	e->Transform(m);
-	e->mesh->CalculateNormals();
+	//Matrix m = Matrix::CreateFromYawPitchRoll(3.14f / 4.0f, 0, 0);
+	//e->Transform(m);
+	//e->mesh->CalculateNormals();
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
-	e->Translate({ 1,0,1 });
+	e->Translate({ 0.5,0,1 });
 	e->color = { 0,1,0 };
 
 	e = CreateAddEntity();
 	e->mesh = BEModel::TriangleMesh();
-	e->Translate({ 0,-0.5f,-1 });
+	e->Translate({ -0.5,0,-1 });
 	e->color = { 0,0,1 };
 
 	//e = CreateAddEntity();

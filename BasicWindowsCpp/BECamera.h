@@ -9,7 +9,7 @@ class BECamera : public BEEntity
 {
 public:
 
-	float viewPortRatio = 2.0f / 3.0f;
+	float viewPortRatio = 3.0f / 4.0f;
 	Vector3 viewPort = { 1.0f, viewPortRatio, 1.0f };
 
 	float focalLength = 1.0f; // is this really a focal length?

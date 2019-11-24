@@ -22,7 +22,8 @@ inline void BECamera::Recalc()
 	viewMatrix = XMMatrixLookToRH(position, direction, Vector3::Up);
 	//viewMatrix = XMMatrixLookAtRH(position, centre, Vector3::Up);
 
-	projectionMatrix = Matrix::CreatePerspective(2.0f * viewPort.x, 2.0f * viewPort.y, focalLength, 10000.0f);
+	//projectionMatrix = Matrix::CreatePerspective(2.0f * viewPort.x, 2.0f * viewPort.y, focalLength, 10000.0f);
+	projectionMatrix = Matrix::CreatePerspective(viewPort.x, viewPort.y, 0.5f, 10000.0f);
 
 }
 

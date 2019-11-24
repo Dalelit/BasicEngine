@@ -32,6 +32,10 @@ public:
 	ID3D11Device* pDevice = NULL;
 	ID3D11DeviceContext* pImmediateContext = NULL;
 
+	ID3D11DepthStencilState* pDepthStencilState = NULL; // to do - don't need to keep this
+	ID3D11DepthStencilView* pDepthStencilView = NULL;
+	ID3D11Texture2D* pDepthTexture = NULL;
+
 	ID3D11Resource* pBackBuffer = NULL;
 	ID3D11RenderTargetView* pRenderTargetView = NULL;
 
