@@ -70,7 +70,7 @@ void BERenderPipelineWireframe::Draw()
 				//float dot = toCamera.Dot(normal);
 				Vector3 v0n = -v0;
 				v0n.Normalize();
-				if (normal.Dot(v0n) < 0.0f) // || normal.Dot(-v1) < 0.0f || normal.Dot(-v2) < 0.0f)
+				//if (normal.Dot(v0n) < 0.0f) // || normal.Dot(-v1) < 0.0f || normal.Dot(-v2) < 0.0f)
 				{
 
 					Color c = pWorld->entities[eindx]->color;

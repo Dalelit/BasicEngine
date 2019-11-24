@@ -89,17 +89,24 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	pImmediateContext->VSSetShader(pVertexShader, nullptr, 0u);
 
-	D3D11_INPUT_ELEMENT_DESC inputDesc[1] = {};
+	D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {};
 	inputDesc[0].SemanticName = "Position";
 	inputDesc[0].SemanticIndex = 0;
 	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputDesc[0].InputSlot = 0u;
-	inputDesc[0].AlignedByteOffset = 0u; // D3D11_APPEND_ALIGNED_ELEMENT
+	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 0u;
 	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[0].InstanceDataStepRate = 0u;
+	inputDesc[1].SemanticName = "Color";
+	inputDesc[1].SemanticIndex = 0;
+	inputDesc[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputDesc[1].InputSlot = 0u;
+	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[1].InstanceDataStepRate = 0u;
 
 	hr = pDevice->CreateInputLayout(
-		inputDesc, 1u,
+		inputDesc, 2u,
 		pVertexShaderBlob->GetBufferPointer(),
 		pVertexShaderBlob->GetBufferSize(),
 		&pInputLayout);
@@ -150,7 +157,7 @@ int BEDirectX::LoadScene(BEWorld* pWorld)
 			{
 				// To Do: efficient way to do this?
 				verticies[vertIndx].position = m->verticies[i];
-				//verticies[vertIndx].color = pWorld->entities[eIndx]->color;
+				verticies[vertIndx].color = pWorld->entities[eIndx]->color;
 				vertIndx++;
 			}
 		}
@@ -227,12 +234,9 @@ int BEDirectX::UpdateScene(BECamera* pCamera)
 
 int BEDirectX::DoFrame()
 {
-	color[2] += 0.01f;
-	if (color[2] > 1.0f) color[2] = 0.0f;
-
 	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, nullptr);
 
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView, color);
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView, clearColor);
 
 	pImmediateContext->Draw(vertCount, 0u);
 

@@ -114,7 +114,7 @@ public:
 	bool drawNormals = true;
 	Color normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
 
-	bool backfaceCull = true;
+	bool backfaceCull = false;
 
 	BERenderPipelineWireframe(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();

@@ -12,7 +12,7 @@ public:
 
 	struct BEVertex {
 		XMFLOAT3 position;
-		//XMVECTOR color;
+		XMFLOAT4 color;
 	};
 
 	BEDirectX();
@@ -44,7 +44,7 @@ public:
 	ID3DBlob* pVertexShaderBlob = NULL;
 	ID3DBlob* pPixelShaderBlob = NULL;
 
-	float color[4] = { 1.0f,0.0f,0.0f,1.0f };
+	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 
 private:
 	BEVertex* verticies = NULL;
