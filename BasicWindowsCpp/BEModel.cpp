@@ -4,9 +4,10 @@ BEMesh* BEModel::TriangleMesh()
 {
 	BEMesh* m = new BEMesh(3, 1);
 
+	// to do: sort out the handedness
 	m->verticies[0] = { 0,0,0 };
-	m->verticies[1] = { 1,0,0 };
-	m->verticies[2] = { 0,1,0 };
+	m->verticies[1] = { 0,1,0 };
+	m->verticies[2] = { 1,0,0 };
 
 	// clockwise
 	// to do: check if clockwise is a good direction

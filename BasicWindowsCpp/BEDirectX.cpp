@@ -4,8 +4,11 @@
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
+#define BEDIRECTX_VERT_BUFFER_MAXSIZE 1000
+
 BEDirectX::BEDirectX()
 {
+	verticies = new BEVertex[BEDIRECTX_VERT_BUFFER_MAXSIZE];
 }
 
 BEDirectX::~BEDirectX()
@@ -20,10 +23,17 @@ BEDirectX::~BEDirectX()
 	if (pPixelShaderBlob) pPixelShaderBlob->Release();
 	if (pVertexShader) pVertexShader->Release();
 	if (pPixelShader) pPixelShader->Release();
+	if (pConstantBuffer) pConstantBuffer->Release();
+
+	if (verticies) delete verticies;
 }
 
-int BEDirectX::Initialise(HWND hwnd)
+int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 {
+	HRESULT hr;
+
+	/////////////////// create device and back buffer
+
 	swapChainDesc.BufferDesc.Width = 0;
 	swapChainDesc.BufferDesc.Height = 0;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -37,10 +47,11 @@ int BEDirectX::Initialise(HWND hwnd)
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.OutputWindow = hwnd;
 	swapChainDesc.Windowed = TRUE;
+	//swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Flags = 0;
 
-	HRESULT hresult = D3D11CreateDeviceAndSwapChain(
+	hr = D3D11CreateDeviceAndSwapChain(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
@@ -55,25 +66,15 @@ int BEDirectX::Initialise(HWND hwnd)
 		&pImmediateContext
 	);
 
-	if (FAILED(hresult)) return hresult;
+	if (FAILED(hr)) return hr;
 
-	hresult = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), (void**)&pBackBuffer);
+	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), (void**)&pBackBuffer);
 		
-	if (FAILED(hresult)) return hresult;
+	if (FAILED(hr)) return hr;
 
-	hresult = pDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
+	hr = pDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
 
-	if (FAILED(hresult)) return hresult;
-
-	return hresult;
-}
-
-int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera, unsigned int width, unsigned int height)
-{
-	HRESULT hr;
-
-	/////////////////// Input Assembler stage
-	// In draw
+	if (FAILED(hr)) return hr;
 
 	/////////////////// Vertex Shader stage
 	hr = D3DReadFileToBlob(L"VertexShader.cso", &pVertexShaderBlob);
@@ -93,7 +94,7 @@ int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera, unsigned int widt
 	inputDesc[0].SemanticIndex = 0;
 	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputDesc[0].InputSlot = 0u;
-	inputDesc[0].AlignedByteOffset = 0u;
+	inputDesc[0].AlignedByteOffset = 0u; // D3D11_APPEND_ALIGNED_ELEMENT
 	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[0].InstanceDataStepRate = 0u;
 
@@ -130,63 +131,113 @@ int BEDirectX::LoadScene(BEWorld* _pWorld, BECamera* _pCamera, unsigned int widt
 
 	pImmediateContext->PSSetShader(pPixelShader, nullptr, 0u);
 
-	/////////////////// Output merger stage
-	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, nullptr);
-
-	return 0;
+	return hr;
 }
 
-int BEDirectX::DoFrame()
+int BEDirectX::LoadScene(BEWorld* pWorld)
 {
-	if (color[2] > 1.0f) color[2] = 0.0f;
+	HRESULT hr;
 
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView, color);
+	UINT vertIndx = 0;
 
+	for (UINT eIndx = 0; eIndx < pWorld->entityCount; eIndx++)
+	{
+		BEMesh* m = pWorld->entities[eIndx]->mesh;
 
-	/////////////////// Input Assembler stage
+		if (m)
+		{
+			for (UINT i = 0; i < m->vCount; i++)
+			{
+				// To Do: efficient way to do this?
+				verticies[vertIndx].position = m->verticies[i];
+				//verticies[vertIndx].color = pWorld->entities[eIndx]->color;
+				vertIndx++;
+			}
+		}
+	}
+	vertCount = vertIndx;
 
-	struct Vertex {
-		float x, y, z;
-	};
-
-	Vertex verts[] = {
-		{0.0f, 0.0f, 0.0f},
-		{0.0f, 0.5f, 0.0f},
-		{0.5f, 0.0f, 0.0f},
-	};
+	//verticies[0].position = { 0.0f, 0.0f, 0.0f };
+	//verticies[1].position = { 0.0f, 0.5f, 0.0f };
+	//verticies[2].position = { 0.5f, 0.0f, 0.0f };
+	//vertCount = 3;
 
 	// create triangle data
 	D3D11_SUBRESOURCE_DATA triangleData = {};
 	triangleData.SysMemPitch = 0;
 	triangleData.SysMemSlicePitch = 0;
-	triangleData.pSysMem = verts;
+	triangleData.pSysMem = verticies;
 
 	// create the triangle buffer
 	D3D11_BUFFER_DESC bufferDesc = {};
-	bufferDesc.ByteWidth = sizeof(verts);
+	bufferDesc.ByteWidth = sizeof(BEVertex) * vertCount;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = sizeof(Vertex);
+	bufferDesc.StructureByteStride = sizeof(BEVertex);
 
 	if (pTriangleBuffer) pTriangleBuffer->Release();
-	HRESULT hr = pDevice->CreateBuffer(&bufferDesc, &triangleData, &pTriangleBuffer);
+	hr = pDevice->CreateBuffer(&bufferDesc, &triangleData, &pTriangleBuffer);
 	if (FAILED(hr)) return hr;
 
 	// set the triangle vertex buffer
-	UINT bufferStrides[] = { sizeof(Vertex) };
+	UINT bufferStrides[] = { sizeof(BEVertex) };
 	UINT bufferOffsets[] = { 0 };
 	pImmediateContext->IASetVertexBuffers(0, 1, &pTriangleBuffer, bufferStrides, bufferOffsets);
 	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	/////////////////// Draw
-	unsigned int vertCount = (UINT)std::size(verts);
+	return hr;
+}
+
+int BEDirectX::UpdateScene(BECamera* pCamera)
+{
+	HRESULT hr = 0;
+
+	struct ConstantBuffer {
+		XMMATRIX transformation;
+	};
+
+	ConstantBuffer constBuff;
+	constBuff.transformation = XMMatrixTranspose(pCamera->GetViewProjectionMatrix());
+
+	D3D11_SUBRESOURCE_DATA constBufferData = {};
+	constBufferData.SysMemPitch = 0;
+	constBufferData.SysMemSlicePitch = 0;
+	constBufferData.pSysMem = &constBuff;
+
+	// create the buffer
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.ByteWidth = sizeof(ConstantBuffer);
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+	bufferDesc.StructureByteStride = sizeof(ConstantBuffer);
+
+	if (pConstantBuffer) pConstantBuffer->Release();
+	hr = pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
+	if (FAILED(hr)) return hr;
+
+	// set the constant buffer
+	pImmediateContext->VSSetConstantBuffers(0u, 1u, &pConstantBuffer);
+
+	return hr;
+}
+
+int BEDirectX::DoFrame()
+{
+	color[2] += 0.01f;
+	if (color[2] > 1.0f) color[2] = 0.0f;
+
+	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, nullptr);
+
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView, color);
+
 	pImmediateContext->Draw(vertCount, 0u);
+
 	pSwapChain->Present(1u, 0u);
 
-
-	color[2] += 0.01f;
 
 	return 0;
 }

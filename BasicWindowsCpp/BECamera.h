@@ -22,7 +22,11 @@ public:
 
 	void LookAt(Vector3 target);
 
-	inline Vector3 WorldToScreen(Vector3 coord) { return XMVector3TransformCoord(coord, XMMatrixMultiply(viewMatrix, projectionMatrix)); }
+	inline Matrix GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
+	inline Matrix GetViewMatrix() { return viewMatrix; }
+	inline Matrix GetProjectionMatrix() { return projectionMatrix; }
+
+	inline Vector3 WorldToScreen(Vector3 coord) { return XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
 
 	Ray RelativeScreenPositionToRay(float x, float y);
 

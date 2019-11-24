@@ -22,14 +22,14 @@
 // global windows variables and macros
 #define BENUMBER_WINDOWS 5
 #define BE_SWBUFFERSIZE 1000
+#define BE_WINDOWSTYLE WS_VISIBLE | WS_CAPTION
 HWND hwnd[BENUMBER_WINDOWS];
 HDC hdc[BENUMBER_WINDOWS];
 int windowPosX = 0;
 int windowPosY = 0;
-int windowSizeW = 800;
-int windowSizeH = 600;
-RECT windowRect = {};
-
+int displaySizeW = 800;
+int displaySizeH = 600;
+RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is called in main to set this
 
 // global control variables
 bool running = true;
@@ -199,25 +199,25 @@ int BECreateWindow(int indx, HINSTANCE hInstance, LPCWSTR name)
 {
 	hwnd[indx] = CreateWindow(wc.lpszClassName,
 		name,
-		WS_VISIBLE, // WS_OVERLAPPEDWINDOW |
+		BE_WINDOWSTYLE,
 		windowPosX, windowPosY,
-		windowSizeW, windowSizeH,
+		windowRect.right, windowRect.bottom,
 		(indx == 0 ? 0 : hwnd[0]), // parent window
 		0, hInstance, NULL);
 
-	windowPosX += windowSizeW;
+	windowPosX += windowRect.right;
 
 	if (!hwnd[indx])
 		return 2;
 
 	RECT rect;
 	GetWindowRect(GetDesktopWindow(), &rect);
-	if (windowPosX + windowSizeW > rect.right)
+	if (windowPosX + windowRect.right > rect.right)
 	{
 		// next window would be off screen so shuffle down.
 		// To Do: tidy up this hack?
 		windowPosX = 0;
-		windowPosY += windowSizeH;
+		windowPosY += windowRect.bottom;
 	}
 
 
@@ -279,9 +279,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	BERegisterWindowClass(hInstance);
 
-	windowRect.right = windowSizeW;
-	windowRect.bottom = windowSizeH;
-	AdjustWindowRect(&windowRect, wc.style, false);
+	// get the window size to ensure the client rect is the size we want.
+	BOOL awr = AdjustWindowRectEx(&windowRect, BE_WINDOWSTYLE, false, 0);
+	// adjust for the negative offset that results.
+	windowRect.right -= windowRect.left;
+	windowRect.left = 0;
+	windowRect.bottom -= windowRect.top;
+	windowRect.top = 0;
 
 	BECreateWindow(0, hInstance, L"Scanline");
 	BECreateWindow(1, hInstance, L"Ray tracing");
@@ -304,9 +308,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for DirectX rendering
 	BEDirectX dx;
-	dx.Initialise(hwnd[4]);
-	dx.LoadScene(&world, &camera, windowSizeW, windowSizeH);
-	dx.DoFrame();
+	dx.Initialise(hwnd[4], bufferWidth, bufferHeight);
+	dx.LoadScene(&world);
 
 	// ready to go...
 
@@ -326,7 +329,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
 
 		//
 		// scanline..........
@@ -360,7 +362,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// directx.............
 		//
-		//dx.DoFrame();
+		dx.UpdateScene(&camera);
+		dx.DoFrame();
 
 		//
 		// wireframe.............
@@ -380,7 +383,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nLoop time: %3.3fs\nfps: %f", (endRend - startRend), deltaTime, 1.0f / deltaTime);
 		BEWriteOverlayToWindow(2, swbuffer);
-
 	}
 
 	pipeline[1]->exitLoop = true; // tell it to stop!
