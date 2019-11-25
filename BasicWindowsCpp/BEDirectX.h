@@ -2,9 +2,9 @@
 #include <d3d11.h>
 #include "BEWorld.h"
 #include "BECamera.h"
+#include <wrl.h>
 
-// To Do
-// - use ComPtr
+namespace wrl = Microsoft::WRL;
 
 class BEDirectX
 {
@@ -27,26 +27,21 @@ public:
 
 	int DoFrame();
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
-	IDXGISwapChain* pSwapChain = NULL;
-	ID3D11Device* pDevice = NULL;
-	ID3D11DeviceContext* pImmediateContext = NULL;
+	wrl::ComPtr<IDXGISwapChain> pSwapChain = NULL;
+	wrl::ComPtr<ID3D11Device> pDevice = NULL;
+	wrl::ComPtr<ID3D11DeviceContext> pImmediateContext = NULL;
 
-	ID3D11DepthStencilState* pDepthStencilState = NULL; // to do - don't need to keep this
-	ID3D11DepthStencilView* pDepthStencilView = NULL;
-	ID3D11Texture2D* pDepthTexture = NULL;
+	wrl::ComPtr<ID3D11DepthStencilView> pDepthStencilView = NULL;
+	wrl::ComPtr<ID3D11Texture2D> pDepthTexture = NULL;
 
-	ID3D11Resource* pBackBuffer = NULL;
-	ID3D11RenderTargetView* pRenderTargetView = NULL;
+	wrl::ComPtr<ID3D11Resource> pBackBuffer = NULL;
+	wrl::ComPtr<ID3D11RenderTargetView> pRenderTargetView = NULL;
 
-	ID3D11Buffer* pTriangleBuffer = NULL;
-	ID3D11Buffer* pConstantBuffer = NULL;
-	ID3D11VertexShader* pVertexShader = NULL;
-	ID3D11PixelShader* pPixelShader = NULL;
-	ID3D11InputLayout* pInputLayout = NULL;
-
-	ID3DBlob* pVertexShaderBlob = NULL;
-	ID3DBlob* pPixelShaderBlob = NULL;
+	wrl::ComPtr<ID3D11Buffer> pTriangleBuffer = NULL;
+	wrl::ComPtr<ID3D11Buffer> pConstantBuffer = NULL;
+	wrl::ComPtr<ID3D11VertexShader> pVertexShader = NULL;
+	wrl::ComPtr<ID3D11PixelShader> pPixelShader = NULL;
+	wrl::ComPtr<ID3D11InputLayout> pInputLayout = NULL;
 
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 

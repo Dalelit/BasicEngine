@@ -13,21 +13,6 @@ BEDirectX::BEDirectX()
 
 BEDirectX::~BEDirectX()
 {
-	if (pSwapChain) pSwapChain->Release();
-	if (pDevice) pDevice->Release();
-	if (pImmediateContext) pImmediateContext->Release();
-	if (pBackBuffer) pBackBuffer->Release();
-	if (pRenderTargetView) pRenderTargetView->Release();
-	if (pTriangleBuffer) pTriangleBuffer->Release();
-	if (pVertexShaderBlob) pVertexShaderBlob->Release();
-	if (pPixelShaderBlob) pPixelShaderBlob->Release();
-	if (pVertexShader) pVertexShader->Release();
-	if (pPixelShader) pPixelShader->Release();
-	if (pConstantBuffer) pConstantBuffer->Release();
-	if (pDepthStencilState) pDepthStencilState->Release();
-	if (pDepthStencilView) pDepthStencilView->Release();
-	if (pDepthTexture) pDepthTexture->Release();
-
 	if (verticies) delete verticies;
 }
 
@@ -37,6 +22,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	/////////////////// create device and back buffer
 
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 	swapChainDesc.BufferDesc.Width = 0;
 	swapChainDesc.BufferDesc.Height = 0;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -50,8 +36,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.OutputWindow = hwnd;
 	swapChainDesc.Windowed = TRUE;
-	//swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL?
 	swapChainDesc.Flags = 0;
 
 	hr = D3D11CreateDeviceAndSwapChain(
@@ -71,11 +56,11 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	if (FAILED(hr)) return hr;
 
-	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), (void**)&pBackBuffer);
+	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
 		
 	if (FAILED(hr)) return hr;
 
-	hr = pDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
+	hr = pDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, &pRenderTargetView);
 
 	if (FAILED(hr)) return hr;
 
@@ -86,11 +71,12 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
+	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilState = NULL;
 	hr = pDevice->CreateDepthStencilState(&dsDesc, &pDepthStencilState);
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 1u);
+	pImmediateContext->OMSetDepthStencilState(pDepthStencilState.Get(), 1u);
 
 	D3D11_TEXTURE2D_DESC dtDesc = {};
 	dtDesc.Width = width;
@@ -115,15 +101,12 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	dsvDesc.Flags = 0;
 	dsvDesc.Texture2D.MipSlice = 0u;
 
-	hr = pDevice->CreateDepthStencilView(pDepthTexture, &dsvDesc, &pDepthStencilView);
+	hr = pDevice->CreateDepthStencilView(pDepthTexture.Get(), &dsvDesc, &pDepthStencilView);
 
 	if (FAILED(hr)) return hr;
 
-	// happens in the draw loop
-	//pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, pDepthStencilView);
-
-
 	/////////////////// Vertex Shader stage
+	wrl::ComPtr<ID3DBlob> pVertexShaderBlob = NULL;
 	hr = D3DReadFileToBlob(L"VertexShader.cso", &pVertexShaderBlob);
 	if (FAILED(hr)) return hr;
 
@@ -134,7 +117,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext->VSSetShader(pVertexShader, nullptr, 0u);
+	pImmediateContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {};
 	inputDesc[0].SemanticName = "Position";
@@ -160,7 +143,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext->IASetInputLayout(pInputLayout);
+	pImmediateContext->IASetInputLayout(pInputLayout.Get());
 
 	/////////////////// Rasterizer stage
 	D3D11_VIEWPORT viewport = {};
@@ -173,6 +156,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	pImmediateContext->RSSetViewports(1, &viewport);
 
 	/////////////////// Pixel Shader stage
+	wrl::ComPtr<ID3DBlob> pPixelShaderBlob = NULL;
 	hr = D3DReadFileToBlob(L"PixelShader.cso", &pPixelShaderBlob);
 	if (FAILED(hr)) return hr;
 
@@ -183,7 +167,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext->PSSetShader(pPixelShader, nullptr, 0u);
+	pImmediateContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
 	return hr;
 }
@@ -211,11 +195,6 @@ int BEDirectX::LoadScene(BEWorld* pWorld)
 	}
 	vertCount = vertIndx;
 
-	//verticies[0].position = { 0.0f, 0.0f, 0.0f };
-	//verticies[1].position = { 0.0f, 0.5f, 0.0f };
-	//verticies[2].position = { 0.5f, 0.0f, 0.0f };
-	//vertCount = 3;
-
 	// create triangle data
 	D3D11_SUBRESOURCE_DATA triangleData = {};
 	triangleData.SysMemPitch = 0;
@@ -231,14 +210,13 @@ int BEDirectX::LoadScene(BEWorld* pWorld)
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(BEVertex);
 
-	if (pTriangleBuffer) pTriangleBuffer->Release();
 	hr = pDevice->CreateBuffer(&bufferDesc, &triangleData, &pTriangleBuffer);
 	if (FAILED(hr)) return hr;
 
 	// set the triangle vertex buffer
 	UINT bufferStrides[] = { sizeof(BEVertex) };
 	UINT bufferOffsets[] = { 0 };
-	pImmediateContext->IASetVertexBuffers(0, 1, &pTriangleBuffer, bufferStrides, bufferOffsets);
+	pImmediateContext->IASetVertexBuffers(0, 1, pTriangleBuffer.GetAddressOf(), bufferStrides, bufferOffsets);
 	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return hr;
@@ -269,27 +247,25 @@ int BEDirectX::UpdateScene(BECamera* pCamera)
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(ConstantBuffer);
 
-	if (pConstantBuffer) pConstantBuffer->Release();
 	hr = pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 	if (FAILED(hr)) return hr;
 
 	// set the constant buffer
-	pImmediateContext->VSSetConstantBuffers(0u, 1u, &pConstantBuffer);
+	pImmediateContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
 	return hr;
 }
 
 int BEDirectX::DoFrame()
 {
-	pImmediateContext->OMSetRenderTargets(1u, &pRenderTargetView, pDepthStencilView);
+	pImmediateContext->OMSetRenderTargets(1u, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
 
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView, clearColor);
-	pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView.Get(), clearColor);
+	pImmediateContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
 	pImmediateContext->Draw(vertCount, 0u);
 
 	pSwapChain->Present(1u, 0u);
-
 
 	return 0;
 }
