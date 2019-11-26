@@ -2,21 +2,21 @@
 #include "BEEntity.h"
 
 using namespace DirectX;
-using namespace SimpleMath;
+//using namespace SimpleMath;
 
 class BELight : public BEEntity
 {
 public:
-	virtual Color CalculateColor(Vector3 normal) = 0;
+	virtual XMVECTOR CalculateColor(XMVECTOR normal) = 0;
 };
 
 class BELightDirectional : public BELight
 {
 public:
-	void SetDirection(Vector3 _direction) { direction = _direction; direction.Normalize(); };
-	Color CalculateColor(Vector3 normal);
+	void SetDirection(XMVECTOR _direction) { direction = XMVector3Normalize(_direction); };
+	XMVECTOR CalculateColor(XMVECTOR normal);
 
 private:
-	Vector3 direction = { 1,1,1 };
+	XMVECTOR direction = { 1,1,1,1 };
 };
 

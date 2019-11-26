@@ -88,7 +88,7 @@ void BEWorld::Create()
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};
-	ld->SetDirection({-4, -2, -1});
+	ld->SetDirection({-4, -4, -4});
 	AddLight(ld);
 }
 

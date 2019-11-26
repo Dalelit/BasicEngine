@@ -2,8 +2,7 @@
 #include "BEModel.h"
 #include "BELight.h"
 
-using namespace DirectX;
-using namespace SimpleMath;
+//using namespace DirectX;
 
 #define BEWORLD_MAX_ENTITIES 100000
 #define BEWORLD_MAX_LIGHTS 100

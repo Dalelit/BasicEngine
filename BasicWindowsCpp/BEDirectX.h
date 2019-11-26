@@ -11,8 +11,8 @@ class BEDirectX
 public:
 
 	struct BEVertex {
-		XMFLOAT3 position;
-		XMFLOAT4 color;
+		XMVECTOR position;
+		XMVECTOR color;
 	};
 
 	BEDirectX();

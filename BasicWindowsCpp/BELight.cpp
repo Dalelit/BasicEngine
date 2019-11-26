@@ -1,8 +1,9 @@
 #include "BELight.h"
 
-Color BELightDirectional::CalculateColor(Vector3 normal)
+XMVECTOR BELightDirectional::CalculateColor(XMVECTOR normal)
 {
-	Color c = normal.Dot(direction) * color;
-	c.Saturate();
-	return c;
+	//XMVECTOR c = normal.Dot(direction) * color;
+	//c.Saturate();
+	//return c;
+	return XMVectorSaturate( XMVector3Dot(normal, direction)* color );
 }

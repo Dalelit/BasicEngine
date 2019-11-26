@@ -3,9 +3,6 @@
 #include "BECamera.h"
 #include "BECanvas.h"
 
-using namespace DirectX;
-using namespace SimpleMath;
-
 // Implementations so far...
 //
 // BERenderPipelineScanline
@@ -61,8 +58,8 @@ private:
 		float dx;
 		float z;
 		float dz;
-		Color c;
-		Color dc;
+		XMVECTOR c;
+		XMVECTOR dc;
 	};
 
 	struct BETriEdge
@@ -76,11 +73,11 @@ private:
 	// preallocated memory for the number crunching
 	BEEdge* edges;
 	BETriEdge* triedges;
-	Vector3* screenSpaceVerticies;
+	XMVECTOR* screenSpaceVerticies;
 
-	inline void InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo);
+	inline void InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo);
 	inline void UpdateEdge(BEEdge* e);
-	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color);
+	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color);
 };
 
 //////////////////////////////////////////////////////
@@ -112,7 +109,7 @@ class BERenderPipelineWireframe : public BERenderPipeline
 {
 public:
 	bool drawNormals = true;
-	Color normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
+	XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
 
 	bool backfaceCull = true;
 
@@ -123,6 +120,6 @@ public:
 
 private:
 	// preallocated memory for the number crunching
-	Vector3* screenSpaceVerticies;
+	XMVECTOR* screenSpaceVerticies;
 };
 

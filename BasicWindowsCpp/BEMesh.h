@@ -2,7 +2,7 @@
 #include "BECommon.h"
 
 using namespace DirectX;
-using namespace SimpleMath;
+//using namespace SimpleMath;
 
 // Notes/Reminders/To check
 // - RH coord system
@@ -12,11 +12,11 @@ class BEMesh
 {
 public:
 	unsigned int vCount = 0;
-	Vector3* verticies = NULL;
-	Color* colors = NULL;
+	XMVECTOR* verticies = NULL;
+	XMVECTOR* colors = NULL;
 
 	unsigned int nCount = 0;
-	Vector3* normals = NULL;
+	XMVECTOR* normals = NULL;
 
 	unsigned int tCount = 0;
 	unsigned int tBufferSize = 0;
@@ -34,10 +34,10 @@ public:
 
 	void CalculateNormals();
 
-	inline void Translate(Vector3 v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] += v; }
+	inline void Translate(XMVECTOR v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] += v; }
 	inline void Scale(float f) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= f; }
-	inline void Scale(Vector3 v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= v; }
+	inline void Scale(XMVECTOR v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= v; }
 
-	inline void Transform(Matrix m) { for (unsigned int i = 0; i < vCount; i++) verticies[i] = Vector3::Transform(verticies[i], m); }
+	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vCount; i++) verticies[i] = XMVector3Transform(verticies[i], m); }
 };
 

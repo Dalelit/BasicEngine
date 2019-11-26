@@ -3,53 +3,63 @@
 
 
 using namespace DirectX;
-using namespace SimpleMath;
 
 class BECamera : public BEEntity
 {
 public:
+	struct Ray
+	{
+		XMVECTOR position;
+		XMVECTOR direction;
+	};
 
 	float viewPortRatio = 3.0f / 4.0f;
-	Vector3 viewPort = { 1.0f, viewPortRatio, 1.0f };
+	float viewPortX = 1.0f;
+	float viewPortY = viewPortRatio;
+	//XMVECTOR viewPort = { 1.0f, viewPortRatio, 1.0f, 1.0f };
 
 	float focalLength = 1.0f; // is this really a focal length?
 	float maxDistance = 10000.0f; // to do: need to think about this number.
 
-	Vector3 up = Vector3::Up;
+	XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
 
-	BECamera(Vector3 _position, Vector3 _direction);
+	BECamera(XMVECTOR _position, XMVECTOR _direction);
 	inline void Recalc();
 
-	void LookAt(Vector3 target);
+	void LookAt(XMVECTOR target);
 
-	inline Matrix GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
-	inline Matrix GetViewMatrix() { return viewMatrix; }
-	inline Matrix GetProjectionMatrix() { return projectionMatrix; }
+	inline XMMATRIX GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
+	inline XMMATRIX GetViewMatrix() { return viewMatrix; }
+	inline XMMATRIX GetProjectionMatrix() { return projectionMatrix; }
 
-	inline Vector3 WorldToScreen(Vector3 coord) { return XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
+	inline XMVECTOR WorldToScreen(XMVECTOR coord) { return XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
 
 	Ray RelativeScreenPositionToRay(float x, float y);
 
 	void Pan(float _right, float _up, float _forward);
 	void RotateDirection(float yaw, float pitch, float roll);
 
-	float DirectionDot(Vector3 v) { return direction.Dot(v); };
+	float DirectionDot(XMVECTOR v) { return XMVectorGetX(XMVector3Dot(direction, v)); };
 
-	inline bool OveralpsScreen(Vector3 v) { return ((v.x >= -1.0f && v.x <= 1.0f) || // (x or
-		                                            (v.y >= -1.0f && v.y <= 1.0f))   // y in the screen)
-													&& v.z > 0.0f; }                 // and infront of screen
+	inline bool OveralpsScreen(XMVECTOR _v) { 
+		// To do: tidy this up.
+		XMFLOAT3 v;
+		XMStoreFloat3(&v, _v);
+		return ((v.x >= -1.0f && v.x <= 1.0f) || // (x or
+		        (v.y >= -1.0f && v.y <= 1.0f))   // y in the screen)
+			   && v.z > 0.0f; }                  // and infront of screen
 
 	void RunTestCases();
 
 private:
-	Vector3 direction = Vector3::Forward;
-	Vector3 right = Vector3::Right;
-	Vector3 upScaled = Vector3::Up;
+	XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
+	XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
+	XMVECTOR upScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
 
-	Vector3 centre;
+	XMVECTOR centre;
 
-	Matrix projectionMatrix;
-	Matrix viewMatrix;
+	XMMATRIX projectionMatrix;
+	XMMATRIX viewMatrix;
 
 };
 

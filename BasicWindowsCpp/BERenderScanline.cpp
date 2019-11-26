@@ -12,7 +12,7 @@ BERenderPipelineScanline::BERenderPipelineScanline(BEWorld* _pWorld, BECamera* _
 	// pre allocate memory
 	edges = new BEEdge[BERENDERPIPELINE_MAX_EDGES];
 	triedges = new BETriEdge[BERENDERPIPELINE_MAX_TRIEDGES];
-	screenSpaceVerticies = new Vector3[BERENDERPIPELINE_MAX_VERTICES];
+	screenSpaceVerticies = new XMVECTOR[BERENDERPIPELINE_MAX_VERTICES];
 }
 
 BERenderPipelineScanline::~BERenderPipelineScanline()
@@ -23,17 +23,17 @@ BERenderPipelineScanline::~BERenderPipelineScanline()
 }
 
 // Ensure vFrom is lowest y
-inline void BERenderPipelineScanline::InitEdge(BEEdge* e, Vector3* vFrom, Vector3* vTo, Color cFrom, Color cTo)
+inline void BERenderPipelineScanline::InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo)
 {
-	e->yEnd = (int)vTo->y;
-	e->x = vFrom->x;
-	e->z = vFrom->z;
+	e->yEnd = (int)XMVectorGetY(*vTo);  // vTo->y;
+	e->x = XMVectorGetX(*vFrom); // vFrom->x;
+	e->z = XMVectorGetZ(*vFrom); // vFrom->z;
 	e->c = cFrom;
-	float yDiff = vTo->y - vFrom->y;
+	float yDiff = XMVectorGetY(*vTo) - XMVectorGetY(*vFrom); // vTo->y - vFrom->y;
 	if (yDiff != 0) // check that not parallel
 	{
-		e->dx = (vTo->x - vFrom->x) / yDiff;
-		e->dz = (vTo->z - vFrom->z) / yDiff;
+		e->dx = (XMVectorGetX(*vTo) - XMVectorGetX(*vFrom)) / yDiff;
+		e->dz = (XMVectorGetZ(*vTo) - XMVectorGetZ(*vFrom)) / yDiff;
 		e->dc = (cTo - cFrom) / yDiff;
 	}
 }
@@ -45,7 +45,7 @@ inline void BERenderPipelineScanline::UpdateEdge(BEEdge* e)
 	e->c += e->dc;
 }
 
-inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, Color color)
+inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color)
 {
 	unsigned int line = y * pCanvas->width;
 
@@ -89,8 +89,8 @@ void BERenderPipelineScanline::Draw()
 			{
 				// create screen space version of all verticies
 				{
-					Vector3* src = m->verticies;
-					Vector3* tgt = screenSpaceVerticies;
+					XMVECTOR* src = m->verticies;
+					XMVECTOR* tgt = screenSpaceVerticies;
 					for (unsigned int vindx = 0; vindx < m->vCount; vindx++)
 					{
 						*tgt = pCamera->WorldToScreen(*src);
@@ -104,11 +104,11 @@ void BERenderPipelineScanline::Draw()
 
 				while (tindx < m->tBufferSize) // look at each triangle
 				{
-					Vector3 normal = m->normals[trinum];
+					XMVECTOR normal = m->normals[trinum];
 
-					Vector3 v0 = screenSpaceVerticies[m->triangles[tindx++]];
-					Vector3 v1 = screenSpaceVerticies[m->triangles[tindx++]];
-					Vector3 v2 = screenSpaceVerticies[m->triangles[tindx++]];
+					XMVECTOR v0 = screenSpaceVerticies[m->triangles[tindx++]];
+					XMVECTOR v1 = screenSpaceVerticies[m->triangles[tindx++]];
+					XMVECTOR v2 = screenSpaceVerticies[m->triangles[tindx++]];
 
 					// check if the triangle is facing the same direction as the camera, then it is facing away so cull
 					//if (v0.Dot(normal) < 0.0f)
@@ -126,7 +126,7 @@ void BERenderPipelineScanline::Draw()
 					//}
 
 					// sort out lighiting value
-					Color lights = { 0,0,0,0 };
+					XMVECTOR lights = { 0,0,0,0 };
 					for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
 					{
 						lights += pWorld->lights[lindx]->CalculateColor(normal);
@@ -138,7 +138,7 @@ void BERenderPipelineScanline::Draw()
 					//c.Saturate();
 
 
-					Color c0, c1, c2;
+					XMVECTOR c0, c1, c2;
 
 					//if (m->colors)
 					//{
@@ -149,8 +149,7 @@ void BERenderPipelineScanline::Draw()
 					//}
 					//else
 					{
-						c0 = pWorld->entities[eindx]->color * 0.5f + lights * 0.5f;
-						c0.Saturate();
+						c0 = XMVectorSaturate( pWorld->entities[eindx]->color * 0.5f + lights * 0.5f );
 						c1 = c0;
 						c2 = c0;
 					}
@@ -164,18 +163,20 @@ void BERenderPipelineScanline::Draw()
 						v2 = pCanvas->ScreenToPixel(v2);
 
 						// order the verticies lowest to highest // To do - is there something more efficient?
-						Vector3 tmp;
-						if (v0.y > v1.y) SWAPVECTOR3(v0, v1)
-							if (v1.y > v2.y)
+						if (XMVectorGetY(v0) > XMVectorGetY(v1)) SWAPXMVECTOR(v0, v1) // v0.y > v1.y
+						{
+							if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
 							{
-								SWAPVECTOR3(v1, v2)
-									if (v0.y > v1.y) SWAPVECTOR3(v0, v1)
+								SWAPXMVECTOR(v1, v2)
+									if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
+										SWAPXMVECTOR(v0, v1)
 							}
+						}
 
 						// create the edges and triedge
 						InitEdge(edge, &v0, &v1, c0, c1);
 						triedage->e0 = edge;
-						triedage->yStart = (unsigned int)v0.y;
+						triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
 						edge++;
 						InitEdge(edge, &v0, &v2, c0, c2);
 						triedage->e1 = edge;
@@ -185,7 +186,8 @@ void BERenderPipelineScanline::Draw()
 
 						// special case where first edge e0 is flat... replace it with e2
 						// scan lines will then both stop for e0, e1 at the same time
-						if (v0.y == v1.y) triedage->e0 += 2;
+						//if (v0.y == v1.y) triedage->e0 += 2;
+						if (XMVectorGetY(v0) == XMVectorGetY(v1)) triedage->e0 += 2;
 
 						// insert the triedge into a sorted list
 						if (!sortedList) // first one in the list to add
@@ -272,8 +274,8 @@ void BERenderPipelineScanline::Draw()
 					float z = current->e0->z;
 					float dz = 0.0f;
 
-					Color c = current->e0->c;
-					Color dc = {};
+					XMVECTOR c = current->e0->c;
+					XMVECTOR dc = {};
 
 					if (x != xt) // not a single x step
 					{

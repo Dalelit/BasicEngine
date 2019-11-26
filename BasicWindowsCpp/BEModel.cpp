@@ -4,9 +4,9 @@ BEMesh* BEModel::TriangleMesh()
 {
 	BEMesh* m = new BEMesh(3, 1);
 
-	m->verticies[0] = { 0,0,0 };
-	m->verticies[1] = { 0,1,0 };
-	m->verticies[2] = { 1,0,0 };
+	m->verticies[0] = { 0,0,0,1 };
+	m->verticies[1] = { 0,1,0,1 };
+	m->verticies[2] = { 1,0,0,1 };
 
 	// clockwise
 	m->triangles[0] = 0;
@@ -34,14 +34,14 @@ BEMesh* BEModel::CubeMesh()
 	//  4--5
 
 
-	m->verticies[0] = { -0.5f, 0.5f, 0.5f };
-	m->verticies[1] = { 0.5f, 0.5f, 0.5f };
-	m->verticies[2] = { 0.5f, 0.5f,  -0.5f };
-	m->verticies[3] = { -0.5f, 0.5f,  -0.5f };
-	m->verticies[4] = { -0.5f, -0.5f, 0.5f };
-	m->verticies[5] = { 0.5f, -0.5f, 0.5f };
-	m->verticies[6] = { 0.5f, -0.5f,  -0.5f };
-	m->verticies[7] = { -0.5f, -0.5f,  -0.5f };
+	m->verticies[0] = { -0.5f, 0.5f, 0.5f, 1.0f };
+	m->verticies[1] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	m->verticies[2] = { 0.5f, 0.5f,  -0.5f, 1.0f };
+	m->verticies[3] = { -0.5f, 0.5f,  -0.5f, 1.0f };
+	m->verticies[4] = { -0.5f, -0.5f, 0.5f, 1.0f };
+	m->verticies[5] = { 0.5f, -0.5f, 0.5f, 1.0f };
+	m->verticies[6] = { 0.5f, -0.5f,  -0.5f, 1.0f };
+	m->verticies[7] = { -0.5f, -0.5f,  -0.5f, 1.0f };
 	
 	int i = 0;
 
@@ -84,10 +84,10 @@ BEMesh* BEModel::AxisMesh()
 {
 	BEMesh* m = new BEMesh(4, 0);
 
-	m->verticies[0] = { 0,0,0 };
-	m->verticies[1] = { 1,0,0 };
-	m->verticies[2] = { 0,1,0 };
-	m->verticies[3] = { 0,0,1 };
+	m->verticies[0] = { 0,0,0,1 };
+	m->verticies[1] = { 1,0,0,1 };
+	m->verticies[2] = { 0,1,0,1 };
+	m->verticies[3] = { 0,0,1,1 };
 
 	m->AddLines(3);
 

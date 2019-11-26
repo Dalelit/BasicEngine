@@ -2,7 +2,7 @@
 #include "BEEntity.h"
 
 using namespace DirectX;
-using namespace SimpleMath;
+//using namespace SimpleMath;
 
 class BEModel
 {

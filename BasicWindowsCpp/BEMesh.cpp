@@ -5,7 +5,7 @@ BEMesh::BEMesh(unsigned int _vCount, unsigned int _tCount)
 	if (_vCount == 0) return;
 
 	vCount = _vCount;
-	verticies = new Vector3[vCount];
+	verticies = new XMVECTOR[vCount];
 	//colors = new Color[vCount];
 
 	tCount = _tCount;
@@ -35,7 +35,7 @@ void BEMesh::CalculateNormals()
 	if (!normals)
 	{
 		nCount = tCount;
-		normals = new Vector3[nCount];
+		normals = new XMVECTOR[nCount];
 	}
 
 	unsigned int tindx = 0;
@@ -43,12 +43,12 @@ void BEMesh::CalculateNormals()
 
 	while (tindx < tCount)
 	{
-		Vector3 v0 = verticies[*(pt++)];
-		Vector3 v1 = verticies[*(pt++)] - v0;
-		Vector3 v2 = verticies[*(pt++)] - v0;
+		XMVECTOR v0 = verticies[*(pt++)];
+		XMVECTOR v1 = verticies[*(pt++)] - v0;
+		XMVECTOR v2 = verticies[*(pt++)] - v0;
 
-		normals[tindx] = (v1.Cross(v2));
-		normals[tindx].Normalize();
+		normals[tindx] = XMVector3Cross(v1, v2); // (v1.Cross(v2));
+		XMVector3Normalize(normals[tindx]);
 
 		tindx++;
 	}

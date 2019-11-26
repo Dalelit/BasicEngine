@@ -1,4 +1,5 @@
 #include "BERenderPipeline.h"
+#include <DirectXCollision.h>
 
 BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 {
@@ -13,7 +14,7 @@ BERenderPipelineRaytrace::~BERenderPipelineRaytrace()
 
 void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line)
 {
-	Ray r = pCamera->RelativeScreenPositionToRay(px, py);
+	BECamera::Ray r = pCamera->RelativeScreenPositionToRay(px, py);
 	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
 	float distance;
 
@@ -28,19 +29,23 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 
 			while (tindx < m->tBufferSize) // look at each triangle
 			{
-				Vector3 v0 = m->verticies[m->triangles[tindx++]];
-				Vector3 v1 = m->verticies[m->triangles[tindx++]];
-				Vector3 v2 = m->verticies[m->triangles[tindx++]];
+				XMVECTOR v0 = m->verticies[m->triangles[tindx++]];
+				XMVECTOR v1 = m->verticies[m->triangles[tindx++]];
+				XMVECTOR v2 = m->verticies[m->triangles[tindx++]];
 
-				if (r.Intersects(v0, v1, v2, distance))
+				// if (r.Intersects(v0, v1, v2, distance))
+				if (TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distance))
 				{
 					if (distance < hitDistance)
 					{
-						Color ambient = pWorld->entities[eindx]->color;
+						XMVECTOR ambient = pWorld->entities[eindx]->color;
 
-						Color lights = { 0,0,0,1 };
+						XMVECTOR lights = { 0,0,0,1 };
 
-						Vector3 normal = m->normals[triNum];
+						//Vector3 normal = m->normals[triNum];
+						XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
+						//Vector3 normal = XMVector3Cross(l1, l2);
+						//normal.Normalize();
 
 						for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
 						{
@@ -49,8 +54,7 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 
 						lights = lights / (float)pWorld->lightCount;
 
-						Color c = 0.5f * ambient + 0.5f * lights;
-						c.Saturate();
+						XMVECTOR c = XMVectorSaturate ( 0.5f * ambient + 0.5f * lights );
 
 						pCanvas->buffer[line + x] = c;
 						hitDistance = distance;

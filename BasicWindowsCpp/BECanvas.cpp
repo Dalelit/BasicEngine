@@ -1,4 +1,5 @@
 #include "BECanvas.h"
+#include <memory.h>
 
 
 int BECanvas::Initialise(unsigned int _width, unsigned int _height)
@@ -49,18 +50,27 @@ void BECanvas::BufferToBMP()
 	for (unsigned int y = 0; y < size; y += width)
 		for (unsigned int x = 0; x < width; x++)
 		{
-			pp->r = (unsigned char)((*pc).x * 255.0f);
-			pp->g = (unsigned char)((*pc).y * 255.0f);
-			pp->b = (unsigned char)((*pc).z * 255.0f);
-			pp->a = (unsigned char)((*pc).w * 255.0f);
+			(*pc) *= 255.0f;
+			pp->r = (unsigned char)(*pc).r;
+			pp->g = (unsigned char)(*pc).g;
+			pp->b = (unsigned char)(*pc).b;
+			pp->a = (unsigned char)(*pc).a;
 
 			pp++;
 			pc++;
 		}
 }
 
-void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color colorTo)
+void BECanvas::DrawLineSafe(XMVECTOR _from, XMVECTOR _to, XMVECTOR _colorFrom, XMVECTOR _colorTo)
 {
+	XMFLOAT3 from, to;
+	Color colorFrom, colorTo;
+
+	XMStoreFloat3(&from, _from);
+	XMStoreFloat3(&to, _to);
+	XMStoreFloat4(&colorFrom.data, _colorFrom);
+	XMStoreFloat4(&colorTo.data, _colorTo);
+
 	if (from.x < -1.0f && to.x < -1.0f) return;
 	if (from.y < -1.0f && to.y < -1.0f) return;
 	if (from.x >= 1.0f && to.x >= 1.0f) return;
@@ -80,15 +90,15 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 
 	// special case
 	// To do - optimise later
-	if (abs(dx) < 0.5f) // change in x is less than 1 pixel... so a vertical line
+	if (fabsf(dx) < 0.5f) // change in x is less than 1 pixel... so a vertical line
 	{
-		if (abs(dy) < 0.5f) // draw a dot
+		if (fabsf(dy) < 0.5f) // draw a dot
 		{
 			buffer[(int)y * width + (int)x] = c;
 			return;
 		}
 
-		dc = dc / abs(dy);
+		dc = dc / fabsf(dy);
 
 		if (dy > 0.0f)
 		{
@@ -99,7 +109,7 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 			{
 				buffer[(int)y * width + (int)x] = c;
 				y += 1.0f;
-				c += dc;
+				c = c + dc;
 			}
 		}
 		else if (dy < 0.0f)
@@ -110,7 +120,7 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 			{
 				buffer[(int)y * width + (int)x] = c;
 				y -= 1.0f;
-				c += dc;
+				c = c + dc;
 			}
 		}
 		return;
@@ -122,13 +132,13 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 		dx = -dx;
 		SWAPFLOAT(y, yt);
 		dy = -dy;
-		SWAPCOLOR(c, ct);
+		{Color temp = c; c = ct; ct = temp; }// to do : sort out swap!
 		dc = -dc;
 	}
 
 	// special case
 	// To do - optimise later
-	if (abs(dy) < 0.5f) // change in y is less than 1 pixel, so horizontal
+	if (fabsf(dy) < 0.5f) // change in y is less than 1 pixel, so horizontal
 	{
 		dc = dc / dx;
 
@@ -138,13 +148,13 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 		{
 			buffer[(int)y * width + (int)x] = c;
 			x += 1.0f;
-			c += dc;
+			c = c + dc;
 		}
 		return;
 	}
 
 	// set increment based on longest change
-	if (dx > abs(dy))
+	if (dx > fabsf(dy))
 	{
 		dy /= dx;
 		dc = dc / dx;
@@ -152,8 +162,8 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 	}
 	else
 	{
-		dx /= abs(dy);
-		dc = dc / abs(dy);
+		dx /= fabsf(dy);
+		dc = dc / fabsf(dy);
 		dy = (dy > 0.0f ? 1.0f : -1.0f);
 	}
 
@@ -188,15 +198,15 @@ void BECanvas::DrawLineSafe(Vector3 from, Vector3 to, Color colorFrom, Color col
 		buffer[(int)y * width + (int)x] = c;
 		x += dx;
 		y += dy;
-		c += dc;
+		c = c + dc;
 	}
 }
 
 void BECanvas::Tests()
 {
-	Color c = {1,1,1};
-	Vector3 zero = { 0,0,0 };
-	Vector3 limit = { (float)width, (float)height ,0 };
+	XMVECTOR c = {1,1,1};
+	XMVECTOR zero = { 0,0,0 };
+	XMVECTOR limit = { (float)width, (float)height ,0 };
 
 
 	// Testing DrawLineSafe

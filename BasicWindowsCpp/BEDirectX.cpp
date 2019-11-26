@@ -122,7 +122,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {};
 	inputDesc[0].SemanticName = "Position";
 	inputDesc[0].SemanticIndex = 0;
-	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputDesc[0].InputSlot = 0u;
 	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 0u;
 	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
