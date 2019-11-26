@@ -11,16 +11,18 @@ BECamera::BECamera(Vector3 _position, Vector3 _direction)
 inline void BECamera::Recalc()
 {
 	right = direction.Cross(Vector3::Up);
+	//right = Vector3::Up.Cross(direction);
 	right.Normalize();
 
 	up = right.Cross(direction);
+	//up = direction.Cross(right);
 	up.Normalize();
 	upScaled = up * viewPortRatio;
 
 	centre = position + (direction * focalLength);
 
+	//viewMatrix = XMMatrixLookToLH(position, direction, Vector3::Up);
 	viewMatrix = XMMatrixLookToRH(position, direction, Vector3::Up);
-	//viewMatrix = XMMatrixLookAtRH(position, centre, Vector3::Up);
 
 	//projectionMatrix = Matrix::CreatePerspective(2.0f * viewPort.x, 2.0f * viewPort.y, focalLength, 10000.0f);
 	projectionMatrix = Matrix::CreatePerspective(viewPort.x, viewPort.y, 0.5f, 10000.0f);
@@ -44,37 +46,6 @@ Ray BECamera::RelativeScreenPositionToRay(float x, float y)
 
 	return Ray(position, rayDir);
 }
-
-//inline Vector3 BECamera::WorldToScreen(Vector3 coord)
-//{
-//	XMMATRIX Transform = XMMatrixMultiply(viewMatrix, projectionMatrix);
-//	XMVECTOR Result = ::XMVector3TransformCoord(coord, Transform);
-//	return Result;
-
-	//	reminder: use XMVector3Project(coord, 0, 0, 1.0f, this->viewPortRatio, 0.0f, 1.0f, projectionMatrix, viewMatrix, worldMatrix) ?
-
-	// old code of trying to work it out a different way to do it by using a plane intersection.
-	//
-	//Vector3 v = {};
-	//Vector3 toPosition = position - coord;
-	////toPosition.Normalize();
-
-	//Vector3 toCentre = centre - coord;
-	////toCentre.Normalize();
-
-	////float t = (centre - coord).Dot(direction) / ray.Dot(centre - position);
-	//float t = toCentre.Dot(direction) / toPosition.Dot(direction);
-
-	//if (t >= 0.0f)
-	//{
-	//	v = toPosition * t + coord; // world space intersection
-	//	v = v - centre;      // view space location
-	//	v = v / viewPort;    // normalised with size of the view port
-	//}
-	//v.z = t;                 // distance from location to viewer, negative if behind viewer
-
-	//return v;
-//}
 
 void BECamera::Pan(float _right, float _up, float _forward)
 {

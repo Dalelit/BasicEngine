@@ -19,7 +19,7 @@ using namespace SimpleMath;
 #define BERENDERPIPELINE_MAX_VERTICES 20000
 
 
-// Base virtual clase
+// Base virtual class
 //
 class BERenderPipeline
 {
@@ -27,9 +27,9 @@ public:
 	BEWorld* pWorld = NULL;
 	BECamera* pCamera = NULL;
 	BECanvas* pCanvas = NULL;
-	bool exitLoop = false; // used to exit the rendering loops early... mainly for slower renderers
+	bool exitLoop = false;    // used to exit the rendering loops early... mainly for slower renderers
 	bool restartLoop = false; // used to force the loop to exit and restart
-	bool showBuffer = false; // used to tell the main thread to show the back buffer for progressive results
+	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 
 	//BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 	//{
@@ -114,7 +114,7 @@ public:
 	bool drawNormals = true;
 	Color normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
 
-	bool backfaceCull = false;
+	bool backfaceCull = true;
 
 	BERenderPipelineWireframe(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();

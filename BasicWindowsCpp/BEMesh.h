@@ -4,6 +4,10 @@
 using namespace DirectX;
 using namespace SimpleMath;
 
+// Notes/Reminders/To check
+// - RH coord system
+// - traingle ordered in clockwise direction
+
 class BEMesh
 {
 public:
