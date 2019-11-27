@@ -32,6 +32,7 @@ public:
 		Color(XMVECTOR v) { XMStoreFloat4(&data, v); }
 
 		Color operator+(const Color& rhs) { return Color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a); };
+		Color operator*(const float& rhs) { return Color(r * rhs, g * rhs, b * rhs, a * rhs); };
 		Color operator+=(const Color& rhs) { r += rhs.r; g += rhs.g; b += rhs.b; a += rhs.a; };
 		Color operator*=(const float& rhs) { r *= rhs; g *= rhs; b *= rhs; a *= rhs; return *this; };
 		Color operator-(const Color& rhs) { return Color(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a); };

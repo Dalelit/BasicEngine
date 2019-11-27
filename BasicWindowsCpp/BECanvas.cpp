@@ -46,15 +46,17 @@ void BECanvas::BufferToBMP()
 {
 	Pixel* pp = bmp;
 	Color* pc = buffer;
+	Color c;
 
 	for (unsigned int y = 0; y < size; y += width)
 		for (unsigned int x = 0; x < width; x++)
 		{
-			(*pc) *= 255.0f;
-			pp->r = (unsigned char)(*pc).r;
-			pp->g = (unsigned char)(*pc).g;
-			pp->b = (unsigned char)(*pc).b;
-			pp->a = (unsigned char)(*pc).a;
+
+			c = (*pc) * 255.0f;
+			pp->r = (unsigned char)c.r;
+			pp->g = (unsigned char)c.g;
+			pp->b = (unsigned char)c.b;
+			pp->a = (unsigned char)c.a;
 
 			pp++;
 			pc++;

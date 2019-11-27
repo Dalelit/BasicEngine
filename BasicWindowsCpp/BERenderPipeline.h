@@ -87,8 +87,8 @@ class BERenderPipelineRaytrace : public BERenderPipeline
 {
 public:
 
-	int raysToProcess;
-	int raysProcessed;
+	unsigned int raysToProcess;
+	unsigned int raysProcessed;
 
 	BERenderPipelineRaytrace(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineRaytrace();
