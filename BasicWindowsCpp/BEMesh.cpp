@@ -47,7 +47,7 @@ void BEMesh::CalculateNormals()
 		XMVECTOR v1 = verticies[*(pt++)] - v0;
 		XMVECTOR v2 = verticies[*(pt++)] - v0;
 
-		normals[tindx] = XMVector3Cross(v1, v2); // (v1.Cross(v2));
+		normals[tindx] = XMVector3Cross(v1, v2);
 		XMVector3Normalize(normals[tindx]);
 
 		tindx++;

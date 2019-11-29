@@ -1,23 +1,14 @@
 #pragma once
 #include "BECommon.h"
 
-
 using namespace DirectX;
 
 // Pixel struct to make it easy to manipulate the bitmap
 class BECanvas
 {
 public:
-	union Pixel
-	{
-		int data;
-		struct {
-			unsigned char b, g, r, a;
-		};
-
-		Pixel() { data = 0; }
-		Pixel(unsigned int _data) { data = _data; }
-		Pixel(unsigned char _r, unsigned char _g, unsigned char _b) { r = _r; b = _b; g = _g; a = 255; }
+	struct Pixel {
+		unsigned char b, g, r, a;
 	};
 
 	union Color
@@ -33,8 +24,6 @@ public:
 
 		Color operator+(const Color& rhs) { return Color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a); };
 		Color operator*(const float& rhs) { return Color(r * rhs, g * rhs, b * rhs, a * rhs); };
-		Color operator+=(const Color& rhs) { r += rhs.r; g += rhs.g; b += rhs.b; a += rhs.a; };
-		Color operator*=(const float& rhs) { r *= rhs; g *= rhs; b *= rhs; a *= rhs; return *this; };
 		Color operator-(const Color& rhs) { return Color(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a); };
 		Color operator-() { return Color(-r, -g, -b, -a); };
 		Color operator/(const float& rhs) { return Color(r / rhs, g / rhs, b / rhs, a / rhs); };
@@ -50,6 +39,8 @@ public:
 
 	float defaultDepthValue = FLT_MAX;
 
+	~BECanvas();
+
 	int Initialise(unsigned int width, unsigned int height);
 
 	void AddDepthBuffer();
@@ -63,8 +54,6 @@ public:
 	inline void DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR color) { DrawLineSafe(from, to, color, color); };
 
 	inline XMVECTOR ScreenToPixel(XMVECTOR screenPoint) { return (screenPoint + x1y1z0) * halfWH; }
-
-	void Tests();
 
 private:
 	float halfWidth;

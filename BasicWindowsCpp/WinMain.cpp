@@ -129,16 +129,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case VK_SPACE:
 			break;
 		case VK_UP:
-			camera.Pan(0, 0.1f, 0);
+			//camera.Pan(0, 0.1f, 0);
+			camera.RotatePosition(0, 0.1f);
 			break;
 		case VK_DOWN:
-			camera.Pan(0, -0.1f, 0);
+			//camera.Pan(0, -0.1f, 0);
+			camera.RotatePosition(0, -0.1f);
 			break;
 		case VK_RIGHT:
-			camera.Pan(0.1f, 0, 0);
+			//camera.Pan(0.1f, 0, 0);
+			camera.RotatePosition(0.1f, 0);
 			break;
 		case VK_LEFT:
-			camera.Pan(-0.1f, 0, 0);
+			//camera.Pan(-0.1f, 0, 0);
+			camera.RotatePosition(-0.1f, 0);
 			break;
 		case VK_ADD:
 			camera.Pan(0, 0, 0.1f);

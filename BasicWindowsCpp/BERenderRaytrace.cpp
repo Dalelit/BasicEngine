@@ -33,7 +33,6 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 				XMVECTOR v1 = m->verticies[m->triangles[tindx++]];
 				XMVECTOR v2 = m->verticies[m->triangles[tindx++]];
 
-				// if (r.Intersects(v0, v1, v2, distance))
 				if (TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distance))
 				{
 					if (distance < hitDistance)
@@ -42,10 +41,7 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 
 						XMVECTOR lights = { 0,0,0,1 };
 
-						//Vector3 normal = m->normals[triNum];
 						XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
-						//Vector3 normal = XMVector3Cross(l1, l2);
-						//normal.Normalize();
 
 						for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
 						{

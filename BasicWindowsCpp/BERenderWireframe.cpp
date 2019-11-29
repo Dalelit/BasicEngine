@@ -64,36 +64,23 @@ void BERenderPipelineWireframe::Draw()
 				XMVECTOR v2 = screenSpaceVerticies[m->triangles[tindx++]];
 
 				XMVECTOR normal = m->normals[trinum];
-				//Vector3 toCamera = -v0;
-				//float dot = pCamera->DirectionDot(normal);
-				//float dot = normal.Dot(toCamera);
-				//float dot = toCamera.Dot(normal);
 				XMVECTOR v0n = XMVector3Normalize(-v0);
-				//v0n.Normalize();
-				//if (normal.Dot(v0n) < 0.0f) // || normal.Dot(-v1) < 0.0f || normal.Dot(-v2) < 0.0f)
+				XMVECTOR c = pWorld->entities[eindx]->color;
+
+				XMVECTOR ssNormal = XMVector3Normalize( XMVector3Cross( (v1 - v0), (v2 - v0) ) );
+
+				// check it's in the screen bounds
+				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 				{
+					pCanvas->DrawLineSafe(v0, v1, c);
+					pCanvas->DrawLineSafe(v1, v2, c);
+					pCanvas->DrawLineSafe(v2, v0, c);
 
-					XMVECTOR c = pWorld->entities[eindx]->color;
-
-					XMVECTOR ssNormal = XMVector3Normalize( XMVector3Cross( (v1 - v0), (v2 - v0) ) );
-					ssNormal *= 5.0f;
-
-					// check it's in the screen bounds
-					if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
+					if (drawNormals)
 					{
-						//if (Vector3::Forward.Dot(ssNormal) > 0.0f)
-						{
-							pCanvas->DrawLineSafe(v0, v1, c);
-							pCanvas->DrawLineSafe(v1, v2, c);
-							pCanvas->DrawLineSafe(v2, v0, c);
-
-							if (drawNormals)
-							{
-								pCanvas->DrawLineSafe(v0, v0 + ssNormal, normalColor);
-								pCanvas->DrawLineSafe(v1, v1 + ssNormal, normalColor);
-								pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
-							}
-						}
+						pCanvas->DrawLineSafe(v0, v0 + ssNormal, normalColor);
+						pCanvas->DrawLineSafe(v1, v1 + ssNormal, normalColor);
+						pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
 					}
 				}
 

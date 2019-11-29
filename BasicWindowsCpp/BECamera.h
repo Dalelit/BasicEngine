@@ -38,18 +38,16 @@ public:
 
 	void Pan(float _right, float _up, float _forward);
 	void RotateDirection(float yaw, float pitch, float roll);
+	void RotatePosition(float yaw, float pitch);
 
 	float DirectionDot(XMVECTOR v) { return XMVectorGetX(XMVector3Dot(direction, v)); };
 
 	inline bool OveralpsScreen(XMVECTOR _v) { 
-		// To do: tidy this up.
-		XMFLOAT3 v;
-		XMStoreFloat3(&v, _v);
-		return ((v.x >= -1.0f && v.x <= 1.0f) || // (x or
-		        (v.y >= -1.0f && v.y <= 1.0f))   // y in the screen)
-			   && v.z > 0.0f; }                  // and infront of screen
-
-	void RunTestCases();
+		float x = XMVectorGetX(_v);
+		float y = XMVectorGetY(_v);
+		return ((x >= -1.0f && x <= 1.0f) ||  // (x or
+		        (y >= -1.0f && y <= 1.0f))    //  y in the screen)
+			   && XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
 
 private:
 	XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};

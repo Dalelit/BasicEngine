@@ -2,6 +2,13 @@
 #include <memory.h>
 
 
+BECanvas::~BECanvas()
+{
+	if (buffer) delete buffer;
+	if (bmp) delete bmp;
+	if (depthBuffer) delete depthBuffer;
+}
+
 int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 {
 	if (buffer != NULL) free(buffer);
@@ -12,10 +19,9 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 	halfHeight = floorf(height * 0.5f);
 	halfWH = { halfWidth, halfHeight, 1.0f };
 
-	// to do: work out what mem allocation to use... malloc? new? etc?
 	size = width * height;
-	buffer = (Color*)malloc(size * sizeof(Color));
-	bmp = (Pixel*)malloc(size * sizeof(Pixel));
+	buffer = new Color[size];
+	bmp = new Pixel[size];
 	depthBuffer = NULL;
 
 	Clear();
@@ -30,18 +36,15 @@ void BECanvas::Clear()
 
 	if (depthBuffer)
 	{
-		// to do : work out an efficient method
-		//memset(depthBuffer, defaultDepthValue, size);
 		for (unsigned int i = 0; i < size; i++) depthBuffer[i] = defaultDepthValue;
 	}
 }
 
 void BECanvas::AddDepthBuffer()
 {
-	depthBuffer = (float*)malloc(size * sizeof(float));
+	depthBuffer = new float[size];
 }
 
-// To Do - optimise or is there another way? Especially Color -> Pixel conversion
 void BECanvas::BufferToBMP()
 {
 	Pixel* pp = bmp;
@@ -203,37 +206,3 @@ void BECanvas::DrawLineSafe(XMVECTOR _from, XMVECTOR _to, XMVECTOR _colorFrom, X
 		c = c + dc;
 	}
 }
-
-void BECanvas::Tests()
-{
-	XMVECTOR c = {1,1,1};
-	XMVECTOR zero = { 0,0,0 };
-	XMVECTOR limit = { (float)width, (float)height ,0 };
-
-
-	// Testing DrawLineSafe
-	DrawLineSafe(zero, limit, c);
-	DrawLineSafe({0, (float)height, 0}, limit / 2, c);
-	DrawLineSafe({ 10, 0,0 }, { 10, 100, 0 }, { 0,1,0 });
-	DrawLineSafe({ 20, 100,0 }, { 20, 0, 0 }, { 0,1,0 });
-	DrawLineSafe({ 30, -100,0 }, { 30, height + 100.0f, 0 }, { 0,1,0 });
-	DrawLineSafe({ 40, height + 100.0f, 0 }, { 40, -100.0f, 0 }, { 0,1,0 });
-	DrawLineSafe({ 0, 120,0 }, { 100, 120, 0 }, { 0,1,0 });
-	DrawLineSafe({ 100, 140,0 }, { 0, 140, 0 }, { 0,1,0 });
-	DrawLineSafe({ -50, 160,0 }, { width + 50.0f, 160, 0 }, { 0,1,0 });
-	DrawLineSafe({ width + 50.0f, 180,0 }, { -50, 180, 0 }, { 0,1,0 });
-
-	DrawLineSafe({ 320, 20,0 }, { 330, 400, 0 }, { 0,0,1 });
-	DrawLineSafe({ 320, 400,0 }, { 330, 20, 0 }, { 0,0,1 });
-
-	DrawLineSafe({ width / 2.0f - 50.0f, -50, 0 }, limit / 3, { 1,0,0 });
-	DrawLineSafe({ width / 2.0f + 50.0f, -50, 0 }, limit / 3, { 1,0,0 });
-	DrawLineSafe({ width / 2.0f - 50.0f, height + 50.0f, 0 }, limit / 3, { 1,0,0 });
-	DrawLineSafe({ width / 2.0f + 50.0f, height + 50.0f, 0 }, limit / 3, { 1,0,0 });
-
-	DrawLineSafe({ -50.0f, height / 2.0f + 50, 0 }, limit / 4, { 1,1,0 });
-	DrawLineSafe({ -50.0f, height / 2.0f - 50, 0 }, limit / 4, { 1,1,0 });
-	DrawLineSafe({ width + 50.0f, height / 2.0f + 50, 0 }, 0.75f * limit, { 1,1,0 });
-	DrawLineSafe({ width + 50.0f, height / 2.0f - 50, 0 }, 0.75f * limit, { 1,1,0 });
-}
-

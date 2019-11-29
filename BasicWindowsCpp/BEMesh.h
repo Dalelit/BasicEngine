@@ -2,10 +2,9 @@
 #include "BECommon.h"
 
 using namespace DirectX;
-//using namespace SimpleMath;
 
 // Notes/Reminders/To check
-// - RH coord system
+// - RH coord system... sticking with this? DX is LH
 // - traingle ordered in clockwise direction
 
 class BEMesh

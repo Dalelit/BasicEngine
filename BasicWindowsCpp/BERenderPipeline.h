@@ -24,7 +24,9 @@ public:
 	BEWorld* pWorld = NULL;
 	BECamera* pCamera = NULL;
 	BECanvas* pCanvas = NULL;
-	bool exitLoop = false;    // used to exit the rendering loops early... mainly for slower renderers
+
+	// for slower renderers - looking at you raytracer
+	bool exitLoop = false;    // used to exit the rendering loops early
 	bool restartLoop = false; // used to force the loop to exit and restart
 	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 

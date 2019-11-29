@@ -126,7 +126,6 @@
   <ItemGroup>
     <ClCompile Include="BECamera.cpp" />
     <ClCompile Include="BECanvas.cpp" />
-    <ClCompile Include="BECommon.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEEntity.cpp" />
     <ClCompile Include="BELight.cpp" />
