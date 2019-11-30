@@ -1,12 +1,12 @@
-#include "BEWorld.h"
+#include "BEScene.h"
 
-BEWorld::BEWorld()
+BEScene::BEScene()
 {
-	entities = new BEEntity*[BEWORLD_MAX_ENTITIES];
-	lights = new BELight*[BEWORLD_MAX_LIGHTS];
+	entities = new BEEntity*[BESCENE_MAX_ENTITIES];
+	lights = new BELight*[BESCENE_MAX_LIGHTS];
 }
 
-BEWorld::~BEWorld()
+BEScene::~BEScene()
 {
 	for (unsigned int i = 0; i < entityCount; i++) delete entities[i];
 	for (unsigned int i = 0; i < lightCount; i++) delete lights[i];
@@ -14,30 +14,30 @@ BEWorld::~BEWorld()
 	delete lights;
 }
 
-BEEntity* BEWorld::CreateAddEntity()
+BEEntity* BEScene::CreateAddEntity()
 {
 	BEEntity* e = new BEEntity();
 	AddEntity(e);
 	return e;
 }
 
-void BEWorld::AddEntity(BEEntity* pEntity)
+void BEScene::AddEntity(BEEntity* pEntity)
 {
-	assert(entityCount < BEWORLD_MAX_ENTITIES - 1);
+	assert(entityCount < BESCENE_MAX_ENTITIES - 1);
 
 	entities[entityCount] = pEntity;
 	entityCount++;
 }
 
-void BEWorld::AddLight(BELight* pLight)
+void BEScene::AddLight(BELight* pLight)
 {
-	assert(lightCount < BEWORLD_MAX_LIGHTS - 1);
+	assert(lightCount < BESCENE_MAX_LIGHTS - 1);
 
 	lights[lightCount] = pLight;
 	lightCount++;
 }
 
-void BEWorld::Create()
+void BEScene::Create()
 {
 	BEEntity* e;
 

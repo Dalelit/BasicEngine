@@ -3,9 +3,9 @@
 // To Do
 // - scan line has issues as the verticies, scan line keeps running past the edge :-(
 
-BERenderPipelineScanline::BERenderPipelineScanline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+BERenderPipelineScanline::BERenderPipelineScanline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 {
-	pWorld = _pWorld;
+	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
 
@@ -81,9 +81,9 @@ void BERenderPipelineScanline::Draw()
 		BEEdge* edge = edges;
 		BETriEdge* triedage = triedges;
 
-		for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
+		for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
 		{
-			BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
+			BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
 
 			if (m) // if it has a mesh
 			{
@@ -127,12 +127,12 @@ void BERenderPipelineScanline::Draw()
 
 					// sort out lighiting value
 					XMVECTOR lights = { 0,0,0,0 };
-					for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
+					for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
 					{
-						lights += pWorld->lights[lindx]->CalculateColor(normal);
+						lights += pScene->lights[lindx]->CalculateColor(normal);
 					}
 
-					lights = lights / (float)pWorld->lightCount;
+					lights = lights / (float)pScene->lightCount;
 
 					//Color c = 0.5f * ambient + 0.5f * lights;
 					//c.Saturate();
@@ -149,7 +149,7 @@ void BERenderPipelineScanline::Draw()
 					//}
 					//else
 					{
-						c0 = XMVectorSaturate( pWorld->entities[eindx]->color * 0.5f + lights * 0.5f );
+						c0 = XMVectorSaturate( pScene->entities[eindx]->color * 0.5f + lights * 0.5f );
 						c1 = c0;
 						c2 = c0;
 					}

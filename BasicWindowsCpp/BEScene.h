@@ -2,14 +2,14 @@
 #include "BEModel.h"
 #include "BELight.h"
 
-#define BEWORLD_MAX_ENTITIES 100000
-#define BEWORLD_MAX_LIGHTS 100
+#define BESCENE_MAX_ENTITIES 100000
+#define BESCENE_MAX_LIGHTS 100
 
-class BEWorld
+class BEScene
 {
 public:
-	BEWorld();
-	~BEWorld();
+	BEScene();
+	~BEScene();
 
 	BEEntity** entities = NULL;
 	unsigned int entityCount = 0;

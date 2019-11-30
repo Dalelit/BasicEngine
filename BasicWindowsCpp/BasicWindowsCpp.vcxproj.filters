@@ -27,9 +27,6 @@
     <ClCompile Include="BECamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BEWorld.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BEMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,6 +63,9 @@
     <ClCompile Include="BEDXConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -78,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BERenderPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMesh.h">
@@ -117,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEDXConstantBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

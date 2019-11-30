@@ -138,7 +138,7 @@
     <ClCompile Include="BERenderRaytrace.cpp" />
     <ClCompile Include="BERenderScanline.cpp" />
     <ClCompile Include="BERenderWireframe.cpp" />
-    <ClCompile Include="BEWorld.cpp" />
+    <ClCompile Include="BEScene.cpp" />
     <ClCompile Include="BEDXVertexBuffer.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
@@ -158,7 +158,7 @@
     <ClInclude Include="BEMesh.h" />
     <ClInclude Include="BEModel.h" />
     <ClInclude Include="BERenderPipeline.h" />
-    <ClInclude Include="BEWorld.h" />
+    <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>

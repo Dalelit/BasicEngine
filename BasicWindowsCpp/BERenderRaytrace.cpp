@@ -1,9 +1,9 @@
 #include "BERenderPipeline.h"
 #include <DirectXCollision.h>
 
-BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 {
-	pWorld = _pWorld;
+	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
 }
@@ -18,9 +18,9 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
 	float distance;
 
-	for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
+	for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
 	{
-		BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
+		BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
 
 		if (m) // if it has a mesh
 		{
@@ -37,18 +37,18 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 				{
 					if (distance < hitDistance)
 					{
-						XMVECTOR ambient = pWorld->entities[eindx]->color;
+						XMVECTOR ambient = pScene->entities[eindx]->color;
 
 						XMVECTOR lights = { 0,0,0,1 };
 
 						XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
 
-						for (unsigned int lindx = 0; lindx < pWorld->lightCount; lindx++)
+						for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
 						{
-							lights += pWorld->lights[lindx]->CalculateColor(normal);
+							lights += pScene->lights[lindx]->CalculateColor(normal);
 						}
 
-						lights = lights / (float)pWorld->lightCount;
+						lights = lights / (float)pScene->lightCount;
 
 						XMVECTOR c = XMVectorSaturate ( 0.5f * ambient + 0.5f * lights );
 

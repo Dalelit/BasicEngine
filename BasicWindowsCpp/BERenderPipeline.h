@@ -1,5 +1,5 @@
 #pragma once
-#include "BEWorld.h"
+#include "BEScene.h"
 #include "BECamera.h"
 #include "BECanvas.h"
 
@@ -21,7 +21,7 @@
 class BERenderPipeline
 {
 public:
-	BEWorld* pWorld = NULL;
+	BEScene* pScene = NULL;
 	BECamera* pCamera = NULL;
 	BECanvas* pCanvas = NULL;
 
@@ -30,7 +30,7 @@ public:
 	bool restartLoop = false; // used to force the loop to exit and restart
 	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 
-	//BERenderPipeline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+	//BERenderPipeline(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
 	//{
 	//	pWorld = _pWorld;
 	//	pCamera = _pCamera;
@@ -46,7 +46,7 @@ public:
 class BERenderPipelineScanline : public BERenderPipeline
 {
 public:
-	BERenderPipelineScanline(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineScanline(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineScanline();
 
 	void Draw();
@@ -92,7 +92,7 @@ public:
 	unsigned int raysToProcess;
 	unsigned int raysProcessed;
 
-	BERenderPipelineRaytrace(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineRaytrace(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineRaytrace();
 
 	void Draw();
@@ -115,7 +115,7 @@ public:
 
 	bool backfaceCull = true;
 
-	BERenderPipelineWireframe(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineWireframe(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();
 
 	void Draw();

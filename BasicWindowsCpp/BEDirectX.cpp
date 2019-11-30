@@ -44,9 +44,9 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	return hr;
 }
 
-int BEDirectX::LoadScene(BEWorld* pWorld)
+int BEDirectX::LoadScene(BEScene* pScene)
 {
-	BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, pWorld);
+	BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, pScene);
 	drawables.push_back(pVB);
 
 	return 0;

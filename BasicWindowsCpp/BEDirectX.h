@@ -2,7 +2,7 @@
 #include "BEDirectXResource.h"
 #include "BEDirectXDrawable.h"
 #include "BEDXConstantBuffer.h"
-#include "BEWorld.h"
+#include "BEScene.h"
 #include "BECamera.h"
 #include <vector>
 
@@ -24,7 +24,7 @@ public:
 
 	int UpdateScene(BECamera* pCamera);
 
-	int LoadScene(BEWorld* pWorld);
+	int LoadScene(BEScene* pScene);
 
 	int DoFrame();
 

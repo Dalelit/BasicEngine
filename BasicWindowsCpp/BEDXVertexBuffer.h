@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BEDirectXDrawable.h"
-#include "BEWorld.h" // to do : temp
+#include "BEScene.h" // to do : temp
 #include <DirectXMath.h>
 
 class BEDXVertexBuffer : public BEDirectXDrawable
@@ -13,7 +13,7 @@ public:
 		DirectX::XMVECTOR color;
 	};
 
-	BEDXVertexBuffer(BEDirectXDevice& device, BEWorld* pWorld); // to do: change this to point to a model/mesh
+	BEDXVertexBuffer(BEDirectXDevice& device, BEScene* pScene); // to do: change this to point to a model/mesh
 	void Draw(BEDirectXDevice& device);
 
 private:

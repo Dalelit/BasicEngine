@@ -4,9 +4,9 @@
 // To Do
 // - could add depth buffer so the lines overlap correctly, not just based on enitity/model order?
 
-BERenderPipelineWireframe::BERenderPipelineWireframe(BEWorld* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+BERenderPipelineWireframe::BERenderPipelineWireframe(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 {
-	pWorld = _pWorld;
+	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
 
@@ -21,9 +21,9 @@ BERenderPipelineWireframe::~BERenderPipelineWireframe()
 
 void BERenderPipelineWireframe::Draw()
 {
-	for (unsigned int eindx = 0; eindx < pWorld->entityCount; eindx++) // for each entity
+	for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
 	{
-		BEMesh* m = pWorld->entities[eindx]->mesh; // get it's mesh
+		BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
 
 		XMVECTOR* screenSpaceNormals = NULL;
 
@@ -65,7 +65,7 @@ void BERenderPipelineWireframe::Draw()
 
 				XMVECTOR normal = m->normals[trinum];
 				XMVECTOR v0n = XMVector3Normalize(-v0);
-				XMVECTOR c = pWorld->entities[eindx]->color;
+				XMVECTOR c = pScene->entities[eindx]->color;
 
 				XMVECTOR ssNormal = XMVector3Normalize( XMVector3Cross( (v1 - v0), (v2 - v0) ) );
 
@@ -93,7 +93,7 @@ void BERenderPipelineWireframe::Draw()
 				XMVECTOR v0 = screenSpaceVerticies[m->lines[lindx++]];
 				XMVECTOR v1 = screenSpaceVerticies[m->lines[lindx++]];
 
-				XMVECTOR c = pWorld->entities[eindx]->color;
+				XMVECTOR c = pScene->entities[eindx]->color;
 
 				// check it's in the screen bounds
 				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1))

@@ -44,7 +44,7 @@ BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
 BECamera camera({0,0,3}, {0,0,-1});
-BEWorld world;
+BEScene scene;
 BERenderPipeline* pipeline[BENUMBER_WINDOWS];
 
 /////////////////////////////////
@@ -298,23 +298,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	BECreateWindow(3, hInstance, L"Raytrace final");
 	BECreateWindow(4, hInstance, L"Direct3D");
 
-	world.Create();
+	scene.Create();
 
 	// for scanline rendering
-	pipeline[0] = new BERenderPipelineScanline(&world, &camera, &backBuffer[0]);
+	pipeline[0] = new BERenderPipelineScanline(&scene, &camera, &backBuffer[0]);
 	backBuffer[0].AddDepthBuffer(); // to do: automatically add a depth buffer?
 
 	// for raytrace rendering
-	pipeline[1] = new BERenderPipelineRaytrace(&world, &camera, &backBuffer[1]);
+	pipeline[1] = new BERenderPipelineRaytrace(&scene, &camera, &backBuffer[1]);
 	BERenderPipelineRaytrace* pRT = (BERenderPipelineRaytrace*)pipeline[1];
 
 	// for wireframe rendering
-	pipeline[2] = new BERenderPipelineWireframe(&world, &camera, &backBuffer[2]);
+	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
 
 	// for DirectX rendering
 	BEDirectX dx;
 	dx.Initialise(hwnd[4], bufferWidth, bufferHeight);
-	dx.LoadScene(&world);
+	dx.LoadScene(&scene);
 
 	// ready to go...
 

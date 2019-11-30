@@ -2,7 +2,7 @@
 
 #define BEDIRECTX_VERT_BUFFER_MAXSIZE 1000
 
-BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEWorld* pWorld)
+BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEScene* pScene)
 {
 	HRESULT hr;
 
@@ -12,9 +12,9 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEWorld* pWorld)
 	// To do: this is a temp hack.
 	UINT vertIndx = 0;
 
-	for (UINT eIndx = 0; eIndx < pWorld->entityCount; eIndx++)
+	for (UINT eIndx = 0; eIndx < pScene->entityCount; eIndx++)
 	{
-		BEMesh* m = pWorld->entities[eIndx]->mesh;
+		BEMesh* m = pScene->entities[eIndx]->mesh;
 
 		if (m)
 		{
@@ -22,7 +22,7 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEWorld* pWorld)
 			{
 				// To Do: efficient way to do this?
 				verticies[vertIndx].position = m->verticies[i];
-				verticies[vertIndx].color = pWorld->entities[eIndx]->color;
+				verticies[vertIndx].color = pScene->entities[eIndx]->color;
 				vertIndx++;
 			}
 		}
