@@ -127,6 +127,10 @@
     <ClCompile Include="BECamera.cpp" />
     <ClCompile Include="BECanvas.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
+    <ClCompile Include="BEDirectXDevice.cpp" />
+    <ClCompile Include="BEDXConstantBuffer.cpp" />
+    <ClCompile Include="BEDXPixelShader.cpp" />
+    <ClCompile Include="BEDXVertexShader.cpp" />
     <ClCompile Include="BEEntity.cpp" />
     <ClCompile Include="BELight.cpp" />
     <ClCompile Include="BEMesh.cpp" />
@@ -135,12 +139,19 @@
     <ClCompile Include="BERenderScanline.cpp" />
     <ClCompile Include="BERenderWireframe.cpp" />
     <ClCompile Include="BEWorld.cpp" />
+    <ClCompile Include="BEDXVertexBuffer.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECamera.h" />
     <ClInclude Include="BECanvas.h" />
     <ClInclude Include="BEDirectX.h" />
+    <ClInclude Include="BEDirectXDevice.h" />
+    <ClInclude Include="BEDirectXResource.h" />
+    <ClInclude Include="BEDirectXDrawable.h" />
+    <ClInclude Include="BEDXConstantBuffer.h" />
+    <ClInclude Include="BEDXPixelShader.h" />
+    <ClInclude Include="BEDXVertexShader.h" />
     <ClInclude Include="BEEntity.h" />
     <ClInclude Include="BECommon.h" />
     <ClInclude Include="BELight.h" />
@@ -148,6 +159,7 @@
     <ClInclude Include="BEModel.h" />
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BEWorld.h" />
+    <ClInclude Include="BEDXVertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

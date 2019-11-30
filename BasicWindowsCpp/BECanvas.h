@@ -56,8 +56,8 @@ public:
 	inline XMVECTOR ScreenToPixel(XMVECTOR screenPoint) { return (screenPoint + x1y1z0) * halfWH; }
 
 private:
-	float halfWidth;
-	float halfHeight;
+	float halfWidth = 0;
+	float halfHeight = 0;
 	XMVECTOR x1y1z0 = { 1.0f, 1.0f, 0.0f, 1.0f };
-	XMVECTOR halfWH;
+	XMVECTOR halfWH = {0,0,0,0};
 };
