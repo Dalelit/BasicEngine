@@ -21,9 +21,6 @@
     <ClCompile Include="BECanvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BEModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BECamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,12 +63,12 @@
     <ClCompile Include="BEScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEMeshPrimatives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BECamera.h">
@@ -117,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEMeshPrimatives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
-#include "BEModel.h"
+#include "BEMeshPrimatives.h"
 
-BEMesh* BEModel::TriangleMesh()
+BEMesh* BEMeshPrimatives::TriangleMesh()
 {
 	BEMesh* m = new BEMesh(3, 1);
 
@@ -23,7 +23,7 @@ BEMesh* BEModel::TriangleMesh()
 	return m;
 }
 
-BEMesh* BEModel::CubeMesh()
+BEMesh* BEMeshPrimatives::CubeMesh()
 {
 	BEMesh* m = new BEMesh(8, 12);
 
@@ -80,7 +80,7 @@ BEMesh* BEModel::CubeMesh()
 	return m;
 }
 
-BEMesh* BEModel::AxisMesh()
+BEMesh* BEMeshPrimatives::AxisMesh()
 {
 	BEMesh* m = new BEMesh(4, 0);
 

@@ -1,5 +1,4 @@
 #pragma once
-#include "BEModel.h"
 #include "BELight.h"
 
 #define BESCENE_MAX_ENTITIES 100000

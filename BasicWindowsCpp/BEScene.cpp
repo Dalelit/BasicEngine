@@ -1,4 +1,5 @@
 #include "BEScene.h"
+#include "BEMeshPrimatives.h"
 
 BEScene::BEScene()
 {
@@ -42,10 +43,10 @@ void BEScene::Create()
 	BEEntity* e;
 
 	//e = CreateAddEntity();
-	//e->mesh = BEModel::AxisMesh();
+	//e->mesh = BEMeshPrimatives::AxisMesh();
 
 	e = CreateAddEntity();
-	e->mesh = BEModel::TriangleMesh();
+	e->mesh = BEMeshPrimatives::TriangleMesh();
 	//e->Scale({ 2,2,2 });
 	e->color = {1,0,0};
 	//Matrix m = Matrix::CreateFromYawPitchRoll(3.14f / 4.0f, 0, 0);
@@ -53,35 +54,35 @@ void BEScene::Create()
 	//e->mesh->CalculateNormals();
 
 	e = CreateAddEntity();
-	e->mesh = BEModel::TriangleMesh();
+	e->mesh = BEMeshPrimatives::TriangleMesh();
 	e->Translate({ 0.5,0,1 });
 	e->color = { 0,1,0 };
 
 	e = CreateAddEntity();
-	e->mesh = BEModel::TriangleMesh();
+	e->mesh = BEMeshPrimatives::TriangleMesh();
 	e->Translate({ -0.5,0,-1 });
 	e->color = { 0,0,1 };
 
 	//e = CreateAddEntity();
-	//e->mesh = BEModel::CubeMesh();
+	//e->mesh = BEMeshPrimatives::CubeMesh();
 	//e->Scale(0.5f);
 	//e->Translate({ 0,-0.3f,-2.0f });
 	//e->color = { 1,1,1 };
 
 	//e = CreateAddEntity();
-	//e->mesh = BEModel::CubeMesh();
+	//e->mesh = BEMeshPrimatives::CubeMesh();
 	//e->Scale(0.5f);
 	//e->Translate({ 1,0,0 });
 	//e->color = { 1,0,0 };
 
 	//e = CreateAddEntity();
-	//e->mesh = BEModel::CubeMesh();
+	//e->mesh = BEMeshPrimatives::CubeMesh();
 	//e->Scale(0.5f);
 	//e->Translate({ 0,1,0 });
 	//e->color = { 0,1,0 };
 
 	//e = CreateAddEntity();
-	//e->mesh = BEModel::CubeMesh();
+	//e->mesh = BEMeshPrimatives::CubeMesh();
 	//e->Scale(0.5f);
 	//e->Translate({ 0,0,-1 });
 	//e->color = { 0,0,1 };

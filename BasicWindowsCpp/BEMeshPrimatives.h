@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-class BEModel
+class BEMeshPrimatives
 {
 public:
 	static BEMesh* TriangleMesh();
