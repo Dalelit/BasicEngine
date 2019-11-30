@@ -2,7 +2,7 @@
 
 BEMesh* BEMeshPrimatives::TriangleMesh()
 {
-	BEMesh* m = new BEMesh(3, 1);
+	BEMesh* m = new BEMesh(3, 1, BEMesh::BEMeshTopology::TRIANGLE_LIST);
 
 	m->verticies[0] = { 0,0,0,1 };
 	m->verticies[1] = { 0,1,0,1 };
@@ -25,7 +25,7 @@ BEMesh* BEMeshPrimatives::TriangleMesh()
 
 BEMesh* BEMeshPrimatives::CubeMesh()
 {
-	BEMesh* m = new BEMesh(8, 12);
+	BEMesh* m = new BEMesh(8, 12, BEMesh::BEMeshTopology::TIRANGLE_INDEX);
 
 	//    3--2
 	//   /  /|
@@ -82,7 +82,7 @@ BEMesh* BEMeshPrimatives::CubeMesh()
 
 BEMesh* BEMeshPrimatives::AxisMesh()
 {
-	BEMesh* m = new BEMesh(4, 0);
+	BEMesh* m = new BEMesh(4, 0, BEMesh::BEMeshTopology::LINES);
 
 	m->verticies[0] = { 0,0,0,1 };
 	m->verticies[1] = { 1,0,0,1 };

@@ -46,8 +46,16 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 int BEDirectX::LoadScene(BEScene* pScene)
 {
-	BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, pScene);
-	drawables.push_back(pVB);
+	for (UINT eIndx = 0; eIndx < pScene->entityCount; eIndx++)
+	{
+		BEMesh* m = pScene->entities[eIndx]->mesh;
+
+		if (m)
+		{
+			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, pScene->entities[eIndx]->color);
+			drawables.push_back(pVB);
+		}
+	}
 
 	return 0;
 }

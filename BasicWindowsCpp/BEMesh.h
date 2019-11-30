@@ -10,6 +10,16 @@ using namespace DirectX;
 class BEMesh
 {
 public:
+
+	enum class BEMeshTopology
+	{
+		TRIANGLE_LIST,
+		TIRANGLE_INDEX,
+		LINES
+	};
+
+	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
+
 	unsigned int vCount = 0;
 	XMVECTOR* verticies = NULL;
 	XMVECTOR* colors = NULL;
@@ -26,7 +36,7 @@ public:
 	unsigned int* lines = NULL;
 
 	// vCount = number of verticies, tCount = number of triangles. Reminder - Internal buffer for triangles is x3 size.
-	BEMesh(unsigned int _vCount, unsigned int _tCount);
+	BEMesh(unsigned int _vCount, unsigned int _tCount, BEMeshTopology _topology);
 	~BEMesh();
 
 	void AddLines(unsigned int _lCount);

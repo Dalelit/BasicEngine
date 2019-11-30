@@ -45,29 +45,29 @@ void BEScene::Create()
 	//e = CreateAddEntity();
 	//e->mesh = BEMeshPrimatives::AxisMesh();
 
-	e = CreateAddEntity();
-	e->mesh = BEMeshPrimatives::TriangleMesh();
+	//e = CreateAddEntity();
+	//e->mesh = BEMeshPrimatives::TriangleMesh();
+	//e->color = { 1,0,0 };
 	//e->Scale({ 2,2,2 });
-	e->color = {1,0,0};
-	//Matrix m = Matrix::CreateFromYawPitchRoll(3.14f / 4.0f, 0, 0);
+	//XMMATRIX m = XMMatrixRotationRollPitchYaw(3.14f / 4.0f, 0, 0);
 	//e->Transform(m);
 	//e->mesh->CalculateNormals();
 
-	e = CreateAddEntity();
-	e->mesh = BEMeshPrimatives::TriangleMesh();
-	e->Translate({ 0.5,0,1 });
-	e->color = { 0,1,0 };
+	//e = CreateAddEntity();
+	//e->mesh = BEMeshPrimatives::TriangleMesh();
+	//e->Translate({ 0.5,0,1 });
+	//e->color = { 0,1,0 };
 
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::TriangleMesh();
 	e->Translate({ -0.5,0,-1 });
 	e->color = { 0,0,1 };
 
-	//e = CreateAddEntity();
-	//e->mesh = BEMeshPrimatives::CubeMesh();
+	e = CreateAddEntity();
+	e->mesh = BEMeshPrimatives::CubeMesh();
+	e->color = { 1,1,1 };
 	//e->Scale(0.5f);
 	//e->Translate({ 0,-0.3f,-2.0f });
-	//e->color = { 1,1,1 };
 
 	//e = CreateAddEntity();
 	//e->mesh = BEMeshPrimatives::CubeMesh();

@@ -1,7 +1,9 @@
 #include "BEMesh.h"
 
-BEMesh::BEMesh(unsigned int _vCount, unsigned int _tCount)
+BEMesh::BEMesh(unsigned int _vCount, unsigned int _tCount, BEMeshTopology _topology)
 {
+	topology = _topology;
+
 	if (_vCount == 0) return;
 
 	vCount = _vCount;
