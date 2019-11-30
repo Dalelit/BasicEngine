@@ -75,7 +75,7 @@ private:
 	// preallocated memory for the number crunching
 	BEEdge* edges;
 	BETriEdge* triedges;
-	XMVECTOR* screenSpaceVerticies;
+	BEVertex* screenSpaceVerticies;
 
 	inline void InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo);
 	inline void UpdateEdge(BEEdge* e);
@@ -122,6 +122,6 @@ public:
 
 private:
 	// preallocated memory for the number crunching
-	XMVECTOR* screenSpaceVerticies;
+	BEVertex* screenSpaceVerticies;
 };
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "BECommon.h"
+#include "BEVertex.h"
 
 using namespace DirectX;
 
@@ -20,33 +21,32 @@ public:
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
 
-	unsigned int vCount = 0;
-	XMVECTOR* verticies = NULL;
-	XMVECTOR* colors = NULL;
+	BEVertex* verticies = NULL;
+	unsigned int vertCount = 0;
 
-	unsigned int nCount = 0;
-	XMVECTOR* normals = NULL;
+	unsigned int* indicies = nullptr;
+	unsigned int indxCount = 0;
 
-	unsigned int tCount = 0;
-	unsigned int tBufferSize = 0;
-	unsigned int* triangles = NULL;
+	BETriangle* triangles = nullptr;
+	unsigned int triCount = 0;
 
 	unsigned int lCount = 0;
 	unsigned int lBufferSize = 0;
 	unsigned int* lines = NULL;
 
-	// vCount = number of verticies, tCount = number of triangles. Reminder - Internal buffer for triangles is x3 size.
-	BEMesh(unsigned int _vCount, unsigned int _tCount, BEMeshTopology _topology);
+	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
 	~BEMesh();
 
 	void AddLines(unsigned int _lCount);
 
-	void CalculateNormals();
+	void CalculateTriangleInfo();
 
-	inline void Translate(XMVECTOR v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] += v; }
-	inline void Scale(float f) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= f; }
-	inline void Scale(XMVECTOR v) { for (unsigned int i = 0; i < vCount; i++) verticies[i] *= v; }
+	inline void SetColor(XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }
 
-	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vCount; i++) verticies[i] = XMVector3Transform(verticies[i], m); }
+	inline void Translate(XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position += v; }
+	inline void Scale(float f) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position *= f; }
+	inline void Scale(XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position *= v; }
+
+	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = XMVector3Transform(verticies[i].position, m); }
 };
 

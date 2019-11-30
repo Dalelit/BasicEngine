@@ -24,20 +24,21 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 
 		if (m) // if it has a mesh
 		{
-			unsigned int tindx = 0;
-			unsigned int triNum = 0;
-
-			while (tindx < m->tBufferSize) // look at each triangle
+			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
-				XMVECTOR v0 = m->verticies[m->triangles[tindx++]];
-				XMVECTOR v1 = m->verticies[m->triangles[tindx++]];
-				XMVECTOR v2 = m->verticies[m->triangles[tindx++]];
+				XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
+				XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
+				XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
 
 				if (TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distance))
 				{
 					if (distance < hitDistance)
 					{
-						XMVECTOR ambient = pScene->entities[eindx]->color;
+						// To Do : not actually thought about this yet.
+
+						// To Do : assuming all color is on the 1st vertex
+						XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
+						XMVECTOR ambient = color;
 
 						XMVECTOR lights = { 0,0,0,1 };
 
@@ -56,8 +57,6 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 						hitDistance = distance;
 					}
 				}
-
-				triNum++;
 			}
 		}
 	}

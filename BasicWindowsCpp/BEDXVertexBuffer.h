@@ -8,12 +8,7 @@ class BEDXVertexBuffer : public BEDirectXDrawable
 {
 public:
 
-	struct BEVertex {
-		DirectX::XMVECTOR position;
-		DirectX::XMVECTOR color;
-	};
-
-	BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, XMVECTOR color); // to do: change color
+	BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh);
 	void Draw(BEDirectXDevice& device);
 
 private:

@@ -1,26 +1,29 @@
 #include "BEMesh.h"
 
-BEMesh::BEMesh(unsigned int _vCount, unsigned int _tCount, BEMeshTopology _topology)
+BEMesh::BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology)
 {
 	topology = _topology;
 
-	if (_vCount == 0) return;
+	if (_vertCount == 0) return;
 
-	vCount = _vCount;
-	verticies = new XMVECTOR[vCount];
-	//colors = new Color[vCount];
+	vertCount = _vertCount;
+	verticies = new BEVertex[vertCount];
 
-	tCount = _tCount;
-	tBufferSize = tCount * 3;
-	if (tCount > 0) triangles = new unsigned int[tBufferSize];
+	if (_triCount > 0)
+	{
+		triCount = _triCount;
+		triangles = new BETriangle[triCount];
+
+		indxCount = triCount * 3;
+		indicies = new unsigned int[indxCount];
+	}
 }
 
 BEMesh::~BEMesh()
 {
 	if (verticies) delete verticies;
-	if (colors) delete colors;
+	if (indicies) delete indicies;
 	if (triangles) delete triangles;
-	if (normals) delete normals;
 	if (lines) delete lines;
 }
 
@@ -31,27 +34,24 @@ void BEMesh::AddLines(unsigned int _lCount)
 	if (lCount > 0) lines = new unsigned int[lBufferSize];
 }
 
-void BEMesh::CalculateNormals()
+void BEMesh::CalculateTriangleInfo()
 {
-	// to do: create a version where there is 1 normal per triangle instead?
-	if (!normals)
+	// To Do: sort out if I need to skip this if it's a triangle list only.
+
+	// sort out the indx info
+	unsigned int* pIndx = indicies;
+	for (unsigned int tindx = 0; tindx < triCount; tindx++)
 	{
-		nCount = tCount;
-		normals = new XMVECTOR[nCount];
+		triangles[tindx].indx = pIndx;
+		pIndx += 3;
 	}
 
-	unsigned int tindx = 0;
-	unsigned int* pt = triangles;
-
-	while (tindx < tCount)
+	for (unsigned int tindx = 0; tindx < triCount; tindx++)
 	{
-		XMVECTOR v0 = verticies[*(pt++)];
-		XMVECTOR v1 = verticies[*(pt++)] - v0;
-		XMVECTOR v2 = verticies[*(pt++)] - v0;
+		XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;
+		XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
+		XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
 
-		normals[tindx] = XMVector3Cross(v1, v2);
-		XMVector3Normalize(normals[tindx]);
-
-		tindx++;
+		triangles[tindx].normal = XMVector3Normalize(XMVector3Cross(v1, v2));
 	}
 }

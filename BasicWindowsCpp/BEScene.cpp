@@ -61,11 +61,11 @@ void BEScene::Create()
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::TriangleMesh();
 	e->Translate({ -0.5,0,-1 });
-	e->color = { 0,0,1 };
+	e->SetColor( { 0,0,1 } );
 
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::CubeMesh();
-	e->color = { 1,1,1 };
+	e->SetColor( { 1,1,1 } );
 	//e->Scale(0.5f);
 	//e->Translate({ 0,-0.3f,-2.0f });
 

@@ -11,7 +11,7 @@ BERenderPipelineWireframe::BERenderPipelineWireframe(BEScene* _pScene, BECamera*
 	pCanvas = _pCanvas;
 
 	// pre allocate memory
-	screenSpaceVerticies = new XMVECTOR[BERENDERPIPELINE_MAX_VERTICES];
+	screenSpaceVerticies = new BEVertex[BERENDERPIPELINE_MAX_VERTICES];
 }
 
 BERenderPipelineWireframe::~BERenderPipelineWireframe()
@@ -31,41 +31,39 @@ void BERenderPipelineWireframe::Draw()
 		{
 			// create screen space version of all verticies
 			{
-				XMVECTOR* src = m->verticies;
-				XMVECTOR* tgt = screenSpaceVerticies;
-				for (unsigned int vindx = 0; vindx < m->vCount; vindx++)
+				BEVertex* src = m->verticies;
+				BEVertex* tgt = screenSpaceVerticies;
+				for (unsigned int i = 0; i < m->vertCount; i++)
 				{
-					*tgt = pCamera->WorldToScreen(*src);
+					tgt->position = pCamera->WorldToScreen(src->position);
+					tgt->color = src->color;
 					tgt++;
 					src++;
 				}
 
-				screenSpaceNormals = tgt;
-				src = m->normals;
+				//screenSpaceNormals = tgt;
+				//src = m->normals;
 
-				if (drawNormals || backfaceCull)
-				{
-					for (unsigned int nindx = 0; nindx < m->nCount; nindx++)
-					{
-						*tgt = pCamera->WorldToScreen((m->verticies[nindx * 3] + *src) * 0.1f);
-						tgt++;
-						src++;
-					}
-				}
+				//if (drawNormals || backfaceCull)
+				//{
+				//	for (unsigned int nindx = 0; nindx < m->nCount; nindx++)
+				//	{
+				//		*tgt = pCamera->WorldToScreen((m->verticies[nindx * 3] + *src) * 0.1f);
+				//		tgt++;
+				//		src++;
+				//	}
+				//}
 			}
 
-			unsigned int tindx = 0;
-			unsigned int trinum = 0;
-
-			while (tindx < m->tBufferSize) // look at each triangle
+			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
-				XMVECTOR v0 = screenSpaceVerticies[m->triangles[tindx++]];
-				XMVECTOR v1 = screenSpaceVerticies[m->triangles[tindx++]];
-				XMVECTOR v2 = screenSpaceVerticies[m->triangles[tindx++]];
+				XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
+				XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
+				XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
-				XMVECTOR normal = m->normals[trinum];
+				XMVECTOR normal = m->triangles[i].normal;
 				XMVECTOR v0n = XMVector3Normalize(-v0);
-				XMVECTOR c = pScene->entities[eindx]->color;
+				XMVECTOR c = screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
 				XMVECTOR ssNormal = XMVector3Normalize( XMVector3Cross( (v1 - v0), (v2 - v0) ) );
 
@@ -83,24 +81,23 @@ void BERenderPipelineWireframe::Draw()
 						pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
 					}
 				}
-
-				trinum++;
 			}
 
-			unsigned int lindx = 0;
-			while (lindx < m->lBufferSize)
-			{
-				XMVECTOR v0 = screenSpaceVerticies[m->lines[lindx++]];
-				XMVECTOR v1 = screenSpaceVerticies[m->lines[lindx++]];
+			// To do : fix line drawing
+			//unsigned int lindx = 0;
+			//while (lindx < m->lBufferSize)
+			//{
+			//	XMVECTOR v0 = screenSpaceVerticies[m->lines[lindx++]];
+			//	XMVECTOR v1 = screenSpaceVerticies[m->lines[lindx++]];
 
-				XMVECTOR c = pScene->entities[eindx]->color;
+			//	XMVECTOR c = pScene->entities[eindx]->color;
 
-				// check it's in the screen bounds
-				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1))
-				{
-					pCanvas->DrawLineSafe(v0, v1, c);
-				}
-			}
+			//	// check it's in the screen bounds
+			//	if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1))
+			//	{
+			//		pCanvas->DrawLineSafe(v0, v1, c);
+			//	}
+			//}
 		}
 	}
 }

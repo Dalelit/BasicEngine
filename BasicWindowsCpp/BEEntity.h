@@ -6,7 +6,9 @@ class BEEntity
 public:
 	XMVECTOR position = { 0,0,0,0 };
 	BEMesh* mesh = NULL;
-	XMVECTOR color = { 1,1,1,1 };
+	//XMVECTOR color = { 1,1,1,1 };
+
+	inline void SetColor(XMVECTOR color) { if (mesh) mesh->SetColor(color); }
 
 	inline void Translate(XMVECTOR v) { position += v; if (mesh) mesh->Translate(v); }
 	inline void Scale(float f) { if (mesh) mesh->Scale(f); }

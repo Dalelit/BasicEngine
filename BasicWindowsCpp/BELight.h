@@ -6,6 +6,7 @@ using namespace DirectX;
 class BELight : public BEEntity
 {
 public:
+	XMVECTOR color = {1,1,1,1};
 	virtual XMVECTOR CalculateColor(XMVECTOR normal) = 0;
 };
 

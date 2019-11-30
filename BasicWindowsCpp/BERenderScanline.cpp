@@ -12,7 +12,7 @@ BERenderPipelineScanline::BERenderPipelineScanline(BEScene* _pScene, BECamera* _
 	// pre allocate memory
 	edges = new BEEdge[BERENDERPIPELINE_MAX_EDGES];
 	triedges = new BETriEdge[BERENDERPIPELINE_MAX_TRIEDGES];
-	screenSpaceVerticies = new XMVECTOR[BERENDERPIPELINE_MAX_VERTICES];
+	screenSpaceVerticies = new BEVertex[BERENDERPIPELINE_MAX_VERTICES];
 }
 
 BERenderPipelineScanline::~BERenderPipelineScanline()
@@ -89,41 +89,24 @@ void BERenderPipelineScanline::Draw()
 			{
 				// create screen space version of all verticies
 				{
-					XMVECTOR* src = m->verticies;
-					XMVECTOR* tgt = screenSpaceVerticies;
-					for (unsigned int vindx = 0; vindx < m->vCount; vindx++)
+					BEVertex* src = m->verticies;
+					BEVertex* tgt = screenSpaceVerticies;
+					for (unsigned int i = 0; i < m->vertCount; i++)
 					{
-						*tgt = pCamera->WorldToScreen(*src);
+						tgt->position = pCamera->WorldToScreen(src->position);
+						tgt->color = src->color;
 						tgt++;
 						src++;
 					}
 				}
 
-				unsigned int tindx = 0;
-				unsigned int trinum = 0;
-
-				while (tindx < m->tBufferSize) // look at each triangle
+				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
-					XMVECTOR normal = m->normals[trinum];
+					XMVECTOR normal = m->triangles[i].normal;
 
-					XMVECTOR v0 = screenSpaceVerticies[m->triangles[tindx++]];
-					XMVECTOR v1 = screenSpaceVerticies[m->triangles[tindx++]];
-					XMVECTOR v2 = screenSpaceVerticies[m->triangles[tindx++]];
-
-					// check if the triangle is facing the same direction as the camera, then it is facing away so cull
-					//if (v0.Dot(normal) < 0.0f)
-					//{
-					//	tindx += 3;
-					//	trinum++;
-					//	break;
-					//}
-
-					//if (pCamera->Dot(normal) > 0.0f)
-					//{
-					//	tindx += 3;
-					//	trinum++;
-					//	break;
-					//}
+					XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
+					XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
+					XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
 					// sort out lighiting value
 					XMVECTOR lights = { 0,0,0,0 };
@@ -133,26 +116,15 @@ void BERenderPipelineScanline::Draw()
 					}
 
 					lights = lights / (float)pScene->lightCount;
+					lights *= 0.5f; // to do : need to sort out correct ratios
 
-					//Color c = 0.5f * ambient + 0.5f * lights;
-					//c.Saturate();
+					XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
+					XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
+					XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
-
-					XMVECTOR c0, c1, c2;
-
-					//if (m->colors)
-					//{
-					//	// To do
-					//	c0 = { 1,0,0 };
-					//	c1 = { 0,1,0 };
-					//	c2 = { 0,0,1 };
-					//}
-					//else
-					{
-						c0 = XMVectorSaturate( pScene->entities[eindx]->color * 0.5f + lights * 0.5f );
-						c1 = c0;
-						c2 = c0;
-					}
+					c0 = XMVectorSaturate(c0 * 0.5f + lights);
+					c1 = XMVectorSaturate(c1 * 0.5f + lights);
+					c2 = XMVectorSaturate(c2 * 0.5f + lights);
 
 					// check it's in the screen bounds
 					if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
@@ -228,8 +200,6 @@ void BERenderPipelineScanline::Draw()
 						triedage++;
 					}
 					else int dummybp = 0;
-
-					trinum++;
 				}
 			}
 		}

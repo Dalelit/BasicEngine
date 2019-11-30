@@ -52,7 +52,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 
 		if (m)
 		{
-			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, pScene->entities[eIndx]->color);
+			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m);
 			drawables.push_back(pVB);
 		}
 	}
