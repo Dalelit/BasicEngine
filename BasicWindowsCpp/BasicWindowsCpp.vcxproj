@@ -128,7 +128,8 @@
     <ClCompile Include="BECanvas.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEDirectXDevice.cpp" />
-    <ClCompile Include="BEDXConstantBuffer.cpp" />
+    <ClCompile Include="BEDXPSConstantBuffer.cpp" />
+    <ClCompile Include="BEDXVSConstantBuffer.cpp" />
     <ClCompile Include="BEDXPixelShader.cpp" />
     <ClCompile Include="BEDXVertexShader.cpp" />
     <ClCompile Include="BEEntity.cpp" />
@@ -149,7 +150,8 @@
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
     <ClInclude Include="BEDirectXDrawable.h" />
-    <ClInclude Include="BEDXConstantBuffer.h" />
+    <ClInclude Include="BEDXPSConstantBuffer.h" />
+    <ClInclude Include="BEDXVSConstantBuffer.h" />
     <ClInclude Include="BEDXPixelShader.h" />
     <ClInclude Include="BEDXVertexShader.h" />
     <ClInclude Include="BEEntity.h" />

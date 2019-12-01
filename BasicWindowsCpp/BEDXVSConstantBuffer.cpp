@@ -1,6 +1,6 @@
-#include "BEDXConstantBuffer.h"
+#include "BEDXVSConstantBuffer.h"
 
-BEDXConstantBuffer::BEDXConstantBuffer(BEDirectXDevice& device)
+BEDXVSConstantBuffer::BEDXVSConstantBuffer(BEDirectXDevice& device)
 {
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
@@ -14,7 +14,7 @@ BEDXConstantBuffer::BEDXConstantBuffer(BEDirectXDevice& device)
 	bufferDesc.StructureByteStride = sizeof(Buffer);
 }
 
-void BEDXConstantBuffer::Update(BEDirectXDevice& device, BECamera* pCamera)
+void BEDXVSConstantBuffer::Update(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera)
 {
 	HRESULT hr;
 
@@ -25,7 +25,7 @@ void BEDXConstantBuffer::Update(BEDirectXDevice& device, BECamera* pCamera)
 	BEDXRESOURCE_ERRORCHECK(hr)
 }
 
-void BEDXConstantBuffer::Bind(BEDirectXDevice& device)
+void BEDXVSConstantBuffer::Bind(BEDirectXDevice& device)
 {
 	device.pImmediateContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 }

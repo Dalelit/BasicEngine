@@ -8,6 +8,6 @@ class BEMeshPrimatives
 public:
 	static BEMesh* TriangleMesh();
 	static BEMesh* CubeMesh();
-	static BEMesh* AxisMesh();
+	//static BEMesh* AxisMesh();
 };
 

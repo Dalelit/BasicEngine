@@ -367,7 +367,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// directx.............
 		//
-		dx.UpdateScene(&camera);
+		dx.UpdateFrame(dx.device, &scene, &camera);
 		dx.DoFrame();
 
 		//

@@ -26,7 +26,8 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 		{
 			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
-				XMVECTOR normal = m->triangles[i].normal;
+				//XMVECTOR normal = m->triangles[i].normal;
+				XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
 				XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
 
 				if (!backfaceCull || pCamera->IsVisible(v0, normal))
@@ -40,13 +41,9 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 						{
 							// To Do : not actually thought about this yet.
 
-							// To Do : assuming all color is on the 1st vertex
 							XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
 							XMVECTOR ambient = color;
-
 							XMVECTOR lights = { 0,0,0,1 };
-
-							//XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
 
 							for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
 							{

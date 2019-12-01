@@ -15,7 +15,8 @@ BEDirectX::~BEDirectX()
 {
 	for (auto r : resources) delete r;
 	for (auto d : drawables) delete d;
-	delete pConstantBuffer;
+	if (pVSConstantBuffer) delete pVSConstantBuffer;
+	if (pPSConstantBuffer) delete pPSConstantBuffer;
 }
 
 int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
@@ -34,12 +35,14 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 	pVS->Bind(device);
 	resources.push_back(pVS);
 
+	pVSConstantBuffer = new BEDXVSConstantBuffer(device);
+
 	/////////////////// Pixel Shader stage
 	BEDXPixelShader* pPS = new BEDXPixelShader(device, L"PixelShader.cso");
 	pPS->Bind(device);
 	resources.push_back(pPS);
 
-	pConstantBuffer = new BEDXConstantBuffer(device);
+	pPSConstantBuffer = new BEDXPSConstantBuffer(device);
 
 	return hr;
 }
@@ -60,9 +63,10 @@ int BEDirectX::LoadScene(BEScene* pScene)
 	return 0;
 }
 
-int BEDirectX::UpdateScene(BECamera* pCamera)
+int BEDirectX::UpdateFrame(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera)
 {
-	pConstantBuffer->Update(device, pCamera);
+	pVSConstantBuffer->Update(device, pScene, pCamera);
+	pPSConstantBuffer->Update(device, pScene, pCamera);
 
 	return 0;
 }
@@ -71,7 +75,9 @@ int BEDirectX::DoFrame()
 {
 	device.BeginFrame();
 
-	pConstantBuffer->Bind(device);
+	pVSConstantBuffer->Bind(device);
+	pPSConstantBuffer->Bind(device);
+
 	for (auto d : drawables) d->Draw(device);
 
 	device.PresentFrame();

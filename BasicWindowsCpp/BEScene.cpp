@@ -89,7 +89,7 @@ void BEScene::Create()
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};
-	ld->SetDirection({-4, -4, -4});
+	ld->SetDirection({-4, -2, -3, 1});
 	AddLight(ld);
 }
 

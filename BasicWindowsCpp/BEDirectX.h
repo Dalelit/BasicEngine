@@ -1,7 +1,8 @@
 #pragma once
 #include "BEDirectXResource.h"
 #include "BEDirectXDrawable.h"
-#include "BEDXConstantBuffer.h"
+#include "BEDXVSConstantBuffer.h"
+#include "BEDXPSConstantBuffer.h"
 #include "BEScene.h"
 #include "BECamera.h"
 #include <vector>
@@ -22,7 +23,7 @@ public:
 	// To do: sort out the input parameters nicely
 	int Initialise(HWND hwnd, unsigned int width, unsigned int height);
 
-	int UpdateScene(BECamera* pCamera);
+	int UpdateFrame(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera);
 
 	int LoadScene(BEScene* pScene);
 
@@ -31,6 +32,7 @@ public:
 private:
 	std::vector<BEDirectXResource*> resources;
 	std::vector<BEDirectXDrawable*> drawables;
-	BEDXConstantBuffer* pConstantBuffer = nullptr;
+	BEDXVSConstantBuffer* pVSConstantBuffer = nullptr;
+	BEDXPSConstantBuffer* pPSConstantBuffer = nullptr;
 };
 

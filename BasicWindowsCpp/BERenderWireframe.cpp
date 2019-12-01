@@ -48,7 +48,8 @@ void BERenderPipelineWireframe::Draw()
 
 			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
-				XMVECTOR normal = m->triangles[i].normal;
+				//XMVECTOR normal = m->triangles[i].normal;
+				XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
 
 				bool isVisible = pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal);
 
