@@ -92,6 +92,8 @@ public:
 	unsigned int raysToProcess;
 	unsigned int raysProcessed;
 
+	bool backfaceCull = true;
+
 	BERenderPipelineRaytrace(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineRaytrace();
 
@@ -110,10 +112,11 @@ private:
 class BERenderPipelineWireframe : public BERenderPipeline
 {
 public:
-	bool drawNormals = true;
+	bool drawNormals = false;
 	XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
 
-	bool backfaceCull = true;
+	bool backfaceCull = false;
+	float backfaceColorStrength = 0.25f;
 
 	BERenderPipelineWireframe(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();
@@ -121,7 +124,16 @@ public:
 	void Draw();
 
 private:
+	struct BELineInfo
+	{
+		XMVECTOR v0;
+		XMVECTOR v1;
+		XMVECTOR v2;
+		XMVECTOR color;
+	};
+
 	// preallocated memory for the number crunching
 	BEVertex* screenSpaceVerticies;
+	BELineInfo* linesToDraw;
 };
 

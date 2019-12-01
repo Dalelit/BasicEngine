@@ -104,102 +104,104 @@ void BERenderPipelineScanline::Draw()
 				{
 					XMVECTOR normal = m->triangles[i].normal;
 
-					XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
-					XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
-					XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
-
-					// sort out lighiting value
-					XMVECTOR lights = { 0,0,0,0 };
-					for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
+					if (pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal))
 					{
-						lights += pScene->lights[lindx]->CalculateColor(normal);
-					}
+						XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
+						XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
+						XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
-					lights = lights / (float)pScene->lightCount;
-					lights *= 0.5f; // to do : need to sort out correct ratios
-
-					XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
-					XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
-					XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
-
-					c0 = XMVectorSaturate(c0 * 0.5f + lights);
-					c1 = XMVectorSaturate(c1 * 0.5f + lights);
-					c2 = XMVectorSaturate(c2 * 0.5f + lights);
-
-					// check it's in the screen bounds
-					if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
-					{
-						// convert to pixel coords
-						v0 = pCanvas->ScreenToPixel(v0);
-						v1 = pCanvas->ScreenToPixel(v1);
-						v2 = pCanvas->ScreenToPixel(v2);
-
-						// order the verticies lowest to highest // To do - is there something more efficient?
-						if (XMVectorGetY(v0) > XMVectorGetY(v1)) SWAPXMVECTOR(v0, v1) // v0.y > v1.y
+						// sort out lighiting value
+						XMVECTOR lights = { 0,0,0,0 };
+						for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
 						{
-							if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
-							{
-								SWAPXMVECTOR(v1, v2)
-									if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
-										SWAPXMVECTOR(v0, v1)
-							}
+							lights += pScene->lights[lindx]->CalculateColor(normal);
 						}
 
-						// create the edges and triedge
-						InitEdge(edge, &v0, &v1, c0, c1);
-						triedage->e0 = edge;
-						triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
-						edge++;
-						InitEdge(edge, &v0, &v2, c0, c2);
-						triedage->e1 = edge;
-						edge++;
-						InitEdge(edge, &v1, &v2, c1, c2);
-						edge++;
+						lights = lights / (float)pScene->lightCount;
+						lights *= 0.5f; // to do : need to sort out correct ratios
 
-						// special case where first edge e0 is flat... replace it with e2
-						// scan lines will then both stop for e0, e1 at the same time
-						//if (v0.y == v1.y) triedage->e0 += 2;
-						if (XMVectorGetY(v0) == XMVectorGetY(v1)) triedage->e0 += 2;
+						XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
+						XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
+						XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
-						// insert the triedge into a sorted list
-						if (!sortedList) // first one in the list to add
+						c0 = XMVectorSaturate(c0 * 0.5f + lights);
+						c1 = XMVectorSaturate(c1 * 0.5f + lights);
+						c2 = XMVectorSaturate(c2 * 0.5f + lights);
+
+						// check it's in the screen bounds
+						if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 						{
-							sortedList = triedage;
-							triedage->next = NULL;
-						}
-						else
-						{
-							BETriEdge* current = sortedList;
-							BETriEdge* previous = NULL;
+							// convert to pixel coords
+							v0 = pCanvas->ScreenToPixel(v0);
+							v1 = pCanvas->ScreenToPixel(v1);
+							v2 = pCanvas->ScreenToPixel(v2);
 
-							while (current && current->yStart < triedage->yStart) // find the point to insert
+							// order the verticies lowest to highest // To do - is there something more efficient?
+							if (XMVectorGetY(v0) > XMVectorGetY(v1)) SWAPXMVECTOR(v0, v1) // v0.y > v1.y
 							{
-								previous = current;
-								current = current->next;
+								if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
+								{
+									SWAPXMVECTOR(v1, v2)
+										if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
+											SWAPXMVECTOR(v0, v1)
+								}
 							}
 
-							if (!current) // reached the end of the list
+							// create the edges and triedge
+							InitEdge(edge, &v0, &v1, c0, c1);
+							triedage->e0 = edge;
+							triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
+							edge++;
+							InitEdge(edge, &v0, &v2, c0, c2);
+							triedage->e1 = edge;
+							edge++;
+							InitEdge(edge, &v1, &v2, c1, c2);
+							edge++;
+
+							// special case where first edge e0 is flat... replace it with e2
+							// scan lines will then both stop for e0, e1 at the same time
+							//if (v0.y == v1.y) triedage->e0 += 2;
+							if (XMVectorGetY(v0) == XMVectorGetY(v1)) triedage->e0 += 2;
+
+							// insert the triedge into a sorted list
+							if (!sortedList) // first one in the list to add
 							{
-								previous->next = triedage;
+								sortedList = triedage;
 								triedage->next = NULL;
 							}
 							else
 							{
-								if (previous == NULL) // inserting at the beginning of the list
+								BETriEdge* current = sortedList;
+								BETriEdge* previous = NULL;
+
+								while (current && current->yStart < triedage->yStart) // find the point to insert
 								{
-									sortedList = triedage;
+									previous = current;
+									current = current->next;
+								}
+
+								if (!current) // reached the end of the list
+								{
+									previous->next = triedage;
+									triedage->next = NULL;
 								}
 								else
 								{
-									previous->next = triedage;
+									if (previous == NULL) // inserting at the beginning of the list
+									{
+										sortedList = triedage;
+									}
+									else
+									{
+										previous->next = triedage;
+									}
+									triedage->next = current;
 								}
-								triedage->next = current;
 							}
-						}
 
-						triedage++;
+							triedage++;
+						}
 					}
-					else int dummybp = 0;
 				}
 			}
 		}

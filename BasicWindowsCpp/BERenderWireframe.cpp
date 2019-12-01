@@ -12,15 +12,19 @@ BERenderPipelineWireframe::BERenderPipelineWireframe(BEScene* _pScene, BECamera*
 
 	// pre allocate memory
 	screenSpaceVerticies = new BEVertex[BERENDERPIPELINE_MAX_VERTICES];
+	linesToDraw = new BELineInfo[BERENDERPIPELINE_MAX_TRIEDGES]; // to do: sensible number?
 }
 
 BERenderPipelineWireframe::~BERenderPipelineWireframe()
 {
 	delete screenSpaceVerticies;
+	delete linesToDraw;
 }
 
 void BERenderPipelineWireframe::Draw()
 {
+	unsigned int lineCounter = 0; // store line info so back face lines are drawn first, the final lines last
+
 	for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
 	{
 		BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
@@ -40,47 +44,60 @@ void BERenderPipelineWireframe::Draw()
 					tgt++;
 					src++;
 				}
-
-				//screenSpaceNormals = tgt;
-				//src = m->normals;
-
-				//if (drawNormals || backfaceCull)
-				//{
-				//	for (unsigned int nindx = 0; nindx < m->nCount; nindx++)
-				//	{
-				//		*tgt = pCamera->WorldToScreen((m->verticies[nindx * 3] + *src) * 0.1f);
-				//		tgt++;
-				//		src++;
-				//	}
-				//}
 			}
 
 			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
-				XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
-				XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
-				XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
-
 				XMVECTOR normal = m->triangles[i].normal;
-				XMVECTOR v0n = XMVector3Normalize(-v0);
-				XMVECTOR c = screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
-				XMVECTOR ssNormal = XMVector3Normalize( XMVector3Cross( (v1 - v0), (v2 - v0) ) );
+				bool isVisible = pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal);
 
-				// check it's in the screen bounds
-				if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
+				if (!backfaceCull || isVisible)
 				{
-					pCanvas->DrawLineSafe(v0, v1, c);
-					pCanvas->DrawLineSafe(v1, v2, c);
-					pCanvas->DrawLineSafe(v2, v0, c);
+					XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
+					XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
+					XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
-					if (drawNormals)
+					XMVECTOR v0n = XMVector3Normalize(-v0);
+					XMVECTOR c = screenSpaceVerticies[m->triangles[i].indx[2]].color;
+
+					XMVECTOR ssNormal = XMVector3Normalize(XMVector3Cross((v1 - v0), (v2 - v0)));
+
+					// check it's in the screen bounds
+					if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 					{
-						pCanvas->DrawLineSafe(v0, v0 + ssNormal, normalColor);
-						pCanvas->DrawLineSafe(v1, v1 + ssNormal, normalColor);
-						pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
+						if (!backfaceCull && isVisible) // draw later
+						{
+							linesToDraw[lineCounter].v0 = v0;
+							linesToDraw[lineCounter].v1 = v1;
+							linesToDraw[lineCounter].v2 = v2;
+							linesToDraw[lineCounter].color = c;
+							lineCounter++;
+						}
+						else // draw backface now
+						{
+							if (!isVisible) c *= backfaceColorStrength;
+							pCanvas->DrawLineSafe(v0, v1, c);
+							pCanvas->DrawLineSafe(v1, v2, c);
+							pCanvas->DrawLineSafe(v2, v0, c);
+						}
+
+						//if (drawNormals)
+						//{
+						//	pCanvas->DrawLineSafe(v0, v0 + ssNormal, normalColor);
+						//	pCanvas->DrawLineSafe(v1, v1 + ssNormal, normalColor);
+						//	pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
+						//}
 					}
 				}
+			}
+
+			// draw main lines
+			for (unsigned int i = 0; i < lineCounter; i++)
+			{
+				pCanvas->DrawLineSafe(linesToDraw[i].v0, linesToDraw[i].v1, linesToDraw[i].color);
+				pCanvas->DrawLineSafe(linesToDraw[i].v1, linesToDraw[i].v2, linesToDraw[i].color);
+				pCanvas->DrawLineSafe(linesToDraw[i].v2, linesToDraw[i].v0, linesToDraw[i].color);
 			}
 
 			// To do : fix line drawing

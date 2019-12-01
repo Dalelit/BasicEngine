@@ -26,35 +26,40 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 		{
 			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{
+				XMVECTOR normal = m->triangles[i].normal;
 				XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
-				XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
-				XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
 
-				if (TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distance))
+				if (!backfaceCull || pCamera->IsVisible(v0, normal))
 				{
-					if (distance < hitDistance)
+					XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
+					XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
+
+					if (TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distance))
 					{
-						// To Do : not actually thought about this yet.
-
-						// To Do : assuming all color is on the 1st vertex
-						XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
-						XMVECTOR ambient = color;
-
-						XMVECTOR lights = { 0,0,0,1 };
-
-						XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
-
-						for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
+						if (distance < hitDistance)
 						{
-							lights += pScene->lights[lindx]->CalculateColor(normal);
+							// To Do : not actually thought about this yet.
+
+							// To Do : assuming all color is on the 1st vertex
+							XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
+							XMVECTOR ambient = color;
+
+							XMVECTOR lights = { 0,0,0,1 };
+
+							//XMVECTOR normal = XMVector3Normalize( XMVector3Cross ( (v1 - v0), (v2 - v0) ) );
+
+							for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
+							{
+								lights += pScene->lights[lindx]->CalculateColor(normal);
+							}
+
+							lights = lights / (float)pScene->lightCount;
+
+							XMVECTOR c = XMVectorSaturate(0.5f * ambient + 0.5f * lights);
+
+							pCanvas->buffer[line + x] = c;
+							hitDistance = distance;
 						}
-
-						lights = lights / (float)pScene->lightCount;
-
-						XMVECTOR c = XMVectorSaturate ( 0.5f * ambient + 0.5f * lights );
-
-						pCanvas->buffer[line + x] = c;
-						hitDistance = distance;
 					}
 				}
 			}
