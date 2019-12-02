@@ -7,11 +7,11 @@
 // - add window size change... maybe... or have graphics engine render to one size, and blit to window size... decisions!!
 // - assuming all windows are the same size so a single buffer w,h variable at the moment.
 // - more threading?... each window/render should be on a separate thread. Raytracing in it's own thread
-// - create an interupt for the ray tracing thread to restart rendering when something changes?
 //
 // Maybe To Do
 // - fix frame rate?
 //
+
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

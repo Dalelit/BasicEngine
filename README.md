@@ -10,3 +10,16 @@ Now have a...
 - Raytracer
 - Wireframe
 - DirectX D3D11
+
+
+Some reminders for me
+
+- DirectX default is clockwise front
+
+- RH cooridnate system
+
+	y
+	|
+	---x
+   /
+  z

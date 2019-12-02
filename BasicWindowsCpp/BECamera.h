@@ -34,7 +34,7 @@ public:
 
 	inline XMVECTOR WorldToScreen(XMVECTOR coord) { return XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
 
-	inline bool IsVisible(XMVECTOR point, XMVECTOR normal) { return XMVectorGetX(XMVector3Dot((point - position), normal)) >= 0.0f; }
+	inline bool IsVisible(XMVECTOR point, XMVECTOR normal) { return XMVectorGetX(XMVector3Dot((point - position), normal)) < 0.0f; }
 
 	Ray RelativeScreenPositionToRay(float x, float y);
 

@@ -51,7 +51,5 @@ void BEMesh::CalculateTriangleInfo()
 		XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;
 		XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
 		XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
-
-		//triangles[tindx].normal = XMVector3Normalize(XMVector3Cross(v1, v2));
 	}
 }
