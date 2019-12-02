@@ -5,8 +5,7 @@ class BEEntity
 {
 public:
 	XMVECTOR position = { 0,0,0,0 };
-	BEMesh* mesh = NULL;
-	//XMVECTOR color = { 1,1,1,1 };
+	BEMesh* mesh = nullptr;
 
 	inline void SetColor(XMVECTOR color) { if (mesh) mesh->SetColor(color); }
 

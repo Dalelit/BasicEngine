@@ -102,7 +102,6 @@ void BERenderPipelineScanline::Draw()
 
 				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
-					//XMVECTOR normal = m->triangles[i].normal;
 					XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
 
 					if (pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal))
@@ -137,14 +136,23 @@ void BERenderPipelineScanline::Draw()
 							v1 = pCanvas->ScreenToPixel(v1);
 							v2 = pCanvas->ScreenToPixel(v2);
 
-							// order the verticies lowest to highest // To do - is there something more efficient?
-							if (XMVectorGetY(v0) > XMVectorGetY(v1)) SWAPXMVECTOR(v0, v1) // v0.y > v1.y
+							// order the verticies lowest to highest
+							// To do - is there something more efficient? Need to put into a struct.
+							if (XMVectorGetY(v0) > XMVectorGetY(v1))
+							{
+								SWAPXMVECTOR(v0, v1); // v0.y > v1.y
+								SWAPXMVECTOR(c0, c1);
+							}
 							{
 								if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
 								{
-									SWAPXMVECTOR(v1, v2)
-										if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
-											SWAPXMVECTOR(v0, v1)
+									SWAPXMVECTOR(v1, v2);
+									SWAPXMVECTOR(c1, c2);
+									if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
+									{
+										SWAPXMVECTOR(v0, v1);
+										SWAPXMVECTOR(c0, c1);
+									}
 								}
 							}
 
@@ -250,9 +258,10 @@ void BERenderPipelineScanline::Draw()
 					XMVECTOR c = current->e0->c;
 					XMVECTOR dc = {};
 
+					// to do: maybe fix this so the order and build out happens in one step.
 					if (x != xt) // not a single x step
 					{
-						float dx = current->e1->x - current->e0->x;
+						float dx = fabsf(current->e1->x - current->e0->x);
 						dz = (current->e1->z - current->e0->z) / dx;
 						dc = (current->e1->c - current->e0->c) / dx;
 					}
@@ -282,6 +291,7 @@ void BERenderPipelineScanline::Draw()
 						}
 
 						x++;
+						z += dz;
 						c += dc;
 					}
 

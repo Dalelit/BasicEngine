@@ -113,10 +113,12 @@ class BERenderPipelineWireframe : public BERenderPipeline
 {
 public:
 	bool drawNormals = false;
-	XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f, 1.0f};
+	XMVECTOR lineColor = { 1.0f, 1.0f, 1.0f };
+	XMVECTOR backlineColor = { 0.25f, 0.25f, 0.25f };
+	XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f };
 
 	bool backfaceCull = false;
-	float backfaceColorStrength = 0.25f;
+	//float backfaceColorStrength = 0.25f;
 
 	BERenderPipelineWireframe(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();

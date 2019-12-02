@@ -60,7 +60,7 @@ void BERenderPipelineWireframe::Draw()
 					XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
 					XMVECTOR v0n = XMVector3Normalize(-v0);
-					XMVECTOR c = screenSpaceVerticies[m->triangles[i].indx[2]].color;
+					XMVECTOR c = lineColor; // screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
 					XMVECTOR ssNormal = XMVector3Normalize(XMVector3Cross((v1 - v0), (v2 - v0)));
 
@@ -77,7 +77,7 @@ void BERenderPipelineWireframe::Draw()
 						}
 						else // draw backface now
 						{
-							if (!isVisible) c *= backfaceColorStrength;
+							if (!isVisible) c = backlineColor;
 							pCanvas->DrawLineSafe(v0, v1, c);
 							pCanvas->DrawLineSafe(v1, v2, c);
 							pCanvas->DrawLineSafe(v2, v0, c);
