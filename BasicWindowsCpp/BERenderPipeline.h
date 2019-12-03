@@ -101,6 +101,8 @@ public:
 	void DrawByLine();
 	void DrawBySampling();
 
+	inline bool TriangleIntersects(FXMVECTOR Origin, FXMVECTOR Direction, FXMVECTOR V0, GXMVECTOR V1, HXMVECTOR V2, float& Dist, float& _u, float& _v);
+
 private:
 	void InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line);
 	inline void InnerLoop(float px, float py, unsigned int x, unsigned int y) { InnerLoop(px, py, x, y, y * pCanvas->width); };
