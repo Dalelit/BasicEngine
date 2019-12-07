@@ -4,6 +4,8 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 {
 	HRESULT hr;
 
+	dpi = (float)GetDpiForWindow(hwnd);
+
 	/////////////////// create device and back buffer
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -23,28 +25,43 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL?
 	swapChainDesc.Flags = 0;
 
+	D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1 };
+	D3D_FEATURE_LEVEL featureLevel; // will get populated with the actual feature level used... wanting 11_1
+
 	hr = D3D11CreateDeviceAndSwapChain(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		D3D11_CREATE_DEVICE_DEBUG,
-		NULL,
-		0,
+		D3D11_CREATE_DEVICE_DEBUG |  D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+		featureLevels,
+		ARRAYSIZE(featureLevels),
 		D3D11_SDK_VERSION,
 		&swapChainDesc,
 		&pSwapChain,
 		&pDevice,
-		NULL,
+		&featureLevel,
 		&pImmediateContext
 	);
 
 	if (FAILED(hr)) return hr;
 
-	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
+	hr = pSwapChain.As(&pSwapChain1);
 
 	if (FAILED(hr)) return hr;
 
-	hr = pDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, &pRenderTargetView);
+	hr = pSwapChain1->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
+
+	if (FAILED(hr)) return hr;
+
+	hr = pDevice.As(&pDevice1);
+
+	if (FAILED(hr)) return hr;
+
+	hr = pImmediateContext.As(&pImmediateContext1);
+
+	if (FAILED(hr)) return hr;
+
+	hr = pDevice1->CreateRenderTargetView(pBackBuffer.Get(), NULL, &pRenderTargetView);
 
 	if (FAILED(hr)) return hr;
 
@@ -56,7 +73,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	viewport.Height = (float)height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	pImmediateContext->RSSetViewports(1, &viewport);
+	pImmediateContext1->RSSetViewports(1, &viewport);
 
 	/////////////////// Depth buffer
 
@@ -66,11 +83,11 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilState = nullptr;
-	hr = pDevice->CreateDepthStencilState(&dsDesc, &pDepthStencilState);
+	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilState);
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext->OMSetDepthStencilState(pDepthStencilState.Get(), 1u);
+	pImmediateContext1->OMSetDepthStencilState(pDepthStencilState.Get(), 1u);
 
 	D3D11_TEXTURE2D_DESC dtDesc = {};
 	dtDesc.Width = width;
@@ -85,7 +102,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dtDesc.CPUAccessFlags = 0u;
 	dtDesc.MiscFlags = 0u;
 
-	hr = pDevice->CreateTexture2D(&dtDesc, nullptr, &pDepthTexture);
+	hr = pDevice1->CreateTexture2D(&dtDesc, nullptr, &pDepthTexture);
 
 	if (FAILED(hr)) return hr;
 
@@ -95,7 +112,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dsvDesc.Flags = 0;
 	dsvDesc.Texture2D.MipSlice = 0u;
 
-	hr = pDevice->CreateDepthStencilView(pDepthTexture.Get(), &dsvDesc, &pDepthStencilView);
+	hr = pDevice1->CreateDepthStencilView(pDepthTexture.Get(), &dsvDesc, &pDepthStencilView);
 
 	if (FAILED(hr)) return hr;
 
@@ -104,12 +121,15 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 
 void BEDirectXDevice::BeginFrame()
 {
-	pImmediateContext->OMSetRenderTargets(1u, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
-	pImmediateContext->ClearRenderTargetView(pRenderTargetView.Get(), clearColor);
-	pImmediateContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	pImmediateContext1->OMSetRenderTargets(1u, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
+	pImmediateContext1->ClearRenderTargetView(pRenderTargetView.Get(), clearColor);
+	pImmediateContext1->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 void BEDirectXDevice::PresentFrame()
 {
-	pSwapChain->Present(1u, 0u);
+	//pSwapChain->Present(1u, 0u);
+
+	DXGI_PRESENT_PARAMETERS presentParams = {};
+	pSwapChain1->Present1(1u, 0u, &presentParams);
 }

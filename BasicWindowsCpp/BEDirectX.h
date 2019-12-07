@@ -1,12 +1,12 @@
 #pragma once
 #include "BEDirectXResource.h"
 #include "BEDirectXDrawable.h"
+#include "BEDXOverlay.h"
 #include "BEDXVSConstantBuffer.h"
 #include "BEDXPSConstantBuffer.h"
 #include "BEScene.h"
 #include "BECamera.h"
 #include <vector>
-
 #include <wrl.h>
 
 namespace wrl = Microsoft::WRL;
@@ -16,6 +16,7 @@ class BEDirectX
 public:
 
 	BEDirectXDevice device;
+	BEDXOverlay overlay;
 
 	BEDirectX();
 	~BEDirectX();

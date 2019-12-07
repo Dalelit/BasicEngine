@@ -128,6 +128,7 @@
     <ClCompile Include="BECanvas.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEDirectXDevice.cpp" />
+    <ClCompile Include="BEDXOverlay.cpp" />
     <ClCompile Include="BEDXPSConstantBuffer.cpp" />
     <ClCompile Include="BEDXVSConstantBuffer.cpp" />
     <ClCompile Include="BEDXPixelShader.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
     <ClInclude Include="BEDirectXDrawable.h" />
+    <ClInclude Include="BEDXOverlay.h" />
     <ClInclude Include="BEDXPSConstantBuffer.h" />
     <ClInclude Include="BEDXVSConstantBuffer.h" />
     <ClInclude Include="BEDXPixelShader.h" />
