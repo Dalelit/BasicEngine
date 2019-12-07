@@ -16,6 +16,9 @@ public:
 	void BeginFrame();
 	void PresentFrame();
 
+	void TurnOnDepthBuffer();
+	void TurnOffDepthBuffer();
+
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 
 	wrl::ComPtr<IDXGISwapChain> pSwapChain = nullptr;
@@ -28,6 +31,9 @@ public:
 	wrl::ComPtr<ID3D11RenderTargetView> pRenderTargetView = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilView> pDepthStencilView = nullptr;
 	wrl::ComPtr<ID3D11Texture2D> pDepthTexture = nullptr;
+
+	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilStateOn = nullptr;
+	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilStateOff = nullptr;
 
 	float dpi = 0;
 };

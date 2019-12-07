@@ -81,13 +81,19 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dsDesc.DepthEnable = TRUE;
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	dsDesc.StencilEnable = FALSE;
 
-	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilState = nullptr;
-	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilState);
+	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOn);
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext1->OMSetDepthStencilState(pDepthStencilState.Get(), 1u);
+	dsDesc.DepthEnable = FALSE;
+
+	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOff);
+
+	if (FAILED(hr)) return hr;
+
+	pImmediateContext1->OMSetDepthStencilState(pDepthStencilStateOn.Get(), 0u);
 
 	D3D11_TEXTURE2D_DESC dtDesc = {};
 	dtDesc.Width = width;
@@ -132,4 +138,14 @@ void BEDirectXDevice::PresentFrame()
 
 	DXGI_PRESENT_PARAMETERS presentParams = {};
 	pSwapChain1->Present1(1u, 0u, &presentParams);
+}
+
+void BEDirectXDevice::TurnOnDepthBuffer()
+{
+	pImmediateContext->OMSetDepthStencilState(pDepthStencilStateOn.Get(), 0u);
+}
+
+void BEDirectXDevice::TurnOffDepthBuffer()
+{
+	pImmediateContext->OMSetDepthStencilState(pDepthStencilStateOff.Get(), 0u);
 }

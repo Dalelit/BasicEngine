@@ -44,8 +44,8 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	// get the back buffer as a dxgi surface
 
 	Microsoft::WRL::ComPtr<IDXGISurface1> pDxgiSurface = nullptr;
-	//hr = dx.pBackBuffer.As(&pDxgiSurface);
-	hr = dx.pSwapChain1->GetBuffer(0, IID_PPV_ARGS(&pDxgiSurface));
+	hr = dx.pBackBuffer.As(&pDxgiSurface);
+	//hr = dx.pSwapChain1->GetBuffer(0, IID_PPV_ARGS(&pDxgiSurface));
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
@@ -77,23 +77,6 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	return hr;
-
-	////////////// Old way...?
-	//D2D1_RENDER_TARGET_PROPERTIES rtProps = {};
-	//rtProps.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
-	//rtProps.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM; // DXGI_FORMAT_UNKNOWN;
-	//rtProps.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-	//rtProps.dpiX = (float)dx.dpi;
-	//rtProps.dpiY = (float)dx.dpi;
-	//rtProps.usage = D2D1_RENDER_TARGET_USAGE_NONE;
-	//hr = pFactory->CreateDxgiSurfaceRenderTarget(pDxgiSurface.Get(), &rtProps, &pRenderTgt);
-	//BEDXRESOURCE_ERRORCHECK(hr);
-	//hr = pRenderTgt->CreateSolidColorBrush(whiteSolid, &pwBrush);
-	//BEDXRESOURCE_ERRORCHECK(hr);
-	//hr = pRenderTgt->CreateSolidColorBrush(oredSolid, &porBrush);
-	//BEDXRESOURCE_ERRORCHECK(hr);
-	//////////////
-
 }
 
 void BEDXOverlay::Draw()
@@ -103,12 +86,6 @@ void BEDXOverlay::Draw()
 	D2D1_POINT_2F p0 = { 0, 0 };
 	D2D1_POINT_2F p1 = { 300, 400 };
 	D2D1_RECT_F d2rect = D2D1::RectF(0, 0, 400, 400);
-
-	//pRenderTgt->BeginDraw();
-	//pRenderTgt->SetTransform(D2D1::Matrix3x2F::Identity());
-	//pRenderTgt->DrawLine(p0, p1, pwBrush.Get(), 3.0f);
-	//pRenderTgt->FillRectangle(d2rect, porBrush.Get());
-	//hr = pRenderTgt->EndDraw();
 
 	pContext->BeginDraw();
 	pContext->SetTransform(D2D1::Matrix3x2F::Identity());
