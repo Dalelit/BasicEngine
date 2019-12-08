@@ -15,10 +15,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <time.h>
 #include <stdio.h>
 #include "BERenderPipeline.h"
 #include "BEDirectX.h"
+#include "BETimer.h"
 
 // global windows variables and macros
 #define BENUMBER_WINDOWS 5
@@ -34,7 +34,6 @@ RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is cal
 
 // global control variables
 bool running = true;
-float deltaTime = 0.0f;
 
 // global back buffer variables
 int bufferWidth = 0;
@@ -43,9 +42,11 @@ BECanvas backBuffer[BENUMBER_WINDOWS];
 BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
-BECamera camera({0,0,3}, {0,0,-1});
+BECamera camera({0,3,4}, {0,-2,-1});
 BEScene scene;
 BERenderPipeline* pipeline[BENUMBER_WINDOWS];
+BETimer timers[BENUMBER_WINDOWS];
+BETimer loopTimer;
 
 /////////////////////////////////
 // back buffer functions
@@ -259,16 +260,15 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	{
 		pipeline[indx]->restartLoop = false;
 		backBuffer[indx].Clear();
+
+		timers[indx].Start();
 		pipeline[indx]->Draw();
-		
-		clock_t currentTime = clock();
-		float deltaTime = (float)(currentTime - lastTime) / CLOCKS_PER_SEC; // seconds
-		lastTime = currentTime;
+		timers[indx].Tick();
 
 		// add an extra window, and show the completed image
 		BEDrawBackBuffer(indx, resultIndx);
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Render time: %7.2fs", deltaTime);
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Render time: %.2fs", timers[indx].ElapsedSec());
 		BEWriteOverlayToWindow(resultIndx, swbuffer);
 		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 	}
@@ -324,11 +324,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HANDLE thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
 	if (thread == NULL) return -1;
 
-	clock_t lastTime = clock();
-	clock_t startRend, endRend;
-
 	while (running)
 	{
+		loopTimer.Start();
+
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -340,12 +339,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 
 		backBuffer[0].Clear();
-		startRend = clock();
+		timers[0].Start();
 		pipeline[0]->Draw();
-		endRend = clock();
+		timers[0].Tick();
 		BEDrawBackBuffer(0);
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims", (endRend - startRend));
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims", timers[0].ElapsedMilSec());
 		BEWriteOverlayToWindow(0, swbuffer);
 
 		//
@@ -367,26 +366,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// directx.............
 		//
+		timers[4].Start();
 		dx.UpdateFrame(dx.device, &scene, &camera);
 		dx.DoFrame();
+		timers[4].Tick();
 
 		//
 		// wireframe.............
 		//
 
 		backBuffer[2].Clear();
-		startRend = clock();
+		timers[2].Start();
 		pipeline[2]->Draw();
-		endRend = clock();
+		timers[2].Tick();
 		BEDrawBackBuffer(2);
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
-		clock_t currentTime = clock();
-		deltaTime = (float)(currentTime - lastTime) / (float)CLOCKS_PER_SEC; // time in seconds
-		lastTime = currentTime;
+		loopTimer.Tick();
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nLoop time: %3.3fs\nfps: %f", (endRend - startRend), deltaTime, 1.0f / deltaTime);
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nDX time: %ims\nLoop time: %ims", timers[2].ElapsedMilSec(), timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec());
 		BEWriteOverlayToWindow(2, swbuffer);
 	}
 

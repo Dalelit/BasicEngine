@@ -164,6 +164,7 @@
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />
+    <ClInclude Include="BETimer.h" />
     <ClInclude Include="BEVertex.h" />
   </ItemGroup>
   <ItemGroup>

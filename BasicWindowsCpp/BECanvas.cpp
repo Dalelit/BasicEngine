@@ -54,8 +54,7 @@ void BECanvas::BufferToBMP()
 	for (unsigned int y = 0; y < size; y += width)
 		for (unsigned int x = 0; x < width; x++)
 		{
-
-			c = (*pc) * 255.0f;
+			c.data = pc->data * 255.0f; // to do: this line is slow
 			pp->r = (unsigned char)c.r;
 			pp->g = (unsigned char)c.g;
 			pp->b = (unsigned char)c.b;
@@ -66,26 +65,23 @@ void BECanvas::BufferToBMP()
 		}
 }
 
-void BECanvas::DrawLineSafe(XMVECTOR _from, XMVECTOR _to, XMVECTOR _colorFrom, XMVECTOR _colorTo)
+void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVECTOR colorTo)
 {
-	XMFLOAT3 from, to;
-	Color colorFrom, colorTo;
+	float fromX = XMVectorGetX(from);
+	float fromY = XMVectorGetY(from);
+	float toX = XMVectorGetX(to);
+	float toY = XMVectorGetY(to);
 
-	XMStoreFloat3(&from, _from);
-	XMStoreFloat3(&to, _to);
-	XMStoreFloat4(&colorFrom.data, _colorFrom);
-	XMStoreFloat4(&colorTo.data, _colorTo);
-
-	if (from.x < -1.0f && to.x < -1.0f) return;
-	if (from.y < -1.0f && to.y < -1.0f) return;
-	if (from.x >= 1.0f && to.x >= 1.0f) return;
-	if (from.y >= 1.0f && to.y >= 1.0f) return;
+	if (fromX < -1.0f && toX < -1.0f) return;
+	if (fromY < -1.0f && toY < -1.0f) return;
+	if (fromX >= 1.0f && toX >= 1.0f) return;
+	if (fromY >= 1.0f && toY >= 1.0f) return;
 
 	// convert screen space to pixels
-	float x = (from.x + 1.0f) * halfWidth;
-	float xt = (to.x + 1.0f) * halfWidth;
-	float y = (from.y + 1.0f) * halfHeight;
-	float yt = (to.y + 1.0f) * halfHeight;
+	float x = (fromX + 1.0f) * halfWidth;
+	float xt = (toX + 1.0f) * halfWidth;
+	float y = (fromY + 1.0f) * halfHeight;
+	float yt = (toY + 1.0f) * halfHeight;
 	Color c = colorFrom;
 	Color ct = colorTo;
 

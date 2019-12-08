@@ -1,4 +1,5 @@
 #include "BEMeshPrimatives.h"
+#include <random>
 
 BEMesh* BEMeshPrimatives::TriangleMesh()
 {
@@ -102,6 +103,62 @@ BEMesh* BEMeshPrimatives::CubeMesh()
 	m->verticies[23] = { { -0.5f, -0.5f, -0.5f, 1.0f }, {0,-1,0,1}, {1,1,1,1} };
 	m->indicies[i++] = 20; m->indicies[i++] = 21; m->indicies[i++] = 22;
 	m->indicies[i++] = 20; m->indicies[i++] = 22; m->indicies[i++] = 23;
+
+	m->CalculateTriangleInfo();
+
+	return m;
+}
+
+BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segmentsWide, unsigned int segmentsDeep)
+{
+	unsigned int vertCount = (segmentsWide + 1) * (segmentsDeep + 1);
+	unsigned int triCount = segmentsWide * segmentsDeep * 2;
+
+	float height = 0.0f;
+
+	float xstart = -((float)width / 2.0f);
+	float zstart = -((float)segmentsDeep / 2.0f);
+
+	float dx = width / (float)segmentsWide;
+	float dz = depth / (float)segmentsDeep;
+
+	BEMesh* m = new BEMesh(vertCount, triCount, BEMesh::BEMeshTopology::TIRANGLE_INDEX);
+
+	DirectX::XMFLOAT4 position = { xstart, height, zstart, 1.0f };
+	DirectX::XMFLOAT4 color = { 0.1f, 0.8f, 0.3f, 1.0f };
+	XMVECTOR normal = { 0,1,0,0 };
+
+	for (unsigned int z = 0; z < segmentsDeep+1; z++)
+	{
+		position.x = xstart;
+
+		for (unsigned int x = 0; x < segmentsWide+1; x++)
+		{
+			unsigned int indx = z * (segmentsWide+1) + x;
+			m->verticies[indx].position = XMLoadFloat4(&position);
+			m->verticies[indx].normal = normal;
+			m->verticies[indx].color = XMLoadFloat4(&color);
+			position.x += dx;
+		}
+
+		position.z += dz;
+	}
+
+	unsigned int indx = 0;
+	for (unsigned int z = 0; z < segmentsDeep; z++)
+	{
+		for (unsigned int x = 0; x < segmentsWide; x++)
+		{
+			unsigned int v0indx = z * (segmentsDeep + 1) + x;
+			m->indicies[indx++] = v0indx;
+			m->indicies[indx++] = v0indx + 1;
+			m->indicies[indx++] = v0indx + segmentsWide + 2;
+
+			m->indicies[indx++] = v0indx;
+			m->indicies[indx++] = v0indx + segmentsWide + 2;
+			m->indicies[indx++] = v0indx + segmentsWide + 1;
+		}
+	}
 
 	m->CalculateTriangleInfo();
 

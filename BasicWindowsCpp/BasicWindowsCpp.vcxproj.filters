@@ -134,6 +134,9 @@
     <ClInclude Include="BEDXOverlay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BETimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">

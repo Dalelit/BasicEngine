@@ -1,4 +1,6 @@
 #include "BEMesh.h"
+#include <string>
+#include <iostream>
 
 BEMesh::BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology)
 {
@@ -52,4 +54,9 @@ void BEMesh::CalculateTriangleInfo()
 		XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
 		XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
 	}
+}
+
+void BEMesh::DebugDump()
+{
+	std::cout << "Hello" << std::endl;
 }

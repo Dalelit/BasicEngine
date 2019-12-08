@@ -13,20 +13,21 @@ public:
 
 	union Color
 	{
-		XMFLOAT4 data;
+		XMVECTOR data;
 		struct {
 			float r, g, b, a;
 		};
 
-		Color() { data = { 0,0,0,0 }; };
+		Color() : data() {};
 		Color(float _r, float _g, float _b, float _a) { data = { _r, _g , _b, _a }; };
-		Color(XMVECTOR v) { XMStoreFloat4(&data, v); }
+		Color(const XMVECTOR& v) : data (v) {}
+		Color(const Color& c) : data(c.data) {};
 
-		Color operator+(const Color& rhs) { return Color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a); };
-		Color operator*(const float& rhs) { return Color(r * rhs, g * rhs, b * rhs, a * rhs); };
-		Color operator-(const Color& rhs) { return Color(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a); };
-		Color operator-() { return Color(-r, -g, -b, -a); };
-		Color operator/(const float& rhs) { return Color(r / rhs, g / rhs, b / rhs, a / rhs); };
+		Color operator+(const Color& rhs) { return Color(data + rhs.data); };
+		Color operator-(const Color& rhs) { return Color(data - rhs.data); };
+		Color operator-() { return Color(-data); };
+		Color operator*(const float rhs) { return Color(data * rhs); };
+		Color operator/(const float& rhs) { return Color(data / rhs); };
 	};
 
 	Color* buffer = NULL;

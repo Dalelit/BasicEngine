@@ -48,5 +48,7 @@ public:
 	inline void Scale(XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position *= v; }
 
 	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = XMVector3Transform(verticies[i].position, m); }
+
+	void DebugDump();
 };
 
