@@ -1,37 +1,28 @@
 #include "BEDXOverlay.h"
 
-
 #pragma comment(lib,"d2d1.lib")
 #pragma comment(lib,"dwrite.lib")
+
+// to do: fix the error checking macro
 
 int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 {
 	HRESULT hr;
 
 	// create the factory
-	Microsoft::WRL::ComPtr<ID2D1Factory1> pFactory = nullptr;
 
 	D2D1_FACTORY_OPTIONS factoryOptions = {};
 	factoryOptions.debugLevel = D2D1_DEBUG_LEVEL_WARNING;
 
 	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
-		__uuidof(ID2D1Factory1),
+		__uuidof(ID2D1Factory3),
 		&factoryOptions,
-		(void**)&pFactory);
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
-	// create a device, linked to d3d device
-
-	// get the d3d device
-	Microsoft::WRL::ComPtr<IDXGIDevice1> pdxgiDevice = nullptr;
-	hr = dx.pDevice1.As(&pdxgiDevice);
+		&pFactory);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	// create the d2d device linked to the d3d device
-	Microsoft::WRL::ComPtr<ID2D1Device> pDevice = nullptr;
-	hr = pFactory->CreateDevice(pdxgiDevice.Get(), &pDevice);
+	hr = pFactory->CreateDevice(dx.pDxgiDevice.Get(), &pDevice);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
@@ -43,9 +34,8 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 
 	// get the back buffer as a dxgi surface
 
-	Microsoft::WRL::ComPtr<IDXGISurface1> pDxgiSurface = nullptr;
+	Microsoft::WRL::ComPtr<IDXGISurface2> pDxgiSurface = nullptr;
 	hr = dx.pBackBuffer.As(&pDxgiSurface);
-	//hr = dx.pSwapChain1->GetBuffer(0, IID_PPV_ARGS(&pDxgiSurface));
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
@@ -59,7 +49,6 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	bmProp.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
 	//bmProp.colorContext;
 
-	Microsoft::WRL::ComPtr<ID2D1Bitmap1> pBitmap = nullptr;
 	hr = pContext->CreateBitmapFromDxgiSurface(pDxgiSurface.Get(), bmProp, &pBitmap);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
@@ -67,13 +56,12 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	// the bmp as the target
 
 	pContext->SetTarget(pBitmap.Get());
-	pContext->SetDpi(dx.dpi, dx.dpi);
 
 	// create some brushes
 
-	hr = pContext->CreateSolidColorBrush(whiteSolid, &pwBrush);
+	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
 	BEDXRESOURCE_ERRORCHECK(hr);
-	hr = pContext->CreateSolidColorBrush(oredSolid, &porBrush);
+	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::OrangeRed), &porBrush);
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	return hr;
@@ -88,9 +76,10 @@ void BEDXOverlay::Draw()
 	D2D1_RECT_F d2rect = D2D1::RectF(0, 0, 400, 400);
 
 	pContext->BeginDraw();
-	pContext->SetTransform(D2D1::Matrix3x2F::Identity());
-	pContext->FillRectangle(d2rect, porBrush.Get());
-	pContext->DrawLine(p0, p1, pwBrush.Get(), 3.0f);
+
+	//pContext->FillRectangle(d2rect, porBrush.Get());
+	//pContext->DrawLine(p0, p1, pwBrush.Get());
+
 	hr = pContext->EndDraw();
 	BEDXRESOURCE_ERRORCHECK(hr);
 }

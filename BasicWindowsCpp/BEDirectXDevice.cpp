@@ -3,8 +3,12 @@
 int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 {
 	HRESULT hr;
-
 	dpi = (float)GetDpiForWindow(hwnd);
+
+	// for the create call, then get stored as later versions
+	wrl::ComPtr<IDXGISwapChain> pSwapChain0 = nullptr;
+	wrl::ComPtr<ID3D11Device> pDevice0 = nullptr;
+	wrl::ComPtr<ID3D11DeviceContext> pImmediateContext0 = nullptr;
 
 	/////////////////// create device and back buffer
 
@@ -29,7 +33,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	D3D_FEATURE_LEVEL featureLevel; // will get populated with the actual feature level used... wanting 11_1
 
 	hr = D3D11CreateDeviceAndSwapChain(
-		NULL,
+		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
 		D3D11_CREATE_DEVICE_DEBUG |  D3D11_CREATE_DEVICE_BGRA_SUPPORT,
@@ -37,35 +41,34 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 		ARRAYSIZE(featureLevels),
 		D3D11_SDK_VERSION,
 		&swapChainDesc,
-		&pSwapChain,
-		&pDevice,
+		&pSwapChain0,
+		&pDevice0,
 		&featureLevel,
-		&pImmediateContext
+		&pImmediateContext0
 	);
 
 	if (FAILED(hr)) return hr;
 
-	hr = pSwapChain.As(&pSwapChain1);
+	// store them as later versions of the interface
+	hr = pSwapChain0.As(&pSwapChain);               if (FAILED(hr)) return hr;
+	hr = pDevice0.As(&pDevice);                     if (FAILED(hr)) return hr;
+	hr = pDevice0.As(&pDxgiDevice);                 if (FAILED(hr)) return hr;
+	hr = pImmediateContext0.As(&pImmediateContext); if (FAILED(hr)) return hr;
+
+	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
 
 	if (FAILED(hr)) return hr;
 
-	hr = pSwapChain1->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
+	hr = pDxgiDevice->SetMaximumFrameLatency(1); // to do: look into what this should be
 
 	if (FAILED(hr)) return hr;
 
-	hr = pDevice.As(&pDevice1);
-
-	if (FAILED(hr)) return hr;
-
-	hr = pImmediateContext.As(&pImmediateContext1);
-
-	if (FAILED(hr)) return hr;
-
-	hr = pDevice1->CreateRenderTargetView(pBackBuffer.Get(), NULL, &pRenderTargetView);
+	hr = pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &pRenderTargetView);
 
 	if (FAILED(hr)) return hr;
 
 	/////////////////// Rasterizer stage
+
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -73,7 +76,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	viewport.Height = (float)height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	pImmediateContext1->RSSetViewports(1, &viewport);
+	pImmediateContext->RSSetViewports(1, &viewport);
 
 	/////////////////// Depth buffer
 
@@ -83,17 +86,17 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 	dsDesc.StencilEnable = FALSE;
 
-	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOn);
+	hr = pDevice->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOn);
 
 	if (FAILED(hr)) return hr;
 
 	dsDesc.DepthEnable = FALSE;
 
-	hr = pDevice1->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOff);
+	hr = pDevice->CreateDepthStencilState(&dsDesc, &pDepthStencilStateOff);
 
 	if (FAILED(hr)) return hr;
 
-	pImmediateContext1->OMSetDepthStencilState(pDepthStencilStateOn.Get(), 0u);
+	pImmediateContext->OMSetDepthStencilState(pDepthStencilStateOn.Get(), 0u);
 
 	D3D11_TEXTURE2D_DESC dtDesc = {};
 	dtDesc.Width = width;
@@ -108,7 +111,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dtDesc.CPUAccessFlags = 0u;
 	dtDesc.MiscFlags = 0u;
 
-	hr = pDevice1->CreateTexture2D(&dtDesc, nullptr, &pDepthTexture);
+	hr = pDevice->CreateTexture2D(&dtDesc, nullptr, &pDepthTexture);
 
 	if (FAILED(hr)) return hr;
 
@@ -118,7 +121,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	dsvDesc.Flags = 0;
 	dsvDesc.Texture2D.MipSlice = 0u;
 
-	hr = pDevice1->CreateDepthStencilView(pDepthTexture.Get(), &dsvDesc, &pDepthStencilView);
+	hr = pDevice->CreateDepthStencilView(pDepthTexture.Get(), &dsvDesc, &pDepthStencilView);
 
 	if (FAILED(hr)) return hr;
 
@@ -127,17 +130,20 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 
 void BEDirectXDevice::BeginFrame()
 {
-	pImmediateContext1->OMSetRenderTargets(1u, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
-	pImmediateContext1->ClearRenderTargetView(pRenderTargetView.Get(), clearColor);
-	pImmediateContext1->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	pImmediateContext->OMSetRenderTargets(1u, pRenderTargetView.GetAddressOf(), pDepthStencilView.Get());
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView.Get(), clearColor);
+	pImmediateContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 void BEDirectXDevice::PresentFrame()
 {
-	//pSwapChain->Present(1u, 0u);
+	pSwapChain->Present(1u, 0u);
 
-	DXGI_PRESENT_PARAMETERS presentParams = {};
-	pSwapChain1->Present1(1u, 0u, &presentParams);
+	//DXGI_PRESENT_PARAMETERS presentParams = {};
+	//pSwapChain->Present1(1u, 0u, &presentParams);
+
+	//pImmediateContext->DiscardView(pRenderTargetView.Get());
+	//pImmediateContext->DiscardView(pDepthStencilView.Get());
 }
 
 void BEDirectXDevice::TurnOnDepthBuffer()

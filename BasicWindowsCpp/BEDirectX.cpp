@@ -44,7 +44,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 	pPSConstantBuffer = new BEDXPSConstantBuffer(device);
 
-	//overlay.Initialise(device);
+	overlay.Initialise(device);
 
 	return hr;
 }
@@ -82,7 +82,9 @@ int BEDirectX::DoFrame()
 
 	for (auto d : drawables) d->Draw(device);
 
-	//overlay.Draw();
+	//device.pImmediateContext1->BeginEventInt(L"D2D BeginDraw", 1);
+	overlay.Draw();
+	//device.pImmediateContext1->EndEvent();
 
 	device.PresentFrame();
 

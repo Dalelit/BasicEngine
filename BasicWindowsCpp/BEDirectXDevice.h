@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3d11_1.h>
+#include <d3d11_3.h>
 #include <wrl.h>
 
 // To do: Proper exceptions
@@ -21,17 +21,14 @@ public:
 
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 
-	wrl::ComPtr<IDXGISwapChain> pSwapChain = nullptr;
-	wrl::ComPtr<IDXGISwapChain1> pSwapChain1 = nullptr;
-	wrl::ComPtr<ID3D11Device> pDevice = nullptr;
-	wrl::ComPtr<ID3D11Device1> pDevice1 = nullptr;
-	wrl::ComPtr<ID3D11DeviceContext> pImmediateContext = nullptr;
-	wrl::ComPtr<ID3D11DeviceContext1> pImmediateContext1 = nullptr;
-	wrl::ComPtr<ID3D11Resource> pBackBuffer = nullptr;
+	wrl::ComPtr<IDXGISwapChain1> pSwapChain = nullptr;
+	wrl::ComPtr<ID3D11Device3> pDevice = nullptr;
+	wrl::ComPtr<IDXGIDevice3> pDxgiDevice = nullptr;
+	wrl::ComPtr<ID3D11DeviceContext3> pImmediateContext = nullptr;
+	wrl::ComPtr<ID3D11Texture2D> pBackBuffer = nullptr;
 	wrl::ComPtr<ID3D11RenderTargetView> pRenderTargetView = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilView> pDepthStencilView = nullptr;
 	wrl::ComPtr<ID3D11Texture2D> pDepthTexture = nullptr;
-
 	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilStateOn = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilStateOff = nullptr;
 
