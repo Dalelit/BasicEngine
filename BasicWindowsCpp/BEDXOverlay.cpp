@@ -60,14 +60,50 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	// create some brushes
 
 	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
+
 	BEDXRESOURCE_ERRORCHECK(hr);
-	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::OrangeRed), &porBrush);
+
+	hr = InitialiseTextWrite();
+
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	return hr;
 }
 
-void BEDXOverlay::Draw()
+int BEDXOverlay::InitialiseTextWrite()
+{
+	HRESULT hr;
+
+	// create the text writer
+
+	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &pWriteFactory);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	hr = pWriteFactory->CreateTextFormat(
+		fontName.c_str(),
+		nullptr,
+		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		fontSize,
+		locale.c_str(),
+		&pWriteFormat);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	pWriteFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	pWriteFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	return hr;
+}
+
+void BEDXOverlay::Draw(std::wstring message)
 {
 	HRESULT hr;
 
@@ -76,6 +112,11 @@ void BEDXOverlay::Draw()
 	D2D1_RECT_F d2rect = D2D1::RectF(0, 0, 400, 400);
 
 	pContext->BeginDraw();
+
+	pContext->DrawTextW(message.c_str(), (UINT32)message.size(),
+		pWriteFormat.Get(),
+		d2rect,
+		pwBrush.Get());
 
 	//pContext->FillRectangle(d2rect, porBrush.Get());
 	//pContext->DrawLine(p0, p1, pwBrush.Get());

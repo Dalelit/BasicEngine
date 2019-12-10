@@ -3,6 +3,8 @@
 #include "BEDXVertexShader.h"
 #include "BEDXPixelShader.h"
 #include "BEDXVertexBuffer.h"
+#include "BETimer.h"
+#include <sstream>
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -75,6 +77,9 @@ int BEDirectX::UpdateFrame(BEDirectXDevice& device, BEScene* pScene, BECamera* p
 
 int BEDirectX::DoFrame()
 {
+	BETimer timer;
+	timer.Start();
+
 	device.BeginFrame();
 
 	pVSConstantBuffer->Bind(device);
@@ -82,9 +87,10 @@ int BEDirectX::DoFrame()
 
 	for (auto d : drawables) d->Draw(device);
 
-	//device.pImmediateContext1->BeginEventInt(L"D2D BeginDraw", 1);
-	overlay.Draw();
-	//device.pImmediateContext1->EndEvent();
+	std::wstringstream message;
+	message << "Rendering time: " << timer.Tick().ElapsedMilSec() << "ms";
+
+	overlay.Draw(message.str());
 
 	device.PresentFrame();
 
