@@ -21,7 +21,7 @@
 #include "BETimer.h"
 
 // global windows variables and macros
-#define BENUMBER_WINDOWS 5
+#define BENUMBER_WINDOWS 6
 #define BE_SWBUFFERSIZE 1000
 #define BE_WINDOWSTYLE WS_VISIBLE | WS_CAPTION
 HWND hwnd[BENUMBER_WINDOWS];
@@ -297,6 +297,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	BECreateWindow(2, hInstance, L"Wireframe");
 	BECreateWindow(3, hInstance, L"Raytrace final");
 	BECreateWindow(4, hInstance, L"Direct3D");
+	BECreateWindow(5, hInstance, L"Scanline DirectX window");
 
 	scene.Create();
 
@@ -313,8 +314,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for DirectX rendering
 	BEDirectX dx;
-	dx.Initialise(hwnd[4], bufferWidth, bufferHeight);
+	dx.InitialiseBase(hwnd[4], bufferWidth, bufferHeight);
+	dx.Initialise3D();
 	dx.LoadScene(&scene);
+
+	// for using DirectX to show the scanline output rather than our BECanvas display
+	BEDirectX dxwindow;
+	dxwindow.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
 
 	// ready to go...
 
@@ -341,10 +347,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		backBuffer[0].Clear();
 		timers[0].Start();
 		pipeline[0]->Draw();
-		timers[0].Tick();
+		int t1 = timers[0].Tick().ElapsedMilSec();
 		BEDrawBackBuffer(0);
+		int t2 = timers[0].Tick().ElapsedMilSec();
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims", timers[0].ElapsedMilSec());
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims", t1, t2, t2-t1);
 		BEWriteOverlayToWindow(0, swbuffer);
 
 		//
@@ -378,14 +385,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		backBuffer[2].Clear();
 		timers[2].Start();
 		pipeline[2]->Draw();
-		timers[2].Tick();
+		t1 = timers[2].Tick().ElapsedMilSec();
 		BEDrawBackBuffer(2);
+		t2 = timers[2].Tick().ElapsedMilSec();
+
+		//
+		// use dx to show the scanline output
+		//
+		timers[5].Start();
+		dxwindow.ShowBitmap(backBuffer[0]);
+		timers[5].Tick();
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
 		loopTimer.Tick();
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nDX time: %ims\nLoop time: %ims", timers[2].ElapsedMilSec(), timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec());
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nTime inc buffer draw: %ims\nDX time: %ims\nLoop time: %ims\nDX window time: %ims", t1, t2, t2-t1, timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec(), timers[5].ElapsedMilSec());
 		BEWriteOverlayToWindow(2, swbuffer);
 	}
 

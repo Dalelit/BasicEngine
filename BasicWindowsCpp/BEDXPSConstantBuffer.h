@@ -1,10 +1,11 @@
 #pragma once
-#include "BEDirectXResource.h"
+
+#include "BEDirectXConstantBuffer.h"
 #include "BECamera.h"
 #include "BEScene.h"
 #include <DirectXMath.h>
 
-class BEDXPSConstantBuffer : public BEDirectXResource
+class BEDXPSConstantBuffer : public BEDirectXConstantBuffer
 {
 public:
 	struct Buffer {

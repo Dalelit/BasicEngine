@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="BECamera.h" />
     <ClInclude Include="BECanvas.h" />
+    <ClInclude Include="BEDirectXConstantBuffer.h" />
     <ClInclude Include="BEDirectX.h" />
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />

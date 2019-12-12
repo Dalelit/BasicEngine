@@ -124,3 +124,24 @@ void BEDXOverlay::Draw(std::wstring message)
 	hr = pContext->EndDraw();
 	BEDXRESOURCE_ERRORCHECK(hr);
 }
+
+void BEDXOverlay::ShowBitmap(BECanvas& canvas)
+{
+	HRESULT hr;
+
+	//canvas.BufferToBMP(); // already done in this test case
+
+	// to do: store this as properties
+	D2D1_SIZE_F sizef = pBitmap->GetSize();
+	D2D1_RECT_U rectu = { 0, 0, (UINT32)sizef.width, (UINT32)sizef.height };
+
+	pContext->BeginDraw();
+
+	hr = pBitmap->CopyFromMemory(&rectu, canvas.bmp, canvas.GetBitmapPitch());
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	hr = pContext->EndDraw();
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+}

@@ -3,6 +3,7 @@
 #include <wrl.h>
 #include <dwrite.h>
 #include "BEDirectXDevice.h"
+#include "BECanvas.h"
 #include <string>
 
 class BEDXOverlay
@@ -12,6 +13,8 @@ public:
 	int Initialise(BEDirectXDevice& dx);
 
 	void Draw(std::wstring message);
+
+	void ShowBitmap(BECanvas& canvas);
 
 	std::wstring fontName = L"Arial";
 	float fontSize = 20.0f;
