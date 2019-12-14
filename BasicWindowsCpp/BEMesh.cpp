@@ -55,8 +55,3 @@ void BEMesh::CalculateTriangleInfo()
 		XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
 	}
 }
-
-void BEMesh::DebugDump()
-{
-	std::cout << "Hello" << std::endl;
-}

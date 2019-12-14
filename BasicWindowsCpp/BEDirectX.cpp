@@ -38,20 +38,18 @@ int BEDirectX::InitialiseBase(HWND hwnd, unsigned int width, unsigned int height
 void BEDirectX::Initialise3D()
 {
 	/////////////////// Vertex Shader stage
-	BEDXVertexShader* pVS = new BEDXVertexShader(device, L"VertexShader.cso");
+	BEDXVertexShader* pVS = new BEDXVertexShader(device, L"VertexShader.cso", BEDXVertexShader::InputLayout::POSITION4_NORMAL4_COLOR4);
 	pVS->Bind(device);
 	resources.push_back(pVS);
 
-	pVSConstantBuffer = new BEDXVSConstantBuffer(device);
-	constantbuffers.push_back(pVSConstantBuffer);
+	constantbuffers.push_back(new BEDXVSConstantBuffer(device));
 
 	/////////////////// Pixel Shader stage
 	BEDXPixelShader* pPS = new BEDXPixelShader(device, L"PixelShader.cso");
 	pPS->Bind(device);
 	resources.push_back(pPS);
 
-	pPSConstantBuffer = new BEDXPSConstantBuffer(device);
-	constantbuffers.push_back(pPSConstantBuffer);
+	constantbuffers.push_back(new BEDXPSConstantBuffer(device));
 }
 
 int BEDirectX::LoadScene(BEScene* pScene)
@@ -62,7 +60,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 
 		if (m)
 		{
-			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m);
+			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, sizeof(BEVertex)); // to do: hard coded vertex size?
 			drawables.push_back(pVB);
 		}
 	}
@@ -101,35 +99,5 @@ int BEDirectX::DoFrame()
 void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
 	overlay.ShowBitmap(canvas);
-	device.PresentFrame();
-}
-
-void BEDirectX::ShowBuffer(BECanvas& canvas)
-{
-	HRESULT hr;
-
-	D3D11_TEXTURE2D_DESC1 texDesc = {};
-	texDesc.Width = canvas.width;
-	texDesc.Height = canvas.height;
-	texDesc.MipLevels = 1u;
-	texDesc.ArraySize = 1u;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	texDesc.SampleDesc.Count = 1u;
-	texDesc.SampleDesc.Quality = 0u;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	texDesc.TextureLayout = D3D11_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = canvas.buffer;
-	data.SysMemPitch = canvas.GetCanvasPitch();
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D1> pTexture = nullptr;
-
-	hr = device.pDevice->CreateTexture2D1(&texDesc, &data, &pTexture);
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
 	device.PresentFrame();
 }

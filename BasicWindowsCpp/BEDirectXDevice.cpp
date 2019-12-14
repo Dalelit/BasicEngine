@@ -116,7 +116,7 @@ int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int heig
 	if (FAILED(hr)) return hr;
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.Format = dtDesc.Format;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = 0;
 	dsvDesc.Texture2D.MipSlice = 0u;

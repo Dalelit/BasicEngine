@@ -35,14 +35,8 @@ public:
 	// show the bitmap version of the canvas. Assumes it's already stored.
 	void ShowBitmap(BECanvas& canvas);
 
-	// show the buffer version of the canvas.
-	void ShowBuffer(BECanvas& canvas);
-
-private:
 	std::vector<BEDirectXResource*> resources;
 	std::vector<BEDirectXDrawable*> drawables;
 	std::vector<BEDirectXConstantBuffer*> constantbuffers;
-	BEDXVSConstantBuffer* pVSConstantBuffer = nullptr;
-	BEDXPSConstantBuffer* pPSConstantBuffer = nullptr;
 };
 

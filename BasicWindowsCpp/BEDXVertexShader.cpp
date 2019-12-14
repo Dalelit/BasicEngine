@@ -2,14 +2,14 @@
 #include <d3dcompiler.h>
 
 
-BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename)
+BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename, InputLayout layout)
 {
 	HRESULT hr;
 
 	wrl::ComPtr<ID3DBlob> pBlob = nullptr;
-	hr = D3DReadFileToBlob(L"VertexShader.cso", &pBlob);
+	hr = D3DReadFileToBlob(filename, &pBlob);
 
-	BEDXRESOURCE_ERRORCHECK(hr)
+	BEDXRESOURCE_ERRORCHECK(hr);
 
 	hr = device.pDevice->CreateVertexShader(
 		pBlob->GetBufferPointer(),
@@ -17,10 +17,34 @@ BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename)
 		nullptr,
 		&pVertexShader);
 
-	BEDXRESOURCE_ERRORCHECK(hr)
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	switch (layout)
+	{
+	case BEDXVertexShader::InputLayout::POSITION4_NORMAL4_COLOR4:
+		SetInputLayoutPos4Nor4Col4(device, *pBlob.Get());
+		break;
+	case BEDXVertexShader::InputLayout::POSITION3_TEXCOORD2:
+		SetInputLayoutPos3Tex2(device, *pBlob.Get());
+		break;
+	default:
+		throw("Invalid vertex buffer layout enum"); // to do : better error checking
+		break;
+	}
+}
+
+void BEDXVertexShader::Bind(BEDirectXDevice& device)
+{
+	device.pImmediateContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+	device.pImmediateContext->IASetInputLayout(pInputLayout.Get());
+}
+
+void BEDXVertexShader::SetInputLayoutPos4Nor4Col4(BEDirectXDevice& device, ID3DBlob& shaderBlob)
+{
+	HRESULT hr;
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[3] = {}; // reminder: update CreateIntputLayout number
-	
+
 	inputDesc[0].SemanticName = "Position";
 	inputDesc[0].SemanticIndex = 0;
 	inputDesc[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -47,16 +71,42 @@ BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename)
 
 	hr = device.pDevice->CreateInputLayout(
 		inputDesc,
-		3u,
-		pBlob->GetBufferPointer(),
-		pBlob->GetBufferSize(),
+		ARRAYSIZE(inputDesc),
+		shaderBlob.GetBufferPointer(),
+		shaderBlob.GetBufferSize(),
 		&pInputLayout);
 
 	BEDXRESOURCE_ERRORCHECK(hr)
 }
 
-void BEDXVertexShader::Bind(BEDirectXDevice& device)
+void BEDXVertexShader::SetInputLayoutPos3Tex2(BEDirectXDevice& device, ID3DBlob& shaderBlob)
 {
-	device.pImmediateContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
-	device.pImmediateContext->IASetInputLayout(pInputLayout.Get());
+	HRESULT hr;
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {}; // reminder: update CreateIntputLayout number
+
+	inputDesc[0].SemanticName = "Position";
+	inputDesc[0].SemanticIndex = 0;
+	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[0].InputSlot = 0u;
+	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[0].InstanceDataStepRate = 0u;
+
+	inputDesc[1].SemanticName = "Texcoord";
+	inputDesc[1].SemanticIndex = 0;
+	inputDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputDesc[1].InputSlot = 0u;
+	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[1].InstanceDataStepRate = 0u;
+
+	hr = device.pDevice->CreateInputLayout(
+		inputDesc,
+		ARRAYSIZE(inputDesc),
+		shaderBlob.GetBufferPointer(),
+		shaderBlob.GetBufferSize(),
+		&pInputLayout);
+
+	BEDXRESOURCE_ERRORCHECK(hr)
 }

@@ -21,7 +21,7 @@ public:
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
 
-	BEVertex* verticies = NULL;
+	BEVertex* verticies = nullptr;
 	unsigned int vertCount = 0;
 
 	unsigned int* indicies = nullptr;
@@ -32,7 +32,7 @@ public:
 
 	unsigned int lCount = 0;
 	unsigned int lBufferSize = 0;
-	unsigned int* lines = NULL;
+	unsigned int* lines = nullptr;
 
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
 	~BEMesh();
@@ -49,6 +49,4 @@ public:
 
 	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = XMVector3Transform(verticies[i].position, m); }
 
-	void DebugDump();
 };
-

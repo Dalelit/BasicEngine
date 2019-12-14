@@ -1,8 +1,13 @@
 #include "BEDXVertexBuffer.h"
 
-BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh)
+// To do: template this?
+
+
+BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize)
 {
 	HRESULT hr;
+
+	bufferStrides[0] = vertexSize;
 
 	vertCount = pMesh->vertCount;
 
@@ -14,18 +19,18 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh)
 
 	// create the triangle buffer
 	D3D11_BUFFER_DESC bufferDesc = {};
-	bufferDesc.ByteWidth = sizeof(BEVertex) * vertCount;
+	bufferDesc.ByteWidth = vertexSize * vertCount;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = sizeof(BEVertex);
+	bufferDesc.StructureByteStride = vertexSize;
 
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
-	// If if is an index list, then create an index buffer.
+	// If it is an index list, then create an index buffer.
 	if (pMesh->topology == BEMesh::BEMeshTopology::TIRANGLE_INDEX)
 	{
 		indxCount = pMesh->indxCount;
@@ -47,8 +52,34 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh)
 
 		BEDXRESOURCE_ERRORCHECK(hr);
 	}
+}
 
+BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, void* pVerticies, unsigned int numberVerticies, unsigned int vertexSize)
+{
+	HRESULT hr;
 
+	bufferStrides[0] = vertexSize;
+
+	vertCount = numberVerticies;
+
+	// create triangle data
+	D3D11_SUBRESOURCE_DATA data = {};
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
+	data.pSysMem = pVerticies;
+
+	// create the triangle buffer
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.ByteWidth = vertexSize * vertCount;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+	bufferDesc.StructureByteStride = vertexSize;
+
+	hr = device.pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
 }
 
 void BEDXVertexBuffer::Draw(BEDirectXDevice& device)

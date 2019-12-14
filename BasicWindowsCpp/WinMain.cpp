@@ -19,6 +19,7 @@
 #include "BERenderPipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
+#include "BEDXShowCanvas.h"
 
 // global windows variables and macros
 #define BENUMBER_WINDOWS 6
@@ -320,7 +321,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for using DirectX to show the scanline output rather than our BECanvas display
 	BEDirectX dxwindow;
+	BEDXShowCanvas dxShowCanvas;
 	dxwindow.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
+	dxShowCanvas.Initialise(dxwindow);
+	dxShowCanvas.InitialiseTexture(dxwindow, backBuffer[0]);
 
 	// ready to go...
 
@@ -393,14 +397,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// use dx to show the scanline output
 		//
 		timers[5].Start();
-		dxwindow.ShowBitmap(backBuffer[0]);
+		//dxwindow.ShowBitmap(backBuffer[0]);
+		dxShowCanvas.Draw(dxwindow, backBuffer[0]);
 		timers[5].Tick();
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
 		loopTimer.Tick();
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nTime inc buffer draw: %ims\nDX time: %ims\nLoop time: %ims\nDX window time: %ims", t1, t2, t2-t1, timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec(), timers[5].ElapsedMilSec());
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nTime inc buffer draw: %ims\nDX render time: %ims\nLoop time: %ims\nDX canvas time: %ims",
+			t1, t2, t2-t1, timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec(), timers[5].ElapsedMilSec());
 		BEWriteOverlayToWindow(2, swbuffer);
 	}
 
