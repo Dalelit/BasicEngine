@@ -321,10 +321,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for using DirectX to show the scanline output rather than our BECanvas display
 	BEDirectX dxwindow;
-	BEDXShowCanvas dxShowCanvas;
 	dxwindow.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	dxShowCanvas.Initialise(dxwindow);
-	dxShowCanvas.InitialiseTexture(dxwindow, backBuffer[0]);
+	BEDXShowCanvas dxShowCanvas(dxwindow, backBuffer[0]);
 
 	// ready to go...
 
@@ -398,7 +396,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		timers[5].Start();
 		//dxwindow.ShowBitmap(backBuffer[0]);
-		dxShowCanvas.Draw(dxwindow, backBuffer[0]);
+		dxShowCanvas.Draw(dxwindow);
 		timers[5].Tick();
 
 		// to use for the overall loop...

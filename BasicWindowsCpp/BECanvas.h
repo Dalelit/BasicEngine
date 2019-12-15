@@ -39,7 +39,7 @@ public:
 	unsigned int size = 0;
 
 	unsigned int GetBitmapPitch() const { return width * sizeof(Pixel); };
-	unsigned int GetCanvasPitch() const { return width * sizeof(Color); };
+	unsigned int GetBufferPitch() const { return width * sizeof(Color); };
 
 	float defaultDepthValue = FLT_MAX;
 
