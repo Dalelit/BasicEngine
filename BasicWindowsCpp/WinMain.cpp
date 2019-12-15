@@ -312,17 +312,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// for wireframe rendering
 	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
+	BEDirectX dx2;
+	dx2.InitialiseBase(hwnd[2], bufferWidth, bufferHeight);
+	BEDXShowCanvas dx2sc(dx2.device, backBuffer[2]);
 
 	// for DirectX rendering
-	BEDirectX dx;
-	dx.InitialiseBase(hwnd[4], bufferWidth, bufferHeight);
-	dx.Initialise3D();
-	dx.LoadScene(&scene);
+	BEDirectX dx4;
+	dx4.InitialiseBase(hwnd[4], bufferWidth, bufferHeight);
+	dx4.Initialise3D();
+	dx4.LoadScene(&scene);
 
 	// for using DirectX to show the scanline output rather than our BECanvas display
-	BEDirectX dxwindow;
-	dxwindow.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	BEDXShowCanvas dxShowCanvas(dxwindow.device, backBuffer[0]);
+	BEDirectX dx5;
+	dx5.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
+	BEDXShowCanvas dx5sc(dx5.device, backBuffer[0]);
 
 	// ready to go...
 
@@ -334,8 +337,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	while (running)
 	{
-		loopTimer.Start();
-
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -376,8 +377,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// directx.............
 		//
 		timers[4].Start();
-		dx.UpdateFrame(dx.device, &scene, &camera);
-		dx.DoFrame();
+		dx4.UpdateFrame(dx4.device, &scene, &camera);
+		dx4.DoFrame();
 		timers[4].Tick();
 
 		//
@@ -388,22 +389,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		timers[2].Start();
 		pipeline[2]->Draw();
 		t1 = timers[2].Tick().ElapsedMilSec();
-		BEDrawBackBuffer(2);
-		t2 = timers[2].Tick().ElapsedMilSec();
+		loopTimer.Tick(); // here only because of where it gets displayed
+		dx2.overlay.message << "Wrieframe draw time: " << t1 << std::endl;
+		dx2.overlay.message << "Loop time: " << loopTimer.ElapsedMilSec() << std::endl;
+		dx2.DoFrameWithExtra(dx2sc);
+		//BEDrawBackBuffer(2); // slow method to show the buffer
+
+		loopTimer.Start(); // here only because of where it gets displayed
 
 		//
 		// use dx to show the scanline output
 		//
 		//dxwindow.ShowBitmap(backBuffer[0]); // uses the generated bmp. To Do: upsidedown
-		dxwindow.DoFrameWithExtra(dxShowCanvas);
+		dx5.DoFrameWithExtra(dx5sc);
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
-		loopTimer.Tick();
-
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nTime inc buffer draw: %ims\nDX render time: %ims\nLoop time: %ims",
-			t1, t2, t2-t1, timers[4].ElapsedMilSec(), loopTimer.ElapsedMilSec());
-		BEWriteOverlayToWindow(2, swbuffer);
 	}
 
 	pipeline[1]->exitLoop = true; // tell it to stop!

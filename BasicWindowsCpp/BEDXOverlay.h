@@ -4,7 +4,7 @@
 #include <dwrite.h>
 #include "BEDirectXDevice.h"
 #include "BECanvas.h"
-#include <string>
+#include <sstream>
 
 class BEDXOverlay
 {
@@ -12,13 +12,20 @@ public:
 
 	int Initialise(BEDirectXDevice& dx);
 
-	void Draw(std::wstring message);
+	void Draw();
 
 	void ShowBitmap(BECanvas& canvas);
+
+	inline void ClearMessage() { message.str(std::wstring()); };
+	void AppendMessage(std::wstring str) { message << str << std::endl; };
+
+	std::wstringstream message; // the message that will get displayed
 
 	std::wstring fontName = L"Arial";
 	float fontSize = 20.0f;
 	std::wstring locale = L"en-us";
+
+	D2D1_RECT_F d2rect;
 
 private:
 	unsigned int width, height;

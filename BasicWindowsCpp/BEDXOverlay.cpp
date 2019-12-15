@@ -57,6 +57,10 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 
 	pContext->SetTarget(pBitmap.Get());
 
+	D2D1_SIZE_F size = pBitmap->GetSize();
+	d2rect.right = size.width;
+	d2rect.top = size.height;
+
 	// create some brushes
 
 	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
@@ -103,26 +107,22 @@ int BEDXOverlay::InitialiseTextWrite()
 	return hr;
 }
 
-void BEDXOverlay::Draw(std::wstring message)
+void BEDXOverlay::Draw()
 {
 	HRESULT hr;
 
-	D2D1_POINT_2F p0 = { 0, 0 };
-	D2D1_POINT_2F p1 = { 300, 400 };
-	D2D1_RECT_F d2rect = D2D1::RectF(0, 0, 400, 400);
-
 	pContext->BeginDraw();
 
-	pContext->DrawTextW(message.c_str(), (UINT32)message.size(),
+	std::wstring str = message.str();
+	pContext->DrawTextW(str.c_str(), (UINT32)str.size(),
 		pWriteFormat.Get(),
 		d2rect,
 		pwBrush.Get());
 
-	//pContext->FillRectangle(d2rect, porBrush.Get());
-	//pContext->DrawLine(p0, p1, pwBrush.Get());
-
 	hr = pContext->EndDraw();
 	BEDXRESOURCE_ERRORCHECK(hr);
+
+	ClearMessage();
 }
 
 void BEDXOverlay::ShowBitmap(BECanvas& canvas)
