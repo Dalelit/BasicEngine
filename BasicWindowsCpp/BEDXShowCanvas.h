@@ -2,13 +2,14 @@
 
 #include "BEVertex.h"
 #include "BEDirectX.h"
+#include "BEDirectXDrawable.h"
 #include "BEDXTextureUpdateable.h"
 
-class BEDXShowCanvas
+class BEDXShowCanvas : public BEDirectXDrawableNested
 {
 public:
-	BEDXShowCanvas(BEDirectX& dx, BECanvas& canvas);
-	void Draw(BEDirectX& dx);
+	BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas);
+	void Draw(BEDirectXDevice& device);
 
 private:
 	BEDXTextureUpdateable tex;

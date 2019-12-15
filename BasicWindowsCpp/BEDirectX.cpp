@@ -96,6 +96,30 @@ int BEDirectX::DoFrame()
 	return 0;
 }
 
+// to do: it is a cut/paste of the draw... is there a better way?
+int BEDirectX::DoFrameWithExtra(BEDirectXDrawable& toDraw)
+{
+	BETimer timer;
+	timer.Start();
+
+	device.BeginFrame();
+
+	for (auto b : constantbuffers) b->Bind(device);
+
+	toDraw.Draw(device); // draw an extra object.
+
+	for (auto d : drawables) d->Draw(device);
+
+	std::wstringstream message;
+	message << "Rendering time: " << timer.Tick().ElapsedMilSec() << "ms";
+
+	overlay.Draw(message.str());
+
+	device.PresentFrame();
+
+	return 0;
+}
+
 void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
 	overlay.ShowBitmap(canvas);

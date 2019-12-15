@@ -31,10 +31,12 @@ public:
 	int LoadScene(BEScene* pScene);
 
 	int DoFrame();
+	int DoFrameWithExtra(BEDirectXDrawable& toDraw);
 
 	// show the bitmap version of the canvas. Assumes it's already stored.
 	void ShowBitmap(BECanvas& canvas);
 
+private:
 	std::vector<BEDirectXResource*> resources;
 	std::vector<BEDirectXDrawable*> drawables;
 	std::vector<BEDirectXConstantBuffer*> constantbuffers;

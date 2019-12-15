@@ -81,6 +81,9 @@
     <ClCompile Include="BEDXTextureUpdateable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEDirectXDrawable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
