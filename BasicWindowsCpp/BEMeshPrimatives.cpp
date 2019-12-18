@@ -109,12 +109,16 @@ BEMesh* BEMeshPrimatives::CubeMesh()
 	return m;
 }
 
-BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segmentsWide, unsigned int segmentsDeep)
+BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segmentsWide, unsigned int segmentsDeep, float heightMin, float heightMax)
 {
+	// to do : assert height min max
+
+	std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::uniform_real_distribution<float> dist(heightMin, heightMax);
+
 	unsigned int vertCount = (segmentsWide + 1) * (segmentsDeep + 1);
 	unsigned int triCount = segmentsWide * segmentsDeep * 2;
-
-	float height = 0.0f;
 
 	float xstart = -((float)width / 2.0f);
 	float zstart = -((float)segmentsDeep / 2.0f);
@@ -124,7 +128,7 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 
 	BEMesh* m = new BEMesh(vertCount, triCount, BEMesh::BEMeshTopology::TIRANGLE_INDEX);
 
-	DirectX::XMFLOAT4 position = { xstart, height, zstart, 1.0f };
+	DirectX::XMFLOAT4 position = { xstart, 0.0f, zstart, 1.0f };
 	DirectX::XMFLOAT4 color = { 0.1f, 0.8f, 0.3f, 1.0f };
 	XMVECTOR normal = { 0,1,0,0 };
 
@@ -135,6 +139,7 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 		for (unsigned int x = 0; x < segmentsWide+1; x++)
 		{
 			unsigned int indx = z * (segmentsWide+1) + x;
+			position.y = dist(gen); // randomise height
 			m->verticies[indx].position = XMLoadFloat4(&position);
 			m->verticies[indx].normal = normal;
 			m->verticies[indx].color = XMLoadFloat4(&color);

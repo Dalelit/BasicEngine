@@ -94,7 +94,7 @@ void BEScene::Create()
 	//e->color = { 0,0,1 };
 
 	e = CreateAddEntity();
-	e->mesh = BEMeshPrimatives::Ground(10,10,10,10);
+	e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-0.5f, 0.5f);
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};
