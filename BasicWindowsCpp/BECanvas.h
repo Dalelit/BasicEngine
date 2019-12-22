@@ -41,6 +41,9 @@ public:
 	unsigned int GetBitmapPitch() const { return width * sizeof(Pixel); };
 	unsigned int GetBufferPitch() const { return width * sizeof(Color); };
 
+	unsigned int GetBitmapSize() const { return width * height * sizeof(Pixel); };
+	unsigned int GetBufferSize() const { return width * height * sizeof(Color); };
+
 	float defaultDepthValue = FLT_MAX;
 
 	~BECanvas();

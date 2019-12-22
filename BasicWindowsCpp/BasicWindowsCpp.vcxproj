@@ -146,6 +146,7 @@
     <ClCompile Include="BERenderWireframe.cpp" />
     <ClCompile Include="BEScene.cpp" />
     <ClCompile Include="BEDXVertexBuffer.cpp" />
+    <ClCompile Include="BETexture.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,7 @@
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />
+    <ClInclude Include="BETexture.h" />
     <ClInclude Include="BETimer.h" />
     <ClInclude Include="BEVertex.h" />
   </ItemGroup>

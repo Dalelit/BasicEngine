@@ -3,9 +3,13 @@
 #include "BEDXVertexShader.h"
 #include "BEDXPixelShader.h"
 
-BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas) :
-	tex(device, canvas.width, canvas.height, canvas.GetBufferPitch(), canvas.buffer, DXGI_FORMAT_R32G32B32A32_FLOAT) // texture
+BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas, bool updateable)
 {
+	if (updateable)
+		pTexUpdt = new BEDXTextureUpdateable(device, canvas.width, canvas.height, canvas.GetBufferPitch(), canvas.buffer, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	else
+		pTex = new BEDXTexture(device, canvas.width, canvas.height, canvas.GetBufferPitch(), canvas.buffer, DXGI_FORMAT_R32G32B32A32_FLOAT);
+
 	// set the verticies
 	verticies[0] = { { -1,-1,0 }, {0,0} };
 	verticies[1] = { { -1, 1,0 }, {0,1} };
@@ -30,10 +34,23 @@ BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas) :
 	resources.push_back(pPS);
 }
 
+BEDXShowCanvas::~BEDXShowCanvas()
+{
+	if (pTex) delete pTex;
+	if (pTexUpdt) delete pTexUpdt;
+}
+
 void BEDXShowCanvas::Draw(BEDirectXDevice& device)
 {
-	tex.UpdateFromSource(device);
-	tex.Bind(device);
+	if (pTexUpdt)
+	{
+		pTexUpdt->UpdateFromSource(device);
+		pTexUpdt->Bind(device);
+	}
+	else
+	{
+		pTex->Bind(device);
+	}
 
 	for (auto d : drawables) d->Draw(device);
 }

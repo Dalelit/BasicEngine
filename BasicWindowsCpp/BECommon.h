@@ -11,3 +11,5 @@
 //#define SWAPCOLOR(A,B) {Color temp = A; A = B; B = temp; }
 #define SWAPXMVECTOR(A,B) {XMVECTOR temp = A; A = B; B = temp; }
 #define SWAPXMFLOAT3(A,B) {XMFLOAT3 temp = A; A = B; B = temp; }
+
+#define BE_HR_CHECK(hr) if (FAILED(hr)) throw hr;

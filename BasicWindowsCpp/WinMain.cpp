@@ -316,7 +316,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
 	BEDirectX dx2;
 	dx2.InitialiseBase(hwnd[2], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx2sc(dx2.device, backBuffer[2]);
+	BEDXShowCanvas dx2sc(dx2.device, backBuffer[2], true);
 
 	// for DirectX rendering
 	BEDirectX dx4;
@@ -327,7 +327,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// for using DirectX to show the scanline output rather than our BECanvas display
 	BEDirectX dx5;
 	dx5.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx5sc(dx5.device, backBuffer[0]);
+	BEDXShowCanvas dx5sc(dx5.device, backBuffer[0], true);
 
 	// ready to go...
 
