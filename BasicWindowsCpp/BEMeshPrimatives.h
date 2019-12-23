@@ -15,6 +15,5 @@ public:
 		unsigned int segmentsWide, unsigned int segmentsDeep,
 		float heightMin = 0.0f, float heightMax = 0.0f);
 
-		//static BEMesh* AxisMesh();
 };
 

@@ -7,6 +7,7 @@ struct BEVertex
 	DirectX::XMVECTOR position;
 	DirectX::XMVECTOR normal;
 	DirectX::XMVECTOR color;
+	DirectX::XMFLOAT2 texcoord;
 };
 
 struct BETexVertex

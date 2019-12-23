@@ -4,6 +4,7 @@
 #include "BEDXPixelShader.h"
 #include "BEDXVertexBuffer.h"
 #include "BETimer.h"
+#include "BEDXTexture.h"
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -63,6 +64,11 @@ int BEDirectX::LoadScene(BEScene* pScene)
 			drawables.push_back(pVB);
 		}
 	}
+
+	/////////////////// Textures
+	BEDXTexture* pTex = new BEDXTexture(device, *pScene->textures[0]);
+	pTex->Bind(device);
+	resources.push_back(pTex);
 
 	return 0;
 }

@@ -43,7 +43,7 @@ void BEDXVertexShader::SetInputLayoutPos4Nor4Col4(BEDirectXDevice& device, ID3DB
 {
 	HRESULT hr;
 
-	D3D11_INPUT_ELEMENT_DESC inputDesc[3] = {}; // reminder: update CreateIntputLayout number
+	D3D11_INPUT_ELEMENT_DESC inputDesc[4] = {}; // reminder: update CreateIntputLayout number
 
 	inputDesc[0].SemanticName = "Position";
 	inputDesc[0].SemanticIndex = 0;
@@ -68,6 +68,14 @@ void BEDXVertexShader::SetInputLayoutPos4Nor4Col4(BEDirectXDevice& device, ID3DB
 	inputDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	inputDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[2].InstanceDataStepRate = 0u;
+
+	inputDesc[3].SemanticName = "Texcoord";
+	inputDesc[3].SemanticIndex = 0;
+	inputDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputDesc[3].InputSlot = 0u;
+	inputDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[3].InstanceDataStepRate = 0u;
 
 	hr = device.pDevice->CreateInputLayout(
 		inputDesc,

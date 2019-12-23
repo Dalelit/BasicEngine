@@ -15,7 +15,7 @@ public:
 	enum class BEMeshTopology
 	{
 		TRIANGLE_LIST,
-		TIRANGLE_INDEX,
+		TRIANGLE_INDEX,
 		LINES
 	};
 

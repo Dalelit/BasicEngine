@@ -23,7 +23,7 @@ BEMesh* BEMeshPrimatives::TriangleMesh()
 
 BEMesh* BEMeshPrimatives::CubeMesh()
 {
-	BEMesh* m = new BEMesh(6 * 4, 6 * 2, BEMesh::BEMeshTopology::TIRANGLE_INDEX);
+	BEMesh* m = new BEMesh(6 * 4, 6 * 2, BEMesh::BEMeshTopology::TRIANGLE_INDEX);
 	int i = 0;
 
 	// top
@@ -126,7 +126,11 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 	float dx = width / (float)segmentsWide;
 	float dz = depth / (float)segmentsDeep;
 
-	BEMesh* m = new BEMesh(vertCount, triCount, BEMesh::BEMeshTopology::TIRANGLE_INDEX);
+	XMFLOAT2 texcoord = { 0.0f, 0.0f };
+	float texturedx = 1.0f / segmentsWide;
+	float texturedy = 1.0f / segmentsDeep;
+
+	BEMesh* m = new BEMesh(vertCount, triCount, BEMesh::BEMeshTopology::TRIANGLE_INDEX);
 
 	DirectX::XMFLOAT4 position = { xstart, 0.0f, zstart, 1.0f };
 	DirectX::XMFLOAT4 color = { 0.1f, 0.8f, 0.3f, 1.0f };
@@ -135,6 +139,7 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 	for (unsigned int z = 0; z < segmentsDeep+1; z++)
 	{
 		position.x = xstart;
+		texcoord.x = 0.0f;
 
 		for (unsigned int x = 0; x < segmentsWide+1; x++)
 		{
@@ -143,10 +148,13 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 			m->verticies[indx].position = XMLoadFloat4(&position);
 			m->verticies[indx].normal = normal;
 			m->verticies[indx].color = XMLoadFloat4(&color);
+			m->verticies[indx].texcoord = texcoord;
 			position.x += dx;
+			texcoord.x += texturedx;
 		}
 
 		position.z += dz;
+		texcoord.y += texturedy;
 	}
 
 	unsigned int indx = 0;
@@ -169,21 +177,3 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 
 	return m;
 }
-
-//BEMesh* BEMeshPrimatives::AxisMesh()
-//{
-//	BEMesh* m = new BEMesh(4, 0, BEMesh::BEMeshTopology::LINES);
-//
-//	m->verticies[0] = { 0,0,0,1 };
-//	m->verticies[1] = { 1,0,0,1 };
-//	m->verticies[2] = { 0,1,0,1 };
-//	m->verticies[3] = { 0,0,1,1 };
-//
-//	m->AddLines(3);
-//
-//	m->lines[0] = 0; m->lines[1] = 1;
-//	m->lines[2] = 0; m->lines[3] = 2;
-//	m->lines[4] = 0; m->lines[5] = 3;
-//
-//	return m;
-//}

@@ -31,7 +31,7 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsig
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	// If it is an index list, then create an index buffer.
-	if (pMesh->topology == BEMesh::BEMeshTopology::TIRANGLE_INDEX)
+	if (pMesh->topology == BEMesh::BEMeshTopology::TRIANGLE_INDEX)
 	{
 		indxCount = pMesh->indxCount;
 
