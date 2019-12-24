@@ -1,6 +1,7 @@
 #pragma once
 #include "BELight.h"
-#include "BETexture.h"
+#include "BESampler.h"
+#include <vector>
 
 #define BESCENE_MAX_ENTITIES 100000
 #define BESCENE_MAX_LIGHTS 100
@@ -20,6 +21,8 @@ public:
 
 	BETexture** textures;
 	unsigned int textureCount = 0;
+
+	std::vector<BESampler*> samplers;
 
 	BEEntity* CreateAddEntity();
 	void AddEntity(BEEntity* pEntity);

@@ -13,6 +13,7 @@ BEScene::~BEScene()
 	for (unsigned int i = 0; i < entityCount; i++) delete entities[i];
 	for (unsigned int i = 0; i < lightCount; i++) delete lights[i];
 	for (unsigned int i = 0; i < textureCount; i++) delete textures[i];
+	for (auto s : samplers) delete s;
 	delete entities;
 	delete lights;
 }
@@ -106,7 +107,11 @@ void BEScene::Create()
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-0.5f, 0.5f);
 
-	AddTexture(new BETexture(L"4-sunset-over-water-focusstock.jpg"));	
+	BETexture* t = new BETexture(L"4-sunset-over-water-focusstock.jpg");
+	AddTexture(t);
+
+	BESampler* s = new BESampler(*t);
+	samplers.push_back(s);
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};
