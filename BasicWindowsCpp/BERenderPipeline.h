@@ -60,6 +60,10 @@ private:
 		float dx;
 		float z;
 		float dz;
+		float u;
+		float du;
+		float v;
+		float dv;
 		XMVECTOR c;
 		XMVECTOR dc;
 	};
@@ -77,7 +81,7 @@ private:
 	BETriEdge* triedges;
 	BEVertex* screenSpaceVerticies;
 
-	inline void InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo);
+	inline void InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo, XMFLOAT2 tcFrom, XMFLOAT2 tcTo);
 	inline void UpdateEdge(BEEdge* e);
 	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color);
 };

@@ -23,18 +23,22 @@ BERenderPipelineScanline::~BERenderPipelineScanline()
 }
 
 // Ensure vFrom is lowest y
-inline void BERenderPipelineScanline::InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo)
+inline void BERenderPipelineScanline::InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo, XMFLOAT2 tcFrom, XMFLOAT2 tcTo)
 {
 	e->yEnd = (int)XMVectorGetY(*vTo);  // vTo->y;
 	e->x = XMVectorGetX(*vFrom); // vFrom->x;
 	e->z = XMVectorGetZ(*vFrom); // vFrom->z;
 	e->c = cFrom;
+	e->u = tcFrom.x;
+	e->v = tcFrom.y;
 	float yDiff = XMVectorGetY(*vTo) - XMVectorGetY(*vFrom); // vTo->y - vFrom->y;
 	if (yDiff != 0) // check that not parallel
 	{
 		e->dx = (XMVectorGetX(*vTo) - XMVectorGetX(*vFrom)) / yDiff;
 		e->dz = (XMVectorGetZ(*vTo) - XMVectorGetZ(*vFrom)) / yDiff;
 		e->dc = (cTo - cFrom) / yDiff;
+		e->du = (tcTo.x - tcFrom.x) / yDiff;
+		e->dv = (tcTo.y - tcFrom.y) / yDiff;
 	}
 }
 
@@ -43,6 +47,8 @@ inline void BERenderPipelineScanline::UpdateEdge(BEEdge* e)
 	e->x += e->dx;
 	e->z += e->dz;
 	e->c += e->dc;
+	e->u += e->du;
+	e->v += e->dv;
 }
 
 inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color)
@@ -128,6 +134,10 @@ void BERenderPipelineScanline::Draw()
 						c1 = XMVectorSaturate(c1 * 0.5f + lights);
 						c2 = XMVectorSaturate(c2 * 0.5f + lights);
 
+						XMFLOAT2 tc0 = m->verticies[m->triangles[i].indx[0]].texcoord;
+						XMFLOAT2 tc1 = m->verticies[m->triangles[i].indx[1]].texcoord;
+						XMFLOAT2 tc2 = m->verticies[m->triangles[i].indx[2]].texcoord;
+
 						// check it's in the screen bounds
 						if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 						{
@@ -142,29 +152,33 @@ void BERenderPipelineScanline::Draw()
 							{
 								SWAPXMVECTOR(v0, v1); // v0.y > v1.y
 								SWAPXMVECTOR(c0, c1);
+								std::swap<XMFLOAT2>(tc0, tc1);
 							}
 							{
 								if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
 								{
 									SWAPXMVECTOR(v1, v2);
 									SWAPXMVECTOR(c1, c2);
+									std::swap<XMFLOAT2>(tc1, tc2);
+
 									if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
 									{
 										SWAPXMVECTOR(v0, v1);
 										SWAPXMVECTOR(c0, c1);
+										std::swap<XMFLOAT2>(tc0, tc1);
 									}
 								}
 							}
 
 							// create the edges and triedge
-							InitEdge(edge, &v0, &v1, c0, c1);
+							InitEdge(edge, &v0, &v1, c0, c1, tc0, tc1);
 							triedage->e0 = edge;
 							triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
 							edge++;
-							InitEdge(edge, &v0, &v2, c0, c2);
+							InitEdge(edge, &v0, &v2, c0, c2, tc0, tc2);
 							triedage->e1 = edge;
 							edge++;
-							InitEdge(edge, &v1, &v2, c1, c2);
+							InitEdge(edge, &v1, &v2, c1, c2, tc1, tc2);
 							edge++;
 
 							// special case where first edge e0 is flat... replace it with e2
@@ -258,12 +272,19 @@ void BERenderPipelineScanline::Draw()
 					XMVECTOR c = current->e0->c;
 					XMVECTOR dc = {};
 
+					float u = current->e0->u;
+					float du = 0.0f;
+					float v = current->e0->v;
+					float dv = 0.0f;
+
 					// to do: maybe fix this so the order and build out happens in one step.
 					if (x != xt) // not a single x step
 					{
 						float dx = fabsf(current->e1->x - current->e0->x);
 						dz = (current->e1->z - current->e0->z) / dx;
 						dc = (current->e1->c - current->e0->c) / dx;
+						du = (current->e1->u - current->e0->u) / dx;
+						dv = (current->e1->v - current->e0->v) / dx;
 					}
 
 					if (xt < x)
@@ -275,9 +296,18 @@ void BERenderPipelineScanline::Draw()
 
 						c = current->e1->c;
 						dc = -dc;
+
+						u = current->e1->u;
+						du = -du;
+						v = current->e1->v;
+						dv = -dv;
 					}
 
-					if (x < 0) x = 0; // move onto the screen if off it
+					if (x < 0)
+					{
+						x = 0; // move onto the screen if off it
+						// To Do : move all the variables...
+					}
 
 					while (x <= xt && x < (int)pCanvas->width) // To Do: not cast to (int) all the time?
 					{
@@ -286,13 +316,20 @@ void BERenderPipelineScanline::Draw()
 
 						if (z < depth) // closer so draw it
 						{
-							pCanvas->buffer[line + x] = c;
+							// color
+							//pCanvas->buffer[line + x] = c;
+
+							// texture
+							pCanvas->buffer[line + x] = pScene->samplers[0]->SampleClosest(u,v);
+
 							*depthBuffer = z; // update the depth buffer
 						}
 
 						x++;
 						z += dz;
 						c += dc;
+						u += du;
+						v += dv;
 					}
 
 					current = current->next;
