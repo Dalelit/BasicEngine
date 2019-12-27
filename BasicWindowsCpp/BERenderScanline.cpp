@@ -317,10 +317,10 @@ void BERenderPipelineScanline::Draw()
 						if (z < depth) // closer so draw it
 						{
 							// color
-							//pCanvas->buffer[line + x] = c;
+							pCanvas->buffer[line + x] = c;
 
 							// texture
-							pCanvas->buffer[line + x] = pScene->samplers[0]->SampleClosest(u,v);
+							//pCanvas->buffer[line + x] = pScene->samplers[0]->SampleClosest(u,v);
 
 							*depthBuffer = z; // update the depth buffer
 						}

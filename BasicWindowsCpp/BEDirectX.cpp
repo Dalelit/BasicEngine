@@ -66,9 +66,12 @@ int BEDirectX::LoadScene(BEScene* pScene)
 	}
 
 	/////////////////// Textures
-	BEDXTexture* pTex = new BEDXTexture(device, *pScene->textures[0]);
-	pTex->Bind(device);
-	resources.push_back(pTex);
+	for (auto t : pScene->textures)
+	{
+		BEDXTexture* pTex = new BEDXTexture(device, *t);
+		pTex->Bind(device);
+		resources.push_back(pTex);
+	}
 
 	return 0;
 }

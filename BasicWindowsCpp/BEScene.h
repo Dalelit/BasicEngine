@@ -19,8 +19,7 @@ public:
 	BELight** lights = NULL;
 	unsigned int lightCount = 0;
 
-	BETexture** textures;
-	unsigned int textureCount = 0;
+	std::vector<BETexture*> textures;
 
 	std::vector<BESampler*> samplers;
 

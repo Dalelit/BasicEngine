@@ -1,18 +1,18 @@
 #include "BEScene.h"
 #include "BEMeshPrimatives.h"
+#include "BEModelLoaderSTL.h"
 
 BEScene::BEScene()
 {
 	entities = new BEEntity*[BESCENE_MAX_ENTITIES];
 	lights = new BELight*[BESCENE_MAX_LIGHTS];
-	textures = new BETexture * [BESCENE_MAX_TEXTURES];
 }
 
 BEScene::~BEScene()
 {
 	for (unsigned int i = 0; i < entityCount; i++) delete entities[i];
 	for (unsigned int i = 0; i < lightCount; i++) delete lights[i];
-	for (unsigned int i = 0; i < textureCount; i++) delete textures[i];
+	for (auto t : textures) delete t;
 	for (auto s : samplers) delete s;
 	delete entities;
 	delete lights;
@@ -39,14 +39,6 @@ void BEScene::AddLight(BELight* pLight)
 
 	lights[lightCount] = pLight;
 	lightCount++;
-}
-
-void BEScene::AddTexture(BETexture* pTexture)
-{
-	assert(textureCount < BESCENE_MAX_TEXTURES - 1);
-
-	textures[textureCount] = pTexture;
-	textureCount++;
 }
 
 void BEScene::Create()
@@ -104,14 +96,19 @@ void BEScene::Create()
 	//e->Translate({ 0,0,-1 });
 	//e->color = { 0,0,1 };
 
+	//e = CreateAddEntity();
+	//e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-0.5f, 0.5f);
+
+	//BETexture* t = new BETexture(L"4-sunset-over-water-focusstock.jpg");
+	//textures.push_back(t);
+
+	//BESampler* s = new BESampler(*t);
+	//samplers.push_back(s);
+
 	e = CreateAddEntity();
-	e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-0.5f, 0.5f);
-
-	BETexture* t = new BETexture(L"4-sunset-over-water-focusstock.jpg");
-	AddTexture(t);
-
-	BESampler* s = new BESampler(*t);
-	samplers.push_back(s);
+	e->mesh = BEModelLoaderSTL::LoadSTL(L"monkey.stl");
+	e->mesh->SetColor({1,1,1,1});
+	//e->mesh->Scale(2.0f);
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};

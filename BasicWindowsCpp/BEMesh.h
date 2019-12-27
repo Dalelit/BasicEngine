@@ -1,6 +1,7 @@
 #pragma once
 #include "BECommon.h"
 #include "BEVertex.h"
+#include <vector>
 
 using namespace DirectX;
 
@@ -35,6 +36,7 @@ public:
 	unsigned int* lines = nullptr;
 
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
+	BEMesh(std::vector<XMFLOAT3> verticies, std::vector<XMFLOAT3> normals, BEMeshTopology _topology);
 	~BEMesh();
 
 	void AddLines(unsigned int _lCount);

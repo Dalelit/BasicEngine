@@ -280,6 +280,9 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	//char buffer[256];
+	//GetCurrentDirectoryA(256, buffer);
+
 	MSG msg = { 0 };
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 

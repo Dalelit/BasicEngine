@@ -21,6 +21,54 @@ BEMesh::BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _
 	}
 }
 
+BEMesh::BEMesh(std::vector<XMFLOAT3> _verticies, std::vector<XMFLOAT3> _normals, BEMeshTopology _topology)
+{
+	topology = _topology;
+	vertCount = (unsigned int)_verticies.size();
+	triCount = (unsigned int)_normals.size();
+
+	if (vertCount == 0) return;
+
+	verticies = new BEVertex[vertCount];
+	unsigned int i = 0;
+
+	for (auto v : _verticies)
+	{
+		XMVECTOR position = XMLoadFloat3(&v);
+		position.m128_f32[3] = 1.0f;
+		verticies[i].position = position;
+		i++;
+	}
+
+	// to do: temp hack to check
+	if (vertCount != _normals.size() * 3) throw "Temp hack: BEMesh expects normals to be 1/3 of verticies";
+
+	i = 0;
+	for (auto n : _normals)
+	{
+		XMVECTOR normal = XMLoadFloat3(&n);
+		normal.m128_f32[3] = 1.0f;
+
+		verticies[i++].normal = normal;
+		verticies[i++].normal = normal;
+		verticies[i++].normal = normal;
+	}
+
+
+	if (triCount > 0)
+	{
+		triangles = new BETriangle[triCount];
+
+		indxCount = triCount * 3;
+		indicies = new unsigned int[indxCount];
+
+		for (unsigned int j = 0; j < indxCount; j++)
+		{
+			indicies[j] = j;
+		}
+	}
+}
+
 BEMesh::~BEMesh()
 {
 	if (verticies) delete verticies;
@@ -48,10 +96,10 @@ void BEMesh::CalculateTriangleInfo()
 		pIndx += 3;
 	}
 
-	for (unsigned int tindx = 0; tindx < triCount; tindx++)
-	{
-		XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;
-		XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
-		XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
-	}
+	//for (unsigned int tindx = 0; tindx < triCount; tindx++)
+	//{
+	//	XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;
+	//	XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
+	//	XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
+	//}
 }

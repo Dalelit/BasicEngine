@@ -154,18 +154,18 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 							//XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
 
 							// color
-							//XMVECTOR color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
-							//	m->verticies[m->triangles[i].indx[1]].color,
-							//	m->verticies[m->triangles[i].indx[2]].color,
-							//	u, v);
+							XMVECTOR color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
+								m->verticies[m->triangles[i].indx[1]].color,
+								m->verticies[m->triangles[i].indx[2]].color,
+								u, v);
 
 							// temp hack to see
 							// texture sampler
-							XMFLOAT2 texcoord = BEXMFloat2BaryCentric(m->verticies[m->triangles[i].indx[0]].texcoord,
-																		m->verticies[m->triangles[i].indx[1]].texcoord,
-																		m->verticies[m->triangles[i].indx[2]].texcoord,
-																		u, v);
-							XMVECTOR color = pScene->samplers[0]->SampleClosest(texcoord);
+							//XMFLOAT2 texcoord = BEXMFloat2BaryCentric(m->verticies[m->triangles[i].indx[0]].texcoord,
+							//											m->verticies[m->triangles[i].indx[1]].texcoord,
+							//											m->verticies[m->triangles[i].indx[2]].texcoord,
+							//											u, v);
+							//XMVECTOR color = pScene->samplers[0]->SampleClosest(texcoord);
 
 							XMVECTOR ambient = color;
 							XMVECTOR lights = { 0,0,0,1 };

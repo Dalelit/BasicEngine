@@ -90,6 +90,9 @@
     <ClCompile Include="BESampler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEModelLoaderSTL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -173,6 +176,12 @@
     <ClInclude Include="BESampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEModelLoaderSTL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">
@@ -187,5 +196,15 @@
     <FxCompile Include="PSPassthrough.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BasicEngine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="monkey.stl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
