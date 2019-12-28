@@ -1,6 +1,6 @@
 #include "BEScene.h"
 #include "BEMeshPrimatives.h"
-#include "BEModelLoaderSTL.h"
+#include "BEMeshLoaderSTL.h"
 
 BEScene::BEScene()
 {
@@ -99,16 +99,21 @@ void BEScene::Create()
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-1.5f, -0.5f);
 
-	//BETexture* t = new BETexture(L"4-sunset-over-water-focusstock.jpg");
+	//BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	//textures.push_back(t);
 
 	//BESampler* s = new BESampler(*t);
 	//samplers.push_back(s);
 
+	//e = CreateAddEntity();
+	//e->mesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
+	//e->mesh->SetColor({ 1,1,1,1 });
+	//e->mesh->Translate({ 1.5,0,0,1 });
+
 	e = CreateAddEntity();
-	e->mesh = BEModelLoaderSTL::LoadSTL(L"monkey.stl");
-	e->mesh->SetColor({1,1,1,1});
-	//e->mesh->Scale(2.0f);
+	e->mesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
+	e->mesh->SetColor({ 1,0,1,1 });
+	//e->mesh->Translate({ -1.5,0,0,1 });
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = {1,1,1,1};

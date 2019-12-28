@@ -1,4 +1,4 @@
-#include "BEModelLoaderSTL.h"
+#include "BEMeshLoaderSTL.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -15,7 +15,7 @@ using namespace DirectX;
 //endfacet
 //endsolid xxxxxxxxxxx
 
-BEMesh* BEModelLoaderSTL::LoadSTL(std::wstring filename)
+BEMesh* BEMeshLoaderSTL::LoadSTL(std::wstring filename)
 {
 	std::wifstream srcFile(filename);
 	std::wstring token;

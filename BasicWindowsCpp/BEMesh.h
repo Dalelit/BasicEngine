@@ -49,7 +49,7 @@ public:
 
 	inline void Transform(DirectX::XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVector3Transform(verticies[i].position, m); }
 
-	//BEBoundsBox bounds;
-	BEBoundsSphere bounds;
+	BEBoundsBox bounds;
+	//BEBoundsSphere bounds;
 	void SetBounds() { bounds.SetBounds(vertCount, verticies); };
 };

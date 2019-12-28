@@ -2,7 +2,7 @@
 #include <string>
 #include "BEMesh.h"
 
-class BEModelLoaderSTL
+class BEMeshLoaderSTL
 {
 public:
 	static BEMesh* LoadSTL(std::wstring filename);

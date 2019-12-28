@@ -142,7 +142,7 @@
     <ClCompile Include="BELight.cpp" />
     <ClCompile Include="BEMesh.cpp" />
     <ClCompile Include="BEMeshPrimatives.cpp" />
-    <ClCompile Include="BEModelLoaderSTL.cpp" />
+    <ClCompile Include="BEMeshLoaderSTL.cpp" />
     <ClCompile Include="BERenderRaytrace.cpp" />
     <ClCompile Include="BERenderScanline.cpp" />
     <ClCompile Include="BERenderWireframe.cpp" />
@@ -174,7 +174,7 @@
     <ClInclude Include="BELight.h" />
     <ClInclude Include="BEMesh.h" />
     <ClInclude Include="BEMeshPrimatives.h" />
-    <ClInclude Include="BEModelLoaderSTL.h" />
+    <ClInclude Include="BEMeshLoaderSTL.h" />
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BESampler.h" />
     <ClInclude Include="BEScene.h" />
@@ -226,7 +226,11 @@
     <ResourceCompile Include="BasicEngine.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="monkey.stl" />
+    <None Include="STL\monkey.stl" />
+    <None Include="STL\torus.stl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\4-sunset-over-water-focusstock.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
