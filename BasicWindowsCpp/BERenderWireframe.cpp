@@ -1,5 +1,7 @@
 #include "BERenderPipeline.h"
 
+using namespace DirectX;
+
 //
 // To Do
 // - could add depth buffer so the lines overlap correctly, not just based on enitity/model order?

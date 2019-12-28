@@ -1,40 +1,37 @@
 #pragma once
 #include "BEEntity.h"
 
-
-using namespace DirectX;
-
 class BECamera : public BEEntity
 {
 public:
 	struct Ray
 	{
-		XMVECTOR position;
-		XMVECTOR direction;
+		DirectX::XMVECTOR position;
+		DirectX::XMVECTOR direction;
 	};
 
 	float viewPortRatio = 3.0f / 4.0f;
 	float viewPortX = 1.0f;
 	float viewPortY = viewPortRatio;
-	//XMVECTOR viewPort = { 1.0f, viewPortRatio, 1.0f, 1.0f };
+	//DirectX::XMVECTOR viewPort = { 1.0f, viewPortRatio, 1.0f, 1.0f };
 
 	float focalLength = 1.0f; // is this really a focal length?
 	float maxDistance = 10000.0f; // to do: need to think about this number.
 
-	XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
+	DirectX::XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
 
-	BECamera(XMVECTOR _position, XMVECTOR _direction);
+	BECamera(DirectX::XMVECTOR _position, DirectX::XMVECTOR _direction);
 	inline void Recalc();
 
-	void LookAt(XMVECTOR target);
+	void LookAt(DirectX::XMVECTOR target);
 
-	inline XMMATRIX GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
-	inline XMMATRIX GetViewMatrix() { return viewMatrix; }
-	inline XMMATRIX GetProjectionMatrix() { return projectionMatrix; }
+	inline DirectX::XMMATRIX GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
+	inline DirectX::XMMATRIX GetViewMatrix() { return viewMatrix; }
+	inline DirectX::XMMATRIX GetProjectionMatrix() { return projectionMatrix; }
 
-	inline XMVECTOR WorldToScreen(XMVECTOR coord) { return XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
+	inline DirectX::XMVECTOR WorldToScreen(DirectX::XMVECTOR coord) { return DirectX::XMVector3TransformCoord(coord, viewMatrix * projectionMatrix); }
 
-	inline bool IsVisible(XMVECTOR point, XMVECTOR normal) { return XMVectorGetX(XMVector3Dot((point - position), normal)) < 0.0f; }
+	inline bool IsVisible(DirectX::XMVECTOR point, DirectX::XMVECTOR normal) { return DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVectorSubtract(point, position), normal)) < 0.0f; }
 
 	Ray RelativeScreenPositionToRay(float x, float y);
 
@@ -42,24 +39,24 @@ public:
 	void RotateDirection(float yaw, float pitch, float roll);
 	void RotatePosition(float yaw, float pitch);
 
-	float DirectionDot(XMVECTOR v) { return XMVectorGetX(XMVector3Dot(direction, v)); };
+	float DirectionDot(DirectX::XMVECTOR v) { return DirectX::XMVectorGetX(DirectX::XMVector3Dot(direction, v)); };
 
-	inline bool OveralpsScreen(XMVECTOR _v) { 
-		float x = XMVectorGetX(_v);
-		float y = XMVectorGetY(_v);
+	inline bool OveralpsScreen(DirectX::XMVECTOR _v) { 
+		float x = DirectX::XMVectorGetX(_v);
+		float y = DirectX::XMVectorGetY(_v);
 		return ((x >= -1.0f && x <= 1.0f) ||  // (x or
 		        (y >= -1.0f && y <= 1.0f))    //  y in the screen)
-			   && XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
+			   && DirectX::XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
 
 private:
-	XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
-	XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
-	XMVECTOR upScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
+	DirectX::XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
+	DirectX::XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
+	DirectX::XMVECTOR upScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
 
-	XMVECTOR centre;
+	DirectX::XMVECTOR centre;
 
-	XMMATRIX projectionMatrix;
-	XMMATRIX viewMatrix;
+	DirectX::XMMATRIX projectionMatrix;
+	DirectX::XMMATRIX viewMatrix;
 
 };
 

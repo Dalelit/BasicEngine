@@ -286,7 +286,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MSG msg = { 0 };
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
-	camera.LookAt(g_XMZero);
+	camera.LookAt(DirectX::g_XMZero);
 
 	BERegisterWindowClass(hInstance);
 

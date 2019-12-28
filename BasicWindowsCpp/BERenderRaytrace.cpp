@@ -1,6 +1,8 @@
 #include "BERenderPipeline.h"
 #include <DirectXCollision.h>
 
+using namespace DirectX;
+
 // Taken the code from DirectXCollision.inl for TriangleTests::Intersects
 // then added the barycentric cooridinates of the intersection to the signature and returned them.
 // To Do: maybe actually understand this!

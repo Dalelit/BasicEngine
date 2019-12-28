@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 
+using namespace DirectX;
+
 //solid xxxxxxxxxx
 //facet normal - 0.671345 - 0.197092 - 0.714459
 //outer loop

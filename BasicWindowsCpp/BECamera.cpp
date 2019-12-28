@@ -1,5 +1,7 @@
 #include "BECamera.h"
 
+using namespace DirectX;
+
 BECamera::BECamera(XMVECTOR _position, XMVECTOR _direction)
 {
 	position = _position;

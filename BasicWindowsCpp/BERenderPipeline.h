@@ -64,8 +64,8 @@ private:
 		float du;
 		float v;
 		float dv;
-		XMVECTOR c;
-		XMVECTOR dc;
+		DirectX::XMVECTOR c;
+		DirectX::XMVECTOR dc;
 	};
 
 	struct BETriEdge
@@ -81,9 +81,9 @@ private:
 	BETriEdge* triedges;
 	BEVertex* screenSpaceVerticies;
 
-	inline void InitEdge(BEEdge* e, XMVECTOR* vFrom, XMVECTOR* vTo, XMVECTOR cFrom, XMVECTOR cTo, XMFLOAT2 tcFrom, XMFLOAT2 tcTo);
+	inline void InitEdge(BEEdge* e, DirectX::XMVECTOR* vFrom, DirectX::XMVECTOR* vTo, DirectX::XMVECTOR cFrom, DirectX::XMVECTOR cTo, DirectX::XMFLOAT2 tcFrom, DirectX::XMFLOAT2 tcTo);
 	inline void UpdateEdge(BEEdge* e);
-	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color);
+	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, DirectX::XMVECTOR color);
 };
 
 //////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ public:
 	void DrawByLine();
 	void DrawBySampling();
 
-	inline bool TriangleIntersects(FXMVECTOR Origin, FXMVECTOR Direction, FXMVECTOR V0, GXMVECTOR V1, HXMVECTOR V2, float& Dist, float& _u, float& _v);
+	inline bool TriangleIntersects(DirectX::FXMVECTOR Origin, DirectX::FXMVECTOR Direction, DirectX::FXMVECTOR V0, DirectX::GXMVECTOR V1, DirectX::HXMVECTOR V2, float& Dist, float& _u, float& _v);
 
 private:
 	void InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line);
@@ -119,9 +119,9 @@ class BERenderPipelineWireframe : public BERenderPipeline
 {
 public:
 	bool drawNormals = false;
-	XMVECTOR lineColor = { 1.0f, 1.0f, 1.0f };
-	XMVECTOR backlineColor = { 0.25f, 0.25f, 0.25f };
-	XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f };
+	DirectX::XMVECTOR lineColor = { 1.0f, 1.0f, 1.0f };
+	DirectX::XMVECTOR backlineColor = { 0.25f, 0.25f, 0.25f };
+	DirectX::XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f };
 
 	bool backfaceCull = false;
 	//float backfaceColorStrength = 0.25f;
@@ -134,10 +134,10 @@ public:
 private:
 	struct BELineInfo
 	{
-		XMVECTOR v0;
-		XMVECTOR v1;
-		XMVECTOR v2;
-		XMVECTOR color;
+		DirectX::XMVECTOR v0;
+		DirectX::XMVECTOR v1;
+		DirectX::XMVECTOR v2;
+		DirectX::XMVECTOR color;
 	};
 
 	// preallocated memory for the number crunching

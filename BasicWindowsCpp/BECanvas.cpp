@@ -1,6 +1,7 @@
 #include "BECanvas.h"
 #include <memory.h>
 
+using namespace DirectX;
 
 BECanvas::~BECanvas()
 {

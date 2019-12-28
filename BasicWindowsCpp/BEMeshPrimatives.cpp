@@ -1,6 +1,8 @@
 #include "BEMeshPrimatives.h"
 #include <random>
 
+using namespace DirectX;
+
 BEMesh* BEMeshPrimatives::TriangleMesh()
 {
 	BEMesh* m = new BEMesh(3, 1, BEMesh::BEMeshTopology::TRIANGLE_LIST);

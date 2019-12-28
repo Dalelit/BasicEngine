@@ -1,5 +1,7 @@
 #include "BERenderPipeline.h"
 
+using namespace DirectX;
+
 // To Do
 // - scan line has issues as the verticies, scan line keeps running past the edge :-(
 

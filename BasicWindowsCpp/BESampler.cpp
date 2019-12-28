@@ -1,5 +1,7 @@
 #include "BESampler.h"
 
+using namespace DirectX;
+
 BESampler::BESampler(BETexture& texture) :
 	texture(texture)
 {

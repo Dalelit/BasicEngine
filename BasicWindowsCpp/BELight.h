@@ -1,20 +1,18 @@
 #pragma once
 #include "BEEntity.h"
 
-using namespace DirectX;
-
 // To Do... work out how to manage lights! Hacking away
 class BELight : public BEEntity
 {
 public:
-	XMVECTOR color = {1,1,1,1};
-	virtual XMVECTOR CalculateColor(XMVECTOR normal) { return XMVectorSaturate(-XMVector3Dot(normal, direction) * color); }
+	DirectX::XMVECTOR color = {1,1,1,1};
+	virtual DirectX::XMVECTOR CalculateColor(DirectX::XMVECTOR normal) { return DirectX::XMVectorSaturate(DirectX::XMVectorNegate(DirectX::XMVectorMultiply(DirectX::XMVector3Dot(normal, direction), color))); }
 
-	inline void SetDirection(XMVECTOR _direction) { direction = XMVector3Normalize(_direction); };
-	inline XMVECTOR GetDirection() { return direction; };
+	inline void SetDirection(DirectX::XMVECTOR _direction) { direction = DirectX::XMVector3Normalize(_direction); };
+	inline DirectX::XMVECTOR GetDirection() { return direction; };
 
 private:
-	XMVECTOR direction = { 1,1,1,1 };
+	DirectX::XMVECTOR direction = { 1,1,1,1 };
 };
 
 class BELightDirectional : public BELight

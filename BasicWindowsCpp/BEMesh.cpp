@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 
+using namespace DirectX;
+
 BEMesh::BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology)
 {
 	topology = _topology;
