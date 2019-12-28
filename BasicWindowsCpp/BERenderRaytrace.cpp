@@ -128,7 +128,7 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 	{
 		BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
 
-		if (m) // if it has a mesh
+		if (m && m->bounds.Intersects(r.position, r.direction)) // if it has a mesh, and we the ray intersects the bounds
 		{
 			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 			{

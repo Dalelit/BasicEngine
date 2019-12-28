@@ -96,6 +96,8 @@ void BEMesh::CalculateTriangleInfo()
 		pIndx += 3;
 	}
 
+	SetBounds();
+
 	//for (unsigned int tindx = 0; tindx < triCount; tindx++)
 	//{
 	//	XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;

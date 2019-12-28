@@ -1,6 +1,6 @@
 #pragma once
 #include "BECommon.h"
-#include "BEVertex.h"
+#include "BEBounds.h"
 #include <vector>
 
 using namespace DirectX;
@@ -51,4 +51,7 @@ public:
 
 	inline void Transform(XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = XMVector3Transform(verticies[i].position, m); }
 
+	//BEBoundsBox bounds;
+	BEBoundsSphere bounds;
+	void SetBounds() { bounds.SetBounds(vertCount, verticies); };
 };
