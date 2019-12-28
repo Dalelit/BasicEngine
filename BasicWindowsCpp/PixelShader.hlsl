@@ -24,7 +24,7 @@ float4 main(float4 col : Color, float4 nor : normal, float2 tc : Texcoord) : SV_
 		amb = col;
 	}
 
-	float4 light = saturate(-dot(nor, lightDirection) * lightColor);
+	float4 light = saturate(-dot(nor, lightDirection) * lightColor * amb);
 
 
 	return saturate((amb + light) * 0.5f);

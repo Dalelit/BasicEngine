@@ -185,7 +185,7 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 							for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
 							{
-								lights += pScene->lights[lindx]->CalculateColor(normal);
+								lights += (pScene->lights[lindx]->CalculateColor(normal) * color);
 							}
 
 							lights = lights / (float)pScene->lightCount;

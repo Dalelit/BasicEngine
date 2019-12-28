@@ -175,6 +175,27 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 		}
 	}
 
+	unsigned int stride = segmentsWide + 1;
+	for (unsigned int z = 1; z < segmentsDeep; z++)
+	{
+		for (unsigned int x = 1; x < segmentsWide; x++)
+		{
+			XMVECTOR pointC = m->verticies[z * stride + x].position;
+			XMVECTOR point0 = m->verticies[(z+1) * stride + x].position;
+			XMVECTOR point1 = m->verticies[z * stride + x+1].position;
+			XMVECTOR point2 = m->verticies[(z-1) * stride + x].position;
+			XMVECTOR point3 = m->verticies[z * stride + x-1].position;
+
+			normal += XMVector3Normalize(XMVector3Cross((point0 - pointC), (point1 - pointC)));
+			normal += XMVector3Normalize(XMVector3Cross((point1 - pointC), (point2 - pointC)));
+			normal += XMVector3Normalize(XMVector3Cross((point2 - pointC), (point3 - pointC)));
+			normal += XMVector3Normalize(XMVector3Cross((point3 - pointC), (point0 - pointC)));
+			normal *= 0.25f;
+
+			m->verticies[z * segmentsWide + x].normal = normal;
+		}
+	}
+
 	m->CalculateTriangleInfo();
 
 	return m;
