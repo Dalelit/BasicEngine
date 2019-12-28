@@ -24,9 +24,7 @@ public:
 
 	// To do: sort out the input parameters nicely
 	int InitialiseBase(HWND hwnd, unsigned int width, unsigned int height);
-	void Initialise3D();
-
-	int UpdateFrame(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera);
+	void Initialise3D(BEScene* pScene, BECamera* pCamera);
 
 	int LoadScene(BEScene* pScene);
 

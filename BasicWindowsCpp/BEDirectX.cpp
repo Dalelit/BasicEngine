@@ -5,6 +5,7 @@
 #include "BEDXVertexBuffer.h"
 #include "BETimer.h"
 #include "BEDXTexture.h"
+#include "BEDXEntityPSConstantBuffer.h"
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -35,32 +36,39 @@ int BEDirectX::InitialiseBase(HWND hwnd, unsigned int width, unsigned int height
 	return hr;
 }
 
-void BEDirectX::Initialise3D()
+void BEDirectX::Initialise3D(BEScene* pScene, BECamera* pCamera)
 {
 	/////////////////// Vertex Shader stage
 	BEDXVertexShader* pVS = new BEDXVertexShader(device, L"VertexShader.cso", BEDXVertexShader::InputLayout::POSITION4_NORMAL4_COLOR4);
 	pVS->Bind(device);
 	resources.push_back(pVS);
 
-	constantbuffers.push_back(new BEDXVSConstantBuffer(device));
+	constantbuffers.push_back(new BEDXVSConstantBuffer(device, pScene, pCamera));
 
 	/////////////////// Pixel Shader stage
 	BEDXPixelShader* pPS = new BEDXPixelShader(device, L"PixelShader.cso");
 	pPS->Bind(device);
 	resources.push_back(pPS);
 
-	constantbuffers.push_back(new BEDXPSConstantBuffer(device));
+	constantbuffers.push_back(new BEDXPSConstantBuffer(device, pScene, pCamera));
 }
 
 int BEDirectX::LoadScene(BEScene* pScene)
 {
 	for (UINT eIndx = 0; eIndx < pScene->entityCount; eIndx++)
 	{
-		BEMesh* m = pScene->entities[eIndx]->mesh;
+		BEEntity* e = pScene->entities[eIndx];
+		BEMesh* m = e->mesh;
 
 		if (m)
 		{
+			BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, e);
+			pEntityPSCB->slot = 1u; // to do: sort this out properly
+
 			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, sizeof(BEVertex)); // to do: hard coded vertex size?
+			
+			pVB->resources.push_back(pEntityPSCB);
+			
 			drawables.push_back(pVB);
 		}
 	}
@@ -72,13 +80,6 @@ int BEDirectX::LoadScene(BEScene* pScene)
 		pTex->Bind(device);
 		resources.push_back(pTex);
 	}
-
-	return 0;
-}
-
-int BEDirectX::UpdateFrame(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera)
-{
-	for (auto b : constantbuffers) b->Update(device, pScene, pCamera);
 
 	return 0;
 }

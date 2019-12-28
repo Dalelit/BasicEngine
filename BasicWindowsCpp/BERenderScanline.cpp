@@ -182,6 +182,7 @@ void BERenderPipelineScanline::Draw()
 							edge++;
 							InitEdge(edge, &v1, &v2, c1, c2, tc1, tc2);
 							edge++;
+							triedage->mesh = m;
 
 							// special case where first edge e0 is flat... replace it with e2
 							// scan lines will then both stop for e0, e1 at the same time
@@ -318,11 +319,16 @@ void BERenderPipelineScanline::Draw()
 
 						if (z < depth) // closer so draw it
 						{
-							// color
-							pCanvas->buffer[line + x] = c;
-
-							// texture
-							//pCanvas->buffer[line + x] = pScene->samplers[0]->SampleClosest(u,v);
+							if (current->mesh->IsTextured())
+							{
+								// texture
+								pCanvas->buffer[line + x] = current->mesh->pTextureSampler->SampleClosest(u,v);
+							}
+							else
+							{
+								// color
+								pCanvas->buffer[line + x] = c;
+							}
 
 							*depthBuffer = z; // update the depth buffer
 						}

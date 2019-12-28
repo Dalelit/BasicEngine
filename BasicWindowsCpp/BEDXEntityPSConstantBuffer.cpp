@@ -1,9 +1,14 @@
-#include "BEDXPSConstantBuffer.h"
+#include "BEDXEntityPSConstantBuffer.h"
 
-BEDXPSConstantBuffer::BEDXPSConstantBuffer(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera) :
-	pScene(pScene),
-	pCamera(pCamera)
+BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity) :
+	pEntity(pEntity)
 {
+	if (pEntity->mesh)
+	{
+		buffer.textured = pEntity->mesh->IsTextured();
+	}
+	else buffer.textured = false; // to do: should this be an acceptable outcome?
+
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
 	constBufferData.pSysMem = &buffer;
@@ -16,21 +21,16 @@ BEDXPSConstantBuffer::BEDXPSConstantBuffer(BEDirectXDevice& device, BEScene* pSc
 	bufferDesc.StructureByteStride = sizeof(Buffer);
 }
 
-void BEDXPSConstantBuffer::Update(BEDirectXDevice& device)
+void BEDXEntityPSConstantBuffer::Update(BEDirectXDevice& device)
 {
 	HRESULT hr;
-
-	// To do : hack just to get the first light... maybe make a scene light
-	buffer.lightColor = pScene->lights[0]->color;
-	buffer.lightDirection = pScene->lights[0]->GetDirection();
-	//buffer.lightDirection = XMVector3Transform(pScene->lights[0]->GetDirection(), pCamera->GetViewMatrix());
 
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 
 	BEDXRESOURCE_ERRORCHECK(hr)
 }
 
-void BEDXPSConstantBuffer::Bind(BEDirectXDevice& device)
+void BEDXEntityPSConstantBuffer::Bind(BEDirectXDevice& device)
 {
 	Update(device);
 	device.pImmediateContext->PSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());

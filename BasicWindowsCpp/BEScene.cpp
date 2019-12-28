@@ -96,14 +96,15 @@ void BEScene::Create()
 	//e->Translate({ 0,0,-1 });
 	//e->color = { 0,0,1 };
 
+	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
+	textures.push_back(t);
+
+	BESampler* s = new BESampler(*t);
+	samplers.push_back(s);
+
 	e = CreateAddEntity();
 	e->mesh = BEMeshPrimatives::Ground(10,10,10,10,-1.5f, -0.5f);
-
-	//BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
-	//textures.push_back(t);
-
-	//BESampler* s = new BESampler(*t);
-	//samplers.push_back(s);
+	e->mesh->pTextureSampler = s;
 
 	//e = CreateAddEntity();
 	//e->mesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");

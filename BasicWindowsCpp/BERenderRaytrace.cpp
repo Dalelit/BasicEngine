@@ -159,22 +159,26 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 					{
 						if (distance < hitDistance)
 						{
-							// To Do : not actually thought about this yet.
-							//XMVECTOR color = m->verticies[m->triangles[i].indx[0]].color;
+							XMVECTOR color;
 
-							// color
-							XMVECTOR color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
-								m->verticies[m->triangles[i].indx[1]].color,
-								m->verticies[m->triangles[i].indx[2]].color,
-								u, v);
-
-							// temp hack to see
-							// texture sampler
-							//XMFLOAT2 texcoord = BEXMFloat2BaryCentric(m->verticies[m->triangles[i].indx[0]].texcoord,
-							//											m->verticies[m->triangles[i].indx[1]].texcoord,
-							//											m->verticies[m->triangles[i].indx[2]].texcoord,
-							//											u, v);
-							//XMVECTOR color = pScene->samplers[0]->SampleClosest(texcoord);
+							if (m->IsTextured())
+							{
+								// texture sampler
+								XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
+									m->verticies[m->triangles[i].indx[0]].texcoord,
+									m->verticies[m->triangles[i].indx[1]].texcoord,
+									m->verticies[m->triangles[i].indx[2]].texcoord,
+									u, v);
+								color = m->pTextureSampler->SampleClosest(texcoord);
+							}
+							else
+							{
+								// color
+								color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
+									m->verticies[m->triangles[i].indx[1]].color,
+									m->verticies[m->triangles[i].indx[2]].color,
+									u, v);
+							}
 
 							XMVECTOR ambient = color;
 							XMVECTOR lights = { 0,0,0,1 };

@@ -77,6 +77,7 @@ private:
 		BEEdge* e0;
 		BEEdge* e1;
 		BETriEdge* next;
+		BEMesh* mesh;
 	};
 
 	// preallocated memory for the number crunching

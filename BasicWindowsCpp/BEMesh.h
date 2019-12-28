@@ -1,6 +1,7 @@
 #pragma once
 #include "BECommon.h"
 #include "BEBounds.h"
+#include "BESampler.h"
 #include <vector>
 
 // Notes/Reminders/To check
@@ -19,6 +20,7 @@ public:
 	};
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
+	BESampler* pTextureSampler = nullptr;
 
 	BEVertex* verticies = nullptr;
 	unsigned int vertCount = 0;
@@ -48,6 +50,8 @@ public:
 	inline void Scale(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorMultiply(verticies[i].position, v); }
 
 	inline void Transform(DirectX::XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVector3Transform(verticies[i].position, m); }
+
+	inline bool IsTextured() { return pTextureSampler != nullptr; }
 
 	BEBoundsBox bounds;
 	//BEBoundsSphere bounds;

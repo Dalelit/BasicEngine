@@ -102,6 +102,9 @@
     <ClCompile Include="BEMeshLoaderSTL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEDXEntityPSConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -192,6 +195,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMeshLoaderSTL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXEntityPSConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -431,7 +431,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// for DirectX rendering
 	BEDirectX dx4;
 	dx4.InitialiseBase(hwnd[4], bufferWidth, bufferHeight);
-	dx4.Initialise3D();
+	dx4.Initialise3D(&scene, &camera);
 	dx4.LoadScene(&scene);
 
 	// for using DirectX to show the scanline output rather than our BECanvas display
@@ -484,7 +484,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// directx.............
 		//
 		timers[4].Start();
-		dx4.UpdateFrame(dx4.device, &scene, &camera);
 		dx4.DoFrame();
 		timers[4].Tick();
 

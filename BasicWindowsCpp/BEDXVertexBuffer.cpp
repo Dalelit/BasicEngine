@@ -87,6 +87,9 @@ void BEDXVertexBuffer::Draw(BEDirectXDevice& device)
 	device.pImmediateContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), bufferStrides, bufferOffsets);
 	device.pImmediateContext->IASetPrimitiveTopology(topology);
 
+	// update and bind resources for this buffer
+	for (auto r : resources) r->Bind(device);
+
 	if (pIndexBuffer)
 	{
 		device.pImmediateContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);

@@ -11,7 +11,6 @@ public:
 	virtual void Draw(BEDirectXDevice& device) = 0;
 	virtual ~BEDirectXDrawable();
 
-protected:
 	std::vector<BEDirectXResource*> resources;
 };
 
