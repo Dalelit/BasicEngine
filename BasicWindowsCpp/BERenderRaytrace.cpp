@@ -114,14 +114,21 @@ BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _
 	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
+	stride = pCanvas->width;
+	invWidthx2 = 2.0f / (float)pCanvas->width;
+	invHeightx2 = 2.0f / (float)pCanvas->height;
+	raysToProcess = pCanvas->width * pCanvas->height;
 }
 
 BERenderPipelineRaytrace::~BERenderPipelineRaytrace()
 {
 }
 
-void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line)
+void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 {
+	float px = (float)x * invWidthx2 - 1.0f;
+	float py = (float)y * invHeightx2 - 1.0f;
+
 	BECamera::Ray r = pCamera->RelativeScreenPositionToRay(px, py);
 	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
 	float distance;
@@ -181,7 +188,7 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 
 							XMVECTOR c = XMVectorSaturate(0.5f * ambient + 0.5f * lights);
 
-							pCanvas->buffer[line + x] = c;
+							pCanvas->buffer[y * stride + x] = c;
 							hitDistance = distance;
 						}
 					}
@@ -189,35 +196,27 @@ void BERenderPipelineRaytrace::InnerLoop(float px, float py, unsigned int x, uns
 			}
 		}
 	}
+	//if (hitDistance == pCamera->maxDistance) pCanvas->buffer[y * stride + x] = { 1,0,0,1 };
 }
 
 void BERenderPipelineRaytrace::Draw()
 {
 	//DrawByLine();
-	DrawBySampling();
+	DrawBySampling(0, pCanvas->width, 0, pCanvas->height);
+}
+
+void BERenderPipelineRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
+{
+	DrawBySampling(xFrom, width, yFrom, height);
 }
 
 void BERenderPipelineRaytrace::DrawByLine()
 {
-	raysToProcess = pCanvas->size;
-	raysProcessed = 0;
-
-	float dx = 2.0f / pCanvas->width;
-	float dy = 2.0f / pCanvas->height;
-	float px = -1;
-	float py = -1;
-
-	int line = 0;
-
 	for (unsigned int y = 0; y < pCanvas->height; y++)
 	{
-		px = -1;
-
 		for (unsigned int x = 0; x < pCanvas->width; x++)
 		{
-			InnerLoop(px, py, x, y, line);
-
-			px += dx;
+			InnerLoop(x, y);
 
 			showBuffer = true; // every full line show the buffer
 
@@ -225,30 +224,18 @@ void BERenderPipelineRaytrace::DrawByLine()
 
 			if (exitLoop || restartLoop) return;
 		}
-
-		py += dy;
-		line += pCanvas->width;
 	}
 }
 
 // to do: tidy up types... check for efficiency
-void BERenderPipelineRaytrace::DrawBySampling()
+void BERenderPipelineRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
 {
-	raysToProcess = pCanvas->size;
-	raysProcessed = 0;
-
-	int size = (int)pCanvas->size;
-	int width = (int)pCanvas->width;
-
-	float px, py;
+	int size = width * height;
 	unsigned int x, y;
 
 	int indx = 0;
 	int offset = 13;
 	int startingOffset = offset - 1;
-
-	float invWidthx2 = 2.0f / (float)pCanvas->width;
-	float invHeightx2 = 2.0f / (float)pCanvas->height;
 
 	int counter = 0;
 
@@ -260,9 +247,7 @@ void BERenderPipelineRaytrace::DrawBySampling()
 		{
 			x = indx % width;
 			y = indx / width;
-			px = (float)x * invWidthx2 - 1.0f;
-			py = (float)y * invHeightx2 - 1.0f;
-			InnerLoop(px, py, x, y);
+			InnerLoop(xFrom + x, yFrom + y);
 			counter++;
 
 			if (counter % 10 == 0)
@@ -272,7 +257,7 @@ void BERenderPipelineRaytrace::DrawBySampling()
 			}
 
 			indx += offset;
-			raysProcessed++;
+			raysProcessed++; // to do: not thread safe?
 		}
 
 		startingOffset--;

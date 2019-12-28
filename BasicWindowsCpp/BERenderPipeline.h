@@ -38,6 +38,8 @@ public:
 	//}
 
 	virtual void Draw() = 0;
+	virtual void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height) = 0;
+	virtual void ResetStats() {};
 };
 
 //////////////////////////////////////////////////////
@@ -50,6 +52,7 @@ public:
 	~BERenderPipelineScanline();
 
 	void Draw();
+	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height) { throw "Not implemented yet"; }
 
 private:
 	struct BEEdge
@@ -102,14 +105,20 @@ public:
 	~BERenderPipelineRaytrace();
 
 	void Draw();
+	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
 	void DrawByLine();
-	void DrawBySampling();
+	void DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
+
+	virtual void ResetStats() { raysProcessed = 0; };
 
 	inline bool TriangleIntersects(DirectX::FXMVECTOR Origin, DirectX::FXMVECTOR Direction, DirectX::FXMVECTOR V0, DirectX::GXMVECTOR V1, DirectX::HXMVECTOR V2, float& Dist, float& _u, float& _v);
 
 private:
-	void InnerLoop(float px, float py, unsigned int x, unsigned int y, unsigned int line);
-	inline void InnerLoop(float px, float py, unsigned int x, unsigned int y) { InnerLoop(px, py, x, y, y * pCanvas->width); };
+	unsigned int stride;
+	float invWidthx2;
+	float invHeightx2;
+
+	void InnerLoop(unsigned int x, unsigned int y);
 };
 
 //////////////////////////////////////////////////////
@@ -130,6 +139,7 @@ public:
 	~BERenderPipelineWireframe();
 
 	void Draw();
+	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height) { throw "Not implemented yet"; }
 
 private:
 	struct BELineInfo

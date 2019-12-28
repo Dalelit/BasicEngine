@@ -16,6 +16,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <algorithm>
+#include <random>
 #include "BERenderPipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
@@ -245,8 +247,64 @@ void BECleanupWindow(int indx)
 	ReleaseDC(hwnd[indx], hdc[indx]);
 }
 
+/////////////////////////////////
+// Ray tracing threading functions
+
+struct BERayTraceSubsection
+{
+	int indx;
+	unsigned int xStart;
+	unsigned int width;
+	unsigned int yStart;
+	unsigned int height;
+	bool available;
+};
+
+HANDLE rayTraceMutex;
+std::vector<BERayTraceSubsection> rayTraceArgs;
+
+int BEThreadFunctionGetNextRayTraceSubsection()
+{
+	DWORD result = WaitForSingleObject(rayTraceMutex, INFINITE);
+	// to do: result error checking
+
+	for (int i = 0; i < rayTraceArgs.size(); i++)
+	{
+		if (rayTraceArgs[i].available)
+		{
+			rayTraceArgs[i].available = false;
+			ReleaseMutex(rayTraceMutex);
+			return i;
+		}
+	}
+
+	ReleaseMutex(rayTraceMutex);
+	return -1;
+}
+
+DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
+{
+	int argIndx = BEThreadFunctionGetNextRayTraceSubsection();
+
+	while (argIndx >= 0)
+	{
+		BERayTraceSubsection* args = &rayTraceArgs[argIndx];
+		pipeline[args->indx]->Draw(args->xStart, args->width, args->yStart, args->height);
+		argIndx = BEThreadFunctionGetNextRayTraceSubsection();
+	}
+	return 0;
+}
+
+// note: for now, ensure these are nice division of the buffer size
+#define BE_RAYTRACE_SUBSCETIONS_WIDE 8
+#define BE_RAYTRACE_SUBSCETIONS_HIGH 6
+#define BE_RAYTRACE_THREADS 4
+
 DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 {
+	DWORD threadIds[BE_RAYTRACE_THREADS];
+	HANDLE threadHandles[BE_RAYTRACE_THREADS];
+
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
 	int indx = *((int*)lpParam);
@@ -255,15 +313,60 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	BEWriteOverlayToWindow(resultIndx, L"Starting...");
 	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 
+	// create the subsections
+	unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
+	unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
+
+	BERayTraceSubsection arg;
+	arg.indx = indx;
+	arg.available = true;
+	arg.height = sectionHeight;
+	arg.width = sectionWidth;
+
+	for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
+	{
+		arg.yStart = y * sectionHeight;
+		for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
+		{
+			arg.xStart = x * sectionWidth;
+			rayTraceArgs.emplace_back(arg);
+		}
+	}
+	std::random_device rd;
+	std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
+	// To do: check the end cases for the args width and height
+
 	clock_t lastTime = clock();
+
+	rayTraceMutex = CreateMutex(NULL, FALSE, NULL);
+	if (rayTraceMutex == NULL) throw "Error creating raytrace mutex"; // to do: better error checking
 
 	while (running)
 	{
 		pipeline[indx]->restartLoop = false;
+		pipeline[indx]->ResetStats();
 		backBuffer[indx].Clear();
+		for (int i = 0; i < rayTraceArgs.size(); i++) rayTraceArgs[i].available = true;
 
 		timers[indx].Start();
-		pipeline[indx]->Draw();
+		
+		//pipeline[indx]->Draw(); // single thread version
+
+		// start the threads
+		// to do: thread pooling?
+		for (int i = 0; i < BE_RAYTRACE_THREADS; i++)
+		{
+			threadHandles[i] = CreateThread(NULL, 0, BEThreadFunctionRayTraceSubsection, NULL, 0, &(threadIds[i]));
+			if (threadHandles[i] == NULL) return -1; /// to do: proper error handling
+		}
+
+		WaitForMultipleObjects(BE_RAYTRACE_THREADS, threadHandles, TRUE, INFINITE);
+
+		for (int i = 0; i < BE_RAYTRACE_THREADS; i++)
+		{
+			CloseHandle(threadHandles[i]);
+		}
+
 		timers[indx].Tick();
 
 		// add an extra window, and show the completed image
@@ -274,9 +377,13 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 	}
 
+	CloseHandle(rayTraceMutex);
+
 	return 0;
 }
 
+/////////////////////////////////
+// Main funciton
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -351,7 +458,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// scanline..........
 		//
-
 		backBuffer[0].Clear();
 		timers[0].Start();
 		pipeline[0]->Draw();
@@ -365,18 +471,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// raytrace.......... running in a thread so showing only
 		//
+		BEDrawBackBuffer(1);
+		pipeline[1]->showBuffer = false;
 
-		//if (pipeline[1]->showBuffer)
-		{
-			BEDrawBackBuffer(1);
-			pipeline[1]->showBuffer = false;
-
-			int todo = pRT->raysToProcess;
-			int done = pRT->raysProcessed;
-			float pcnt = (float)done / (float)todo * 100.0f;
-			swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rays to process %i\nRays processed %i(%3.2f%%)", todo, done, pcnt);
-			BEWriteOverlayToWindow(1, swbuffer);
-		}
+		int todo = pRT->raysToProcess;
+		int done = pRT->raysProcessed;
+		float pcnt = (float)done / (float)todo * 100.0f;
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rays to process %i\nRays processed %i(%3.2f%%)", todo, done, pcnt);
+		BEWriteOverlayToWindow(1, swbuffer);
 
 		//
 		// directx.............
@@ -389,7 +491,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//
 		// wireframe.............
 		//
-
 		backBuffer[2].Clear();
 		timers[2].Start();
 		pipeline[2]->Draw();
