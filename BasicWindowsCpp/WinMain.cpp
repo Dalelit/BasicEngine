@@ -302,8 +302,8 @@ DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
 
 DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 {
-	DWORD threadIds[BE_RAYTRACE_THREADS];
-	HANDLE threadHandles[BE_RAYTRACE_THREADS];
+	DWORD threadIds[BE_RAYTRACE_THREADS] = {};
+	HANDLE threadHandles[BE_RAYTRACE_THREADS] = {};
 
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
@@ -385,7 +385,12 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 /////////////////////////////////
 // Main funciton
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPSTR lpCmdLine,
+	_In_ int nShowCmd
+)
 {
 	//char buffer[256];
 	//GetCurrentDirectoryA(256, buffer);

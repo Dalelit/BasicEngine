@@ -118,6 +118,7 @@ BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _
 	invWidthx2 = 2.0f / (float)pCanvas->width;
 	invHeightx2 = 2.0f / (float)pCanvas->height;
 	raysToProcess = pCanvas->width * pCanvas->height;
+	raysProcessed = 0;
 }
 
 BERenderPipelineRaytrace::~BERenderPipelineRaytrace()

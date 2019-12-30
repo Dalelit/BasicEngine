@@ -70,7 +70,7 @@ private:
 	DirectX::XMVECTOR halfWH = {0,0,0,0};
 
 	void InitialiseBitmapConversion();
-	WICRect rect;
+	WICRect rect = {};
 	Microsoft::WRL::ComPtr<IWICBitmap> pBitmap = nullptr;
 	Microsoft::WRL::ComPtr<IWICFormatConverter> pConverter = nullptr;
 	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;

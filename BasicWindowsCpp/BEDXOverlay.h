@@ -25,7 +25,7 @@ public:
 	float fontSize = 20.0f;
 	std::wstring locale = L"en-us";
 
-	D2D1_RECT_F d2rect;
+	D2D1_RECT_F d2rect = {};
 
 private:
 	unsigned int width, height;
