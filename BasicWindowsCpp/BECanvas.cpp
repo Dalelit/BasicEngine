@@ -27,6 +27,8 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 	Clear();
 
+	InitialiseBitmapConversion();
+
 	return 0; // TO DO - no error checking for memory
 }
 
@@ -52,10 +54,13 @@ void BECanvas::BufferToBMP()
 	Color* pc = buffer;
 	Color c;
 
+	#pragma loop(hint_parallel(8))
 	for (unsigned int y = 0; y < size; y += width)
+	{
 		for (unsigned int x = 0; x < width; x++)
 		{
 			c.data = pc->data * 255.0f; // to do: this line is slow
+
 			pp->r = (unsigned char)c.r;
 			pp->g = (unsigned char)c.g;
 			pp->b = (unsigned char)c.b;
@@ -64,6 +69,79 @@ void BECanvas::BufferToBMP()
 			pp++;
 			pc++;
 		}
+	}
+}
+
+// to do: color isn't being converted properly
+void BECanvas::BufferToBMPv2()
+{
+	HRESULT hr;
+
+	IWICBitmapLock* pLock = nullptr; // reminder - not using comptr as need to release it earlier
+
+	hr = pBitmap->Lock(
+		&rect,
+		WICBitmapLockWrite,
+		&pLock);
+
+	BE_HR_CHECK(hr);
+
+	UINT bufferSize = 0;
+	BYTE* wicBmp = nullptr;
+
+	hr = pLock->GetDataPointer(
+		&bufferSize,
+		&wicBmp);
+
+	BE_HR_CHECK(hr);
+
+	CopyMemory(wicBmp, buffer, bufferSize);
+
+	pLock->Release();
+
+	hr = pConverter->CopyPixels(
+		nullptr,
+		GetBitmapPitch(),
+		GetBitmapSize(),
+		(byte*)bmp);
+
+	BE_HR_CHECK(hr);
+}
+
+void BECanvas::InitialiseBitmapConversion()
+{
+	rect = { 0, 0, (int)width, (int)height };
+
+	HRESULT hr = CoCreateInstance(
+		CLSID_WICImagingFactory,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&pFactory)
+	);
+
+	BE_HR_CHECK(hr);
+
+	hr = pFactory->CreateBitmap(
+		width, height,
+		GUID_WICPixelFormat128bppRGBAFloat,
+		WICBitmapCacheOnDemand,
+		&pBitmap);
+
+	BE_HR_CHECK(hr);
+
+	hr = pFactory->CreateFormatConverter(
+		&pConverter);
+
+	BE_HR_CHECK(hr);
+
+	hr = pConverter->Initialize(pBitmap.Get(),
+		GUID_WICPixelFormat32bppBGRA,
+		WICBitmapDitherTypeNone,
+		nullptr,
+		0.0f,
+		WICBitmapPaletteTypeCustom);
+
+	BE_HR_CHECK(hr);
 }
 
 void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVECTOR colorTo)
@@ -104,7 +182,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 
 		if (dy > 0.0f)
 		{
-			
+
 			if (y < 0.0f) y = 0.0f;  // To Do - fix color to start with jump
 
 			while (y <= yt && y < height)
@@ -127,7 +205,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 		}
 		return;
 	}
-	
+
 	if (dx < 0) // swap x direction if not left to right
 	{
 		SWAPFLOAT(x, xt);

@@ -1,5 +1,7 @@
 #pragma once
 #include "BECommon.h"
+#include <wincodec.h>
+#include <wrl.h>
 
 // Pixel struct to make it easy to manipulate the bitmap
 class BECanvas
@@ -53,6 +55,7 @@ public:
 	void Clear();
 
 	void BufferToBMP();
+	void BufferToBMPv2();
 
 	void DrawLineSafe(DirectX::XMVECTOR from, DirectX::XMVECTOR to, DirectX::XMVECTOR colorFrom, DirectX::XMVECTOR colorTo);
 
@@ -65,4 +68,10 @@ private:
 	float halfHeight = 0;
 	DirectX::XMVECTOR x1y1z0 = { 1.0f, 1.0f, 0.0f, 1.0f };
 	DirectX::XMVECTOR halfWH = {0,0,0,0};
+
+	void InitialiseBitmapConversion();
+	WICRect rect;
+	Microsoft::WRL::ComPtr<IWICBitmap> pBitmap = nullptr;
+	Microsoft::WRL::ComPtr<IWICFormatConverter> pConverter = nullptr;
+	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;
 };
