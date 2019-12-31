@@ -103,7 +103,7 @@ void BERenderPipelineScanline::Draw()
 						BEVertex* tgt = screenSpaceVerticies;
 						for (unsigned int i = 0; i < m->vertCount; i++)
 						{
-							tgt->position = pCamera->WorldToScreen(src->position);
+							tgt->position = pCamera->WorldToScreen(entity->position + src->position);
 							tgt->color = src->color;
 							tgt++;
 							src++;

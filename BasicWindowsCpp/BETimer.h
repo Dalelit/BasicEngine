@@ -15,5 +15,12 @@ public:
 
 	inline BETimer& Tick() { currentTime = clock(); return *this; }
 
-	inline void Start() { previousTime = currentTime = clock(); };
+	inline void Start() { previousTime = currentTime = clock(); }
+
+	// in seconds
+	inline float DeltaTime() {
+		previousTime = currentTime;
+		currentTime = clock();
+		return (float)(currentTime - previousTime) / 1000.0f;
+	}
 };

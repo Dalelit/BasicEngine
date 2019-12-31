@@ -452,13 +452,24 @@ int WINAPI WinMain(
 	HANDLE thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
 	if (thread == NULL) return -1;
 
+	BETimer deltaTime;
+
+	clock_t frametime = 1000 / 60; // 60 frames a second
+	clock_t sleeptime = 0;
+
+	clock_t loopstarttime = clock();
 	while (running)
 	{
+
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+
+		// update loop
+		float dt = deltaTime.DeltaTime();
+		scene.Update(dt);
 
 		//
 		// scanline..........
@@ -499,9 +510,9 @@ int WINAPI WinMain(
 		timers[2].Start();
 		pipeline[2]->Draw();
 		t1 = timers[2].Tick().ElapsedMilSec();
-		loopTimer.Tick(); // here only because of where it gets displayed
 		dx2.overlay.message << "Wrieframe draw time: " << t1 << std::endl;
-		dx2.overlay.message << "Loop time: " << loopTimer.ElapsedMilSec() << std::endl;
+		dx2.overlay.message << "Delta time: " << dt << std::endl;
+		dx2.overlay.message << "Sleep time: " << sleeptime << std::endl;
 		dx2.DoFrameWithExtra(dx2sc);
 		//BEDrawBackBuffer(2); // slow method to show the buffer
 
@@ -511,10 +522,16 @@ int WINAPI WinMain(
 		// use dx to show the scanline output
 		//
 		//dxwindow.ShowBitmap(backBuffer[0]); // uses the generated bmp. To Do: upsidedown
-		dx5.DoFrameWithExtra(dx5sc);
+		//dx5.DoFrameWithExtra(dx5sc);
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
+
+		// lock the framerate
+		clock_t currenttime = clock();
+		sleeptime = frametime - (currenttime - loopstarttime);
+		if (sleeptime > 0) Sleep(sleeptime);
+		loopstarttime = currenttime;
 	}
 
 	pipeline[1]->exitLoop = true; // tell it to stop!

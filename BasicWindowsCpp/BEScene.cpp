@@ -1,6 +1,7 @@
 #include "BEScene.h"
 #include "BEMeshPrimatives.h"
 #include "BEMeshLoaderSTL.h"
+#include "BEEntityComponents.h"
 
 BEScene::BEScene()
 {
@@ -14,9 +15,18 @@ BEScene::~BEScene()
 	for (auto l : lights) delete l;
 }
 
+void BEScene::Update(float deltaTime)
+{
+	for (BEEntity* entity : entityRef)
+	{
+		entity->Update(deltaTime);
+	}
+}
+
 void BEScene::CreateSceneTestGround()
 {
 	BEModel* pModel;
+	BEEntity* pEntity;
 
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	textures.push_back(t);
@@ -28,15 +38,17 @@ void BEScene::CreateSceneTestGround()
 	models.push_back(pModel);
 	pModel->pMesh = BEMeshPrimatives::Ground(10,10,10,10,-1.5f, -0.5f);
 	pModel->pMesh->pTextureSampler = s;
-	BEEntity* pEntity = pModel->CreateInstance();
+	pEntity = pModel->CreateInstance();
 	entityRef.push_back(pEntity);
 
 	pModel = new BEModel();
 	models.push_back(pModel);
 	//pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
-	entityRef.push_back(pModel->CreateInstance());
 	pModel->pMesh->SetColor({ 1,0,1,1 });
+	entityRef.push_back(pEntity = pModel->CreateInstance({ 2,0,0 }));
+	pEntity->components.emplace_back(new BEEntityComponentOrbit(pEntity));
+	entityRef.push_back(pModel->CreateInstance({ -2,0,0 }));
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = { 1,1,1,1 };

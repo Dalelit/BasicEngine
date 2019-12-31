@@ -17,6 +17,8 @@ public:
 
 	std::vector<BEEntity*> entityRef; // does not own the entity... used for update
 
+	void Update(float deltaTime);
+
 	void CreateSceneTestGround();
 
 	void CreateSceneTestCube();

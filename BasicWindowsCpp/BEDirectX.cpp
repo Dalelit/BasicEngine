@@ -6,6 +6,7 @@
 #include "BETimer.h"
 #include "BEDXTexture.h"
 #include "BEDXEntityPSConstantBuffer.h"
+#include "BEDXEntityVSConstantBuffer.h"
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -66,9 +67,13 @@ int BEDirectX::LoadScene(BEScene* pScene)
 				BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, e);
 				pEntityPSCB->slot = 1u; // to do: sort this out properly
 
+				BEDXEntityVSConstantBuffer* pEntityVSCB = new BEDXEntityVSConstantBuffer(device, e);
+				pEntityVSCB->slot = 1u; // to do: sort this out properly
+
 				BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, sizeof(BEVertex)); // to do: hard coded vertex size?
 
 				pVB->resources.push_back(pEntityPSCB);
+				pVB->resources.push_back(pEntityVSCB);
 
 				drawables.push_back(pVB);
 			}

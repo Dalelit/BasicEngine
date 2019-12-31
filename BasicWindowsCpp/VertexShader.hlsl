@@ -1,5 +1,9 @@
-cbuffer constObj {
+cbuffer sceneConstObj {
 	matrix transformation;
+};
+
+cbuffer entityConstObj {
+	float4 entityPosition;
 };
 
 struct VSOut {
@@ -13,7 +17,7 @@ VSOut main(float4 pos : Position, float4 nor : Normal, float4 col : Color, float
 {
 	VSOut result;
 
-	result.position = mul(pos, transformation);
+	result.position = mul(entityPosition + pos, transformation);
 	result.color = col;
 	result.normal = nor;
 	result.tc = texcoord;

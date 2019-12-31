@@ -1,5 +1,6 @@
 #pragma once
 #include "BEEntity.h"
+#include "BEMesh.h"
 #include <vector>
 
 class BEModel
