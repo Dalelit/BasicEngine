@@ -55,21 +55,23 @@ void BEDirectX::Initialise3D(BEScene* pScene, BECamera* pCamera)
 
 int BEDirectX::LoadScene(BEScene* pScene)
 {
-	for (UINT eIndx = 0; eIndx < pScene->entityCount; eIndx++)
+	for (BEModel* model : pScene->models)
 	{
-		BEEntity* e = pScene->entities[eIndx];
-		BEMesh* m = e->mesh;
+		BEMesh* m = model->pMesh; // get it's mesh
 
-		if (m)
+		for (BEEntity* e : model->entities)
 		{
-			BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, e);
-			pEntityPSCB->slot = 1u; // to do: sort this out properly
+			if (m)
+			{
+				BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, e);
+				pEntityPSCB->slot = 1u; // to do: sort this out properly
 
-			BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, sizeof(BEVertex)); // to do: hard coded vertex size?
-			
-			pVB->resources.push_back(pEntityPSCB);
-			
-			drawables.push_back(pVB);
+				BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, m, sizeof(BEVertex)); // to do: hard coded vertex size?
+
+				pVB->resources.push_back(pEntityPSCB);
+
+				drawables.push_back(pVB);
+			}
 		}
 	}
 

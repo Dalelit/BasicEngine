@@ -89,143 +89,146 @@ void BERenderPipelineScanline::Draw()
 		BEEdge* edge = edges;
 		BETriEdge* triedage = triedges;
 
-		for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
+		for (BEModel* model : pScene->models)
 		{
-			BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
+			BEMesh* m = model->pMesh; // get it's mesh
 
-			if (m) // if it has a mesh
+			for (BEEntity* entity : model->entities) // loop on each instance of it
 			{
-				// create screen space version of all verticies
+				if (m) // if it has a mesh
 				{
-					BEVertex* src = m->verticies;
-					BEVertex* tgt = screenSpaceVerticies;
-					for (unsigned int i = 0; i < m->vertCount; i++)
+					// create screen space version of all verticies
 					{
-						tgt->position = pCamera->WorldToScreen(src->position);
-						tgt->color = src->color;
-						tgt++;
-						src++;
-					}
-				}
-
-				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
-				{
-					XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
-
-					if (pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal))
-					{
-						XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
-						XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
-						XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
-
-						// sort out lighiting value
-						XMVECTOR lights = { 0,0,0,0 };
-						for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
+						BEVertex* src = m->verticies;
+						BEVertex* tgt = screenSpaceVerticies;
+						for (unsigned int i = 0; i < m->vertCount; i++)
 						{
-							lights += pScene->lights[lindx]->CalculateColor(normal);
+							tgt->position = pCamera->WorldToScreen(src->position);
+							tgt->color = src->color;
+							tgt++;
+							src++;
 						}
+					}
 
-						lights = lights / (float)pScene->lightCount;
-						lights *= 0.5f; // to do : need to sort out correct ratios
+					for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
+					{
+						XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
 
-						XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
-						XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
-						XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
-
-						c0 = XMVectorSaturate(c0 * 0.5f + lights);
-						c1 = XMVectorSaturate(c1 * 0.5f + lights);
-						c2 = XMVectorSaturate(c2 * 0.5f + lights);
-
-						XMFLOAT2 tc0 = m->verticies[m->triangles[i].indx[0]].texcoord;
-						XMFLOAT2 tc1 = m->verticies[m->triangles[i].indx[1]].texcoord;
-						XMFLOAT2 tc2 = m->verticies[m->triangles[i].indx[2]].texcoord;
-
-						// check it's in the screen bounds
-						if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
+						if (pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal))
 						{
-							// convert to pixel coords
-							v0 = pCanvas->ScreenToPixel(v0);
-							v1 = pCanvas->ScreenToPixel(v1);
-							v2 = pCanvas->ScreenToPixel(v2);
+							XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
+							XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
+							XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
-							// order the verticies lowest to highest
-							// To do - is there something more efficient? Need to put into a struct.
-							if (XMVectorGetY(v0) > XMVectorGetY(v1))
+							// sort out lighiting value
+							XMVECTOR lights = { 0,0,0,0 };
+							for (BELight* light : pScene->lights)
 							{
-								SWAPXMVECTOR(v0, v1); // v0.y > v1.y
-								SWAPXMVECTOR(c0, c1);
-								std::swap<XMFLOAT2>(tc0, tc1);
+								lights += light->CalculateColor(normal);
 							}
-							{
-								if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
-								{
-									SWAPXMVECTOR(v1, v2);
-									SWAPXMVECTOR(c1, c2);
-									std::swap<XMFLOAT2>(tc1, tc2);
 
-									if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
+							lights = lights / (float)pScene->lights.size();
+							lights *= 0.5f; // to do : need to sort out correct ratios
+
+							XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
+							XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
+							XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
+
+							c0 = XMVectorSaturate(c0 * 0.5f + lights);
+							c1 = XMVectorSaturate(c1 * 0.5f + lights);
+							c2 = XMVectorSaturate(c2 * 0.5f + lights);
+
+							XMFLOAT2 tc0 = m->verticies[m->triangles[i].indx[0]].texcoord;
+							XMFLOAT2 tc1 = m->verticies[m->triangles[i].indx[1]].texcoord;
+							XMFLOAT2 tc2 = m->verticies[m->triangles[i].indx[2]].texcoord;
+
+							// check it's in the screen bounds
+							if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
+							{
+								// convert to pixel coords
+								v0 = pCanvas->ScreenToPixel(v0);
+								v1 = pCanvas->ScreenToPixel(v1);
+								v2 = pCanvas->ScreenToPixel(v2);
+
+								// order the verticies lowest to highest
+								// To do - is there something more efficient? Need to put into a struct.
+								if (XMVectorGetY(v0) > XMVectorGetY(v1))
+								{
+									SWAPXMVECTOR(v0, v1); // v0.y > v1.y
+									SWAPXMVECTOR(c0, c1);
+									std::swap<XMFLOAT2>(tc0, tc1);
+								}
+								{
+									if (XMVectorGetY(v1) > XMVectorGetY(v2)) // v1.y > v2.y
 									{
-										SWAPXMVECTOR(v0, v1);
-										SWAPXMVECTOR(c0, c1);
-										std::swap<XMFLOAT2>(tc0, tc1);
+										SWAPXMVECTOR(v1, v2);
+										SWAPXMVECTOR(c1, c2);
+										std::swap<XMFLOAT2>(tc1, tc2);
+
+										if (XMVectorGetY(v0) > XMVectorGetY(v1)) // v0.y > v1.y
+										{
+											SWAPXMVECTOR(v0, v1);
+											SWAPXMVECTOR(c0, c1);
+											std::swap<XMFLOAT2>(tc0, tc1);
+										}
 									}
 								}
-							}
 
-							// create the edges and triedge
-							InitEdge(edge, &v0, &v1, c0, c1, tc0, tc1);
-							triedage->e0 = edge;
-							triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
-							edge++;
-							InitEdge(edge, &v0, &v2, c0, c2, tc0, tc2);
-							triedage->e1 = edge;
-							edge++;
-							InitEdge(edge, &v1, &v2, c1, c2, tc1, tc2);
-							edge++;
-							triedage->mesh = m;
+								// create the edges and triedge
+								InitEdge(edge, &v0, &v1, c0, c1, tc0, tc1);
+								triedage->e0 = edge;
+								triedage->yStart = (unsigned int)XMVectorGetY(v0); // v0.y;
+								edge++;
+								InitEdge(edge, &v0, &v2, c0, c2, tc0, tc2);
+								triedage->e1 = edge;
+								edge++;
+								InitEdge(edge, &v1, &v2, c1, c2, tc1, tc2);
+								edge++;
+								triedage->mesh = m;
 
-							// special case where first edge e0 is flat... replace it with e2
-							// scan lines will then both stop for e0, e1 at the same time
-							//if (v0.y == v1.y) triedage->e0 += 2;
-							if (XMVectorGetY(v0) == XMVectorGetY(v1)) triedage->e0 += 2;
+								// special case where first edge e0 is flat... replace it with e2
+								// scan lines will then both stop for e0, e1 at the same time
+								//if (v0.y == v1.y) triedage->e0 += 2;
+								if (XMVectorGetY(v0) == XMVectorGetY(v1)) triedage->e0 += 2;
 
-							// insert the triedge into a sorted list
-							if (!sortedList) // first one in the list to add
-							{
-								sortedList = triedage;
-								triedage->next = NULL;
-							}
-							else
-							{
-								BETriEdge* current = sortedList;
-								BETriEdge* previous = NULL;
-
-								while (current && current->yStart < triedage->yStart) // find the point to insert
+								// insert the triedge into a sorted list
+								if (!sortedList) // first one in the list to add
 								{
-									previous = current;
-									current = current->next;
-								}
-
-								if (!current) // reached the end of the list
-								{
-									previous->next = triedage;
+									sortedList = triedage;
 									triedage->next = NULL;
 								}
 								else
 								{
-									if (previous == NULL) // inserting at the beginning of the list
+									BETriEdge* current = sortedList;
+									BETriEdge* previous = NULL;
+
+									while (current && current->yStart < triedage->yStart) // find the point to insert
 									{
-										sortedList = triedage;
+										previous = current;
+										current = current->next;
+									}
+
+									if (!current) // reached the end of the list
+									{
+										previous->next = triedage;
+										triedage->next = NULL;
 									}
 									else
 									{
-										previous->next = triedage;
+										if (previous == NULL) // inserting at the beginning of the list
+										{
+											sortedList = triedage;
+										}
+										else
+										{
+											previous->next = triedage;
+										}
+										triedage->next = current;
 									}
-									triedage->next = current;
 								}
-							}
 
-							triedage++;
+								triedage++;
+							}
 						}
 					}
 				}

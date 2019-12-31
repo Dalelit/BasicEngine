@@ -134,74 +134,78 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
 	float distance;
 
-	for (unsigned int eindx = 0; eindx < pScene->entityCount; eindx++) // for each entity
+	for (BEModel* model : pScene->models)
 	{
-		BEMesh* m = pScene->entities[eindx]->mesh; // get it's mesh
+		BEMesh* m = model->pMesh; // get it's mesh
 
-		if (m && m->bounds.Intersects(r.position, r.direction)) // if it has a mesh, and we the ray intersects the bounds
+		for (BEEntity* entity : model->entities) // loop on each instance of it
 		{
-			for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
+			if (m && m->bounds.Intersects(r.position, r.direction)) // if it has a mesh, and we the ray intersects the bounds
 			{
-				//XMVECTOR normal = m->triangles[i].normal;
-				XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
-				XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
-
-				if (!backfaceCull || pCamera->IsVisible(v0, normal))
+				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
-					XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
-					XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
+					//XMVECTOR normal = m->triangles[i].normal;
+					XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
+					XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
 
-					float u = 0.0f;
-					float v = 0.0f;
-
-					// TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distold) // replaced with tweaked version
-
-					if (TriangleIntersects(r.position, r.direction, v0, v1, v2, distance, u, v))
+					if (!backfaceCull || pCamera->IsVisible(v0, normal))
 					{
-						if (distance < hitDistance)
+						XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
+						XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
+
+						float u = 0.0f;
+						float v = 0.0f;
+
+						// TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distold) // replaced with tweaked version
+
+						if (TriangleIntersects(r.position, r.direction, v0, v1, v2, distance, u, v))
 						{
-							XMVECTOR color;
-
-							if (m->IsTextured())
+							if (distance < hitDistance)
 							{
-								// texture sampler
-								XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
-									m->verticies[m->triangles[i].indx[0]].texcoord,
-									m->verticies[m->triangles[i].indx[1]].texcoord,
-									m->verticies[m->triangles[i].indx[2]].texcoord,
-									u, v);
-								color = m->pTextureSampler->SampleClosest(texcoord);
+								XMVECTOR color;
+
+								if (m->IsTextured())
+								{
+									// texture sampler
+									XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
+										m->verticies[m->triangles[i].indx[0]].texcoord,
+										m->verticies[m->triangles[i].indx[1]].texcoord,
+										m->verticies[m->triangles[i].indx[2]].texcoord,
+										u, v);
+									color = m->pTextureSampler->SampleClosest(texcoord);
+								}
+								else
+								{
+									// color
+									color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
+										m->verticies[m->triangles[i].indx[1]].color,
+										m->verticies[m->triangles[i].indx[2]].color,
+										u, v);
+								}
+
+								XMVECTOR ambient = color;
+								XMVECTOR lights = { 0,0,0,1 };
+
+								for (BELight* light : pScene->lights)
+								{
+									lights += (light->CalculateColor(normal) * color);
+								}
+
+								lights = lights / (float)pScene->lights.size();
+
+								XMVECTOR c = XMVectorSaturate(0.5f * ambient + 0.5f * lights);
+
+								pCanvas->buffer[y * stride + x] = c;
+								hitDistance = distance;
 							}
-							else
-							{
-								// color
-								color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
-									m->verticies[m->triangles[i].indx[1]].color,
-									m->verticies[m->triangles[i].indx[2]].color,
-									u, v);
-							}
-
-							XMVECTOR ambient = color;
-							XMVECTOR lights = { 0,0,0,1 };
-
-							for (unsigned int lindx = 0; lindx < pScene->lightCount; lindx++)
-							{
-								lights += (pScene->lights[lindx]->CalculateColor(normal) * color);
-							}
-
-							lights = lights / (float)pScene->lightCount;
-
-							XMVECTOR c = XMVectorSaturate(0.5f * ambient + 0.5f * lights);
-
-							pCanvas->buffer[y * stride + x] = c;
-							hitDistance = distance;
 						}
 					}
 				}
 			}
 		}
 	}
-	//if (hitDistance == pCamera->maxDistance) pCanvas->buffer[y * stride + x] = { 1,0,0,1 };
+
+	//if (hitDistance == pCamera->maxDistance) pCanvas->buffer[y * stride + x] = { 1,0,0,1 }; // set color on no hit
 }
 
 void BERenderPipelineRaytrace::Draw()

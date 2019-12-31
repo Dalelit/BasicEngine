@@ -417,7 +417,7 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Direct3D");
 	BECreateWindow(5, hInstance, L"Scanline DirectX window");
 
-	scene.Create();
+	scene.CreateSceneTestGround();
 
 	// for scanline rendering
 	pipeline[0] = new BERenderPipelineScanline(&scene, &camera, &backBuffer[0]);

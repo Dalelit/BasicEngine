@@ -1,18 +1,15 @@
 #pragma once
 #include "BEMesh.h"
+#include "BEMaterial.h"
 
 class BEEntity
 {
 public:
+	bool alive = true;
 	DirectX::XMVECTOR position = { 0,0,0,0 };
-	BEMesh* mesh = nullptr;
+	BEMaterial material; // to do: work out where this should be
 
-	inline void SetColor(DirectX::XMVECTOR color) { if (mesh) mesh->SetColor(color); }
-
-	inline void Translate(DirectX::XMVECTOR v) { position = DirectX::XMVectorAdd(position, v); if (mesh) mesh->Translate(v); }
-	inline void Scale(float f) { if (mesh) mesh->Scale(f); }
-	inline void Scale(DirectX::XMVECTOR v) { if (mesh) mesh->Scale(v); }
-
-	inline void Transform(DirectX::XMMATRIX m) { position = XMVector3Transform(position, m); if (mesh) mesh->Transform(m); };
+	BEEntity() = default;
+	BEEntity(DirectX::XMFLOAT3A _position);
 };
 

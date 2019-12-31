@@ -3,11 +3,7 @@
 BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity) :
 	pEntity(pEntity)
 {
-	if (pEntity->mesh)
-	{
-		buffer.textured = pEntity->mesh->IsTextured();
-	}
-	else buffer.textured = false; // to do: should this be an acceptable outcome?
+	buffer.textured = pEntity->material.IsTextured();
 
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
