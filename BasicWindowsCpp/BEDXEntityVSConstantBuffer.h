@@ -6,7 +6,8 @@ class BEDXEntityVSConstantBuffer : public BEDirectXConstantBuffer
 public:
 
 	struct Buffer {
-		DirectX::XMVECTOR position;
+		DirectX::XMMATRIX transform;
+		DirectX::XMMATRIX transformRotation;
 	};
 
 	BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity);

@@ -3,8 +3,6 @@
 BEDXEntityVSConstantBuffer::BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity) :
 	pEntity(pEntity)
 {
-	buffer.position = pEntity->position;
-
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
 	constBufferData.pSysMem = &buffer;
@@ -21,7 +19,8 @@ void BEDXEntityVSConstantBuffer::Update(BEDirectXDevice& device)
 {
 	HRESULT hr;
 
-	buffer.position = pEntity->position;
+	buffer.transform = XMMatrixTranspose(pEntity->GetTransform());
+	buffer.transformRotation = XMMatrixTranspose(pEntity->GetTransformRotation());
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 
 	BEDXRESOURCE_ERRORCHECK(hr)

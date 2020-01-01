@@ -1,9 +1,10 @@
 cbuffer sceneConstObj {
-	matrix transformation;
+	matrix cameraTransform;
 };
 
 cbuffer entityConstObj {
-	float4 entityPosition;
+	matrix entityTransform;
+	matrix entityTransformRotation;
 };
 
 struct VSOut {
@@ -17,7 +18,7 @@ VSOut main(float4 pos : Position, float4 nor : Normal, float4 col : Color, float
 {
 	VSOut result;
 
-	result.position = mul(entityPosition + pos, transformation);
+	result.position = mul(mul(pos, entityTransform), cameraTransform);
 	result.color = col;
 	result.normal = nor;
 	result.tc = texcoord;

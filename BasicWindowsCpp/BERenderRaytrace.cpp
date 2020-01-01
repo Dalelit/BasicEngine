@@ -130,7 +130,7 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	float px = (float)x * invWidthx2 - 1.0f;
 	float py = (float)y * invHeightx2 - 1.0f;
 
-	BECamera::Ray r = pCamera->RelativeScreenPositionToRay(px, py);
+	BECamera::Ray rayWorldSpace = pCamera->RelativeScreenPositionToRay(px, py);
 	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
 	float distance;
 
@@ -140,7 +140,11 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 		for (BEEntity* entity : model->entities) // loop on each instance of it
 		{
-			if (m && m->bounds.Intersects(r.position, r.direction)) // if it has a mesh, and we the ray intersects the bounds
+			BECamera::Ray rayModelSpace = rayWorldSpace;
+			XMMATRIX mtInv = XMMatrixInverse(nullptr, entity->GetTransform());
+			rayModelSpace.position = XMVector3Transform(rayWorldSpace.position, mtInv);
+
+			if (m->bounds.Intersects(rayModelSpace.position, rayModelSpace.direction)) // if the ray intersects the bounds
 			{
 				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
@@ -158,7 +162,7 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 						// TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distold) // replaced with tweaked version
 
-						if (TriangleIntersects(r.position, r.direction, v0, v1, v2, distance, u, v))
+						if (TriangleIntersects(rayModelSpace.position, rayModelSpace.direction, v0, v1, v2, distance, u, v))
 						{
 							if (distance < hitDistance)
 							{

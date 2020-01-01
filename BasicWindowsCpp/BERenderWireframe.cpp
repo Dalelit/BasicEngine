@@ -43,7 +43,8 @@ void BERenderPipelineWireframe::Draw()
 					BEVertex* tgt = screenSpaceVerticies;
 					for (unsigned int i = 0; i < m->vertCount; i++)
 					{
-						tgt->position = pCamera->WorldToScreen(entity->position + src->position);
+						XMVECTOR tgtPos = XMVector3Transform(src->position, entity->GetTransform());
+						tgt->position = pCamera->WorldToScreen(tgtPos);
 						tgt->color = src->color;
 						tgt++;
 						src++;

@@ -45,7 +45,7 @@ BECanvas backBuffer[BENUMBER_WINDOWS];
 BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
-BECamera camera({0,3,4}, {0,-2,-1});
+BECamera camera({0,3,4,1}, {0,-2,-1,1});
 BEScene scene;
 BERenderPipeline* pipeline[BENUMBER_WINDOWS];
 BETimer timers[BENUMBER_WINDOWS];
@@ -418,6 +418,7 @@ int WINAPI WinMain(
 	BECreateWindow(5, hInstance, L"Scanline DirectX window");
 
 	scene.CreateSceneTestGround();
+	scene.Update(0);
 
 	// for scanline rendering
 	pipeline[0] = new BERenderPipelineScanline(&scene, &camera, &backBuffer[0]);

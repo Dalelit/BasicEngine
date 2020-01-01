@@ -38,17 +38,21 @@ void BEScene::CreateSceneTestGround()
 	models.push_back(pModel);
 	pModel->pMesh = BEMeshPrimatives::Ground(10,10,10,10,-1.5f, -0.5f);
 	pModel->pMesh->pTextureSampler = s;
-	pEntity = pModel->CreateInstance();
-	entityRef.push_back(pEntity);
+	entityRef.push_back(pEntity = pModel->CreateInstance());
 
 	pModel = new BEModel();
 	models.push_back(pModel);
-	//pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
 	pModel->pMesh->SetColor({ 1,0,1,1 });
+	entityRef.push_back(pEntity = pModel->CreateInstance({ -2,0,0 }));
+	pEntity->components.emplace_back(new BEEntityComponentSpinAroundY(pEntity));
+
+	pModel = new BEModel();
+	models.push_back(pModel);
+	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
+	pModel->pMesh->SetColor({ 0,1,1,1 });
 	entityRef.push_back(pEntity = pModel->CreateInstance({ 2,0,0 }));
 	pEntity->components.emplace_back(new BEEntityComponentOrbit(pEntity));
-	entityRef.push_back(pModel->CreateInstance({ -2,0,0 }));
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = { 1,1,1,1 };
