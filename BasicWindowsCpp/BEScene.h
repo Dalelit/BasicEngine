@@ -10,8 +10,12 @@ public:
 	BEScene();
 	~BEScene();
 
+	DirectX::XMVECTOR ambientLight = { 0.2f, 0.2f, 0.2f, 1.0f };
+
+	BELightDirectional directionalLight;
+
 	std::vector<BEModel*> models;
-	std::vector<BELight*> lights;
+	std::vector<BEPointLight*> lights;
 	std::vector<BETexture*> textures;
 	std::vector<BESampler*> samplers;
 

@@ -16,15 +16,15 @@ public:
 		current += deltatime;
 		float nx = radius * cosf(current * speed);
 		float nz = radius * sinf(current * speed);
-		parent->Translate((nx - x), 0.0f, (nz - z));
+		pEntity->Translate((nx - x), 0.0f, (nz - z));
 		x = nx;
 		z = nz;
 	}
 
 private:
-	float current;
-	float x;
-	float z;
+	float current = 0.0f;
+	float x = 0.0f;
+	float z = 0.0f;
 };
 
 class BEEntityComponentSpin : public BEEntityComponent
@@ -49,7 +49,7 @@ public:
 	}
 
 	void Update(float deltatime) {
-		parent->Rotate(deltatime * pitchSpeed, deltatime * yawSpeed, deltatime * rollSpeed);
+		pEntity->Rotate(deltatime * pitchSpeed, deltatime * yawSpeed, deltatime * rollSpeed);
 	}
 
 	void Randomise() {

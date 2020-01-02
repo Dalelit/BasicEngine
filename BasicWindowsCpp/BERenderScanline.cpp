@@ -129,22 +129,16 @@ void BERenderPipelineScanline::Draw()
 							XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
 							// sort out lighiting value
-							XMVECTOR lights = { 0,0,0,0 };
-							for (BELight* light : pScene->lights)
-							{
-								lights += light->CalculateColor(normal);
-							}
-
-							lights = lights / (float)pScene->lights.size();
-							lights *= 0.5f; // to do : need to sort out correct ratios
+							XMVECTOR lights = pScene->ambientLight;
+							lights += pScene->directionalLight.CalculateColorInWorldSpace(normal);
 
 							XMVECTOR c0 = screenSpaceVerticies[m->triangles[i].indx[0]].color;
 							XMVECTOR c1 = screenSpaceVerticies[m->triangles[i].indx[1]].color;
 							XMVECTOR c2 = screenSpaceVerticies[m->triangles[i].indx[2]].color;
 
-							c0 = XMVectorSaturate(c0 * 0.5f + lights);
-							c1 = XMVectorSaturate(c1 * 0.5f + lights);
-							c2 = XMVectorSaturate(c2 * 0.5f + lights);
+							c0 = XMVectorSaturate(c0 * lights);
+							c1 = XMVectorSaturate(c1 * lights);
+							c2 = XMVectorSaturate(c2 * lights);
 
 							XMFLOAT2 tc0 = m->verticies[m->triangles[i].indx[0]].texcoord;
 							XMFLOAT2 tc1 = m->verticies[m->triangles[i].indx[1]].texcoord;

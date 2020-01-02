@@ -42,6 +42,6 @@ void BEEntity::Update(float deltaTime)
 }
 
 BEEntityComponent::BEEntityComponent(BEEntity* pEntity) :
-	parent(pEntity)
+	pEntity(pEntity)
 {
 }

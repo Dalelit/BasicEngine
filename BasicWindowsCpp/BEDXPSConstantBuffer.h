@@ -9,6 +9,7 @@ class BEDXPSConstantBuffer : public BEDirectXConstantBuffer
 {
 public:
 	struct Buffer {
+		DirectX::XMVECTOR ambientColor;
 		DirectX::XMVECTOR lightDirection;
 		DirectX::XMVECTOR lightColor;
 	};

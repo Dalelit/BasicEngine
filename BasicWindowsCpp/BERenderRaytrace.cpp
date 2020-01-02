@@ -149,8 +149,9 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 				{
 					XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
 					XMVECTOR n0 = m->verticies[m->triangles[i].indx[0]].normal;
+					XMVECTOR n0ws = entity->ModelToWorldDirection(n0);
 
-					if (!backfaceCull || pCamera->IsVisible(entity->ModelToWorldPosition(v0), entity->ModelToWorldDirection(n0)))
+					if (!backfaceCull || pCamera->IsVisible(entity->ModelToWorldPosition(v0), n0ws))
 					{
 						XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
 						XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
@@ -189,17 +190,10 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 								XMVECTOR normal = XMVectorBaryCentric(n0, n1, n2, u, v);
 
-								XMVECTOR ambient = color;
-								XMVECTOR lights = { 0,0,0,1 };
+								XMVECTOR lights = pScene->ambientLight;
+								lights += pScene->directionalLight.CalculateColorInWorldSpace(n0ws);
 
-								for (BELight* light : pScene->lights)
-								{
-									lights += (light->CalculateColor(normal) * color);
-								}
-
-								lights = lights / (float)pScene->lights.size();
-
-								XMVECTOR c = XMVectorSaturate(0.5f * ambient + 0.5f * lights);
+								XMVECTOR c = XMVectorSaturate(lights * color);
 
 								pCanvas->buffer[y * stride + x] = c;
 								hitDistance = distance;
