@@ -140,29 +140,29 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 		for (BEEntity* entity : model->entities) // loop on each instance of it
 		{
-			BECamera::Ray rayModelSpace = rayWorldSpace;
-			XMMATRIX mtInv = XMMatrixInverse(nullptr, entity->GetTransform());
-			rayModelSpace.position = XMVector3Transform(rayWorldSpace.position, mtInv);
+			XMVECTOR rayModelSpacePosition = entity->WorldToModelPosition(rayWorldSpace.position);
+			XMVECTOR rayModelSpaceDirection = XMVector3Normalize(entity->WorldToModelDirection(rayWorldSpace.direction));
 
-			if (m->bounds.Intersects(rayModelSpace.position, rayModelSpace.direction)) // if the ray intersects the bounds
+			if (m->bounds.Intersects(rayModelSpacePosition, rayModelSpaceDirection)) // if the ray intersects the bounds
 			{
 				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
-					//XMVECTOR normal = m->triangles[i].normal;
-					XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
 					XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
+					XMVECTOR n0 = m->verticies[m->triangles[i].indx[0]].normal;
 
-					if (!backfaceCull || pCamera->IsVisible(v0, normal))
+					if (!backfaceCull || pCamera->IsVisible(entity->ModelToWorldPosition(v0), entity->ModelToWorldDirection(n0)))
 					{
 						XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
 						XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
+						XMVECTOR n1 = m->verticies[m->triangles[i].indx[1]].normal;
+						XMVECTOR n2 = m->verticies[m->triangles[i].indx[2]].normal;
 
 						float u = 0.0f;
 						float v = 0.0f;
 
 						// TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distold) // replaced with tweaked version
 
-						if (TriangleIntersects(rayModelSpace.position, rayModelSpace.direction, v0, v1, v2, distance, u, v))
+						if (TriangleIntersects(rayModelSpacePosition, rayModelSpaceDirection, v0, v1, v2, distance, u, v))
 						{
 							if (distance < hitDistance)
 							{
@@ -186,6 +186,8 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 										m->verticies[m->triangles[i].indx[2]].color,
 										u, v);
 								}
+
+								XMVECTOR normal = XMVectorBaryCentric(n0, n1, n2, u, v);
 
 								XMVECTOR ambient = color;
 								XMVECTOR lights = { 0,0,0,1 };

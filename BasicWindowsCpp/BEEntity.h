@@ -53,8 +53,15 @@ public:
 	inline DirectX::XMMATRIX GetTransform() { return transform; }
 	inline DirectX::XMMATRIX GetTransformRotation() { return transformRotation; }
 
+	// note: assuming this isn't called much so not recalculating it.
+	inline DirectX::XMMATRIX GetTransformInverse() { return DirectX::XMMatrixInverse(nullptr, transform); }
+	inline DirectX::XMMATRIX GetTransformRotationInverse() { return DirectX::XMMatrixInverse(nullptr, transformRotation); }
+
 	inline DirectX::XMVECTOR ModelToWorldPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, transform); }
-	inline DirectX::XMVECTOR ModelToWorldDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, transformRotation); }
+	inline DirectX::XMVECTOR ModelToWorldDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, transformRotation); } // to do: normialise?
+
+	inline DirectX::XMVECTOR WorldToModelPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, GetTransformInverse()); }
+	inline DirectX::XMVECTOR WorldToModelDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, GetTransformRotationInverse()); } // to do: normialise?
 
 protected:
 	DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
