@@ -35,6 +35,8 @@ public:
 	unsigned int lBufferSize = 0;
 	unsigned int* lines = nullptr;
 
+	DirectX::XMVECTOR defaultColor = {1,1,1,1};
+
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
 	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals, BEMeshTopology _topology);
 	~BEMesh();

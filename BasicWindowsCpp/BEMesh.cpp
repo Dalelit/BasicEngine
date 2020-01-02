@@ -39,6 +39,7 @@ BEMesh::BEMesh(std::vector<XMFLOAT3> _verticies, std::vector<XMFLOAT3> _normals,
 		XMVECTOR position = XMLoadFloat3(&v);
 		position.m128_f32[3] = 1.0f;
 		verticies[i].position = position;
+		verticies[i].color = defaultColor;
 		i++;
 	}
 

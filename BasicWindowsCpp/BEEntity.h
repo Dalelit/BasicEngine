@@ -21,8 +21,9 @@ public:
 	BEEntity* parent = nullptr;
 	std::vector<BEEntity*> children;
 
+	DirectX::XMVECTOR scale = { 1,1,1,1 };
 	DirectX::XMVECTOR position = { 0,0,0,1 };
-	DirectX::XMVECTOR rotation = {};
+	DirectX::XMVECTOR rotation = { 0,0,0,1 };
 	
 	BEMaterial material; // to do: work out where this should be
 
@@ -34,6 +35,8 @@ public:
 	std::vector<BEEntityComponent*> components;
 
 	void Update(float deltaTime);
+
+	void SetScale(DirectX::XMVECTOR _scale) { scale = _scale; }
 
 	void Translate(float x, float y, float z) {
 		position.m128_f32[0] += x;
@@ -47,8 +50,11 @@ public:
 		rotation.m128_f32[2] += roll;
 	}
 
-	inline DirectX::XMMATRIX GetTransform() { return transform; };
-	inline DirectX::XMMATRIX GetTransformRotation() { return transformRotation; };
+	inline DirectX::XMMATRIX GetTransform() { return transform; }
+	inline DirectX::XMMATRIX GetTransformRotation() { return transformRotation; }
+
+	inline DirectX::XMVECTOR ModelToWorldPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, transform); }
+	inline DirectX::XMVECTOR ModelToWorldDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, transformRotation); }
 
 protected:
 	DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();

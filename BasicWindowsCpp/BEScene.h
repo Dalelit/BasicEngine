@@ -19,7 +19,7 @@ public:
 
 	void Update(float deltaTime);
 
-	void CreateSceneTestGround();
-
-	void CreateSceneTestCube();
+	void CreateSceneTest1();
+	void CreateSceneTest2();
+	void CreateSceneTest3();
 };

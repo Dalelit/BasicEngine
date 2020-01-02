@@ -28,7 +28,7 @@ void BEEntity::Update(float deltaTime)
 		transformRotation = DirectX::XMMatrixIdentity();
 	}
 
-	transformRotation = XMMatrixRotationRollPitchYawFromVector(rotation);
+	transformRotation = XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation);
 	transform *= transformRotation;
 	transform *= XMMatrixTranslationFromVector(position);
 

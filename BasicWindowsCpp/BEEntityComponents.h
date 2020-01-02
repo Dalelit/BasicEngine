@@ -1,5 +1,6 @@
 #pragma once
 #include "BEEntity.h"
+#include <random>
 
 class BEEntityComponentOrbit : public BEEntityComponent
 {
@@ -26,19 +27,42 @@ private:
 	float z;
 };
 
-class BEEntityComponentSpinAroundY : public BEEntityComponent
+class BEEntityComponentSpin : public BEEntityComponent
 {
 public:
-	float speed = 3.0f;
+	float pitchSpeed = 0.0f;
+	float yawSpeed   = 0.0f;
+	float rollSpeed  = 0.0f;
 
-	BEEntityComponentSpinAroundY(BEEntity* pEntity) :
+	BEEntityComponentSpin(BEEntity* pEntity) :
 		BEEntityComponent(pEntity)
-	{}
+	{
+		Randomise();
+	}
+
+	BEEntityComponentSpin(BEEntity* pEntity, float pitchSpeed, float yawSpeed, float rollSpeed) :
+		BEEntityComponent(pEntity),
+		pitchSpeed(pitchSpeed),
+		yawSpeed(yawSpeed),
+		rollSpeed(rollSpeed)
+	{
+	}
 
 	void Update(float deltatime) {
-		parent->Rotate(0.0f, deltatime * speed, 0.0f);
+		parent->Rotate(deltatime * pitchSpeed, deltatime * yawSpeed, deltatime * rollSpeed);
+	}
+
+	void Randomise() {
+		std::random_device rd;
+		std::mt19937_64 gen(rd());
+		std::uniform_real_distribution<float> dist(0.0f, DirectX::XMConvertToRadians(90));
+
+		pitchSpeed = dist(gen);
+		yawSpeed = dist(gen);
+		rollSpeed = dist(gen);
 	}
 
 private:
 	float current = 0.0f;
+
 };

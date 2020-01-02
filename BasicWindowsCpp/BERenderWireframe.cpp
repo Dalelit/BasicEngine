@@ -33,8 +33,6 @@ void BERenderPipelineWireframe::Draw()
 
 		for (BEEntity* entity : model->entities) // loop on each instance of it
 		{
-			XMVECTOR* screenSpaceNormals = NULL;
-
 			if (m) // if it has a mesh
 			{
 				// create screen space version of all verticies
@@ -43,8 +41,9 @@ void BERenderPipelineWireframe::Draw()
 					BEVertex* tgt = screenSpaceVerticies;
 					for (unsigned int i = 0; i < m->vertCount; i++)
 					{
-						XMVECTOR tgtPos = XMVector3Transform(src->position, entity->GetTransform());
-						tgt->position = pCamera->WorldToScreen(tgtPos);
+						// to do: merge the matricies into a single transform
+						XMVECTOR tgtPos = entity->ModelToWorldPosition(src->position);	// model to world space
+						tgt->position = pCamera->WorldToScreen(tgtPos);					// world to screen space
 						tgt->color = src->color;
 						tgt++;
 						src++;
@@ -53,26 +52,28 @@ void BERenderPipelineWireframe::Draw()
 
 				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 				{
-					//XMVECTOR normal = m->triangles[i].normal;
-					XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
+					// get the normal for 1 vertex to see if it's visible... will get the rest later if needed
+					XMVECTOR n0 = m->verticies[m->triangles[i].indx[0]].normal;
+					n0 = XMVector3Normalize(entity->ModelToWorldDirection(n0)); // model to world direction
 
-					bool isVisible = pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal);
+					// to do: work out if there is a more efficient way?
+					bool isVisible = pCamera->IsVisible(entity->ModelToWorldPosition(m->verticies[m->triangles[i].indx[0]].position), n0);
 
 					if (!backfaceCull || isVisible)
 					{
+						XMVECTOR c = lineColor;
+
+						// get all the vertecies
 						XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
 						XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;
 						XMVECTOR v2 = screenSpaceVerticies[m->triangles[i].indx[2]].position;
 
-						XMVECTOR v0n = XMVector3Normalize(-v0);
-						XMVECTOR c = lineColor; // screenSpaceVerticies[m->triangles[i].indx[2]].color;
-
-						XMVECTOR ssNormal = XMVector3Normalize(XMVector3Cross((v1 - v0), (v2 - v0)));
-
 						// check it's in the screen bounds
 						if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1) || pCamera->OveralpsScreen(v2))
 						{
-							if (!backfaceCull && isVisible) // draw later
+							// draw back faces with different color now if culling them
+							// and draw full strength lines later
+							if (!backfaceCull && isVisible)
 							{
 								linesToDraw[lineCounter].v0 = v0;
 								linesToDraw[lineCounter].v1 = v1;
@@ -88,12 +89,19 @@ void BERenderPipelineWireframe::Draw()
 								pCanvas->DrawLineSafe(v2, v0, c);
 							}
 
-							//if (drawNormals)
-							//{
-							//	pCanvas->DrawLineSafe(v0, v0 + ssNormal, normalColor);
-							//	pCanvas->DrawLineSafe(v1, v1 + ssNormal, normalColor);
-							//	pCanvas->DrawLineSafe(v2, v2 + ssNormal, normalColor);
-							//}
+							if (drawNormals)
+							{
+								// get the rest of the normals
+								XMVECTOR n1 = m->verticies[m->triangles[i].indx[1]].normal;
+								XMVECTOR n2 = m->verticies[m->triangles[i].indx[2]].normal;
+								n0 = n0 * normalLength;
+								n1 = XMVector3Normalize(entity->ModelToWorldDirection(n1)) * normalLength;
+								n2 = XMVector3Normalize(entity->ModelToWorldDirection(n2)) * normalLength;
+
+								pCanvas->DrawLineSafe(v0, v0 + pCamera->WorldToScreen(n0), normalColor);
+								pCanvas->DrawLineSafe(v1, v1 + pCamera->WorldToScreen(n1), normalColor);
+								pCanvas->DrawLineSafe(v2, v2 + pCamera->WorldToScreen(n2), normalColor);
+							}
 						}
 					}
 				}
@@ -105,22 +113,6 @@ void BERenderPipelineWireframe::Draw()
 					pCanvas->DrawLineSafe(linesToDraw[i].v1, linesToDraw[i].v2, linesToDraw[i].color);
 					pCanvas->DrawLineSafe(linesToDraw[i].v2, linesToDraw[i].v0, linesToDraw[i].color);
 				}
-
-				// To do : fix line drawing
-				//unsigned int lindx = 0;
-				//while (lindx < m->lBufferSize)
-				//{
-				//	XMVECTOR v0 = screenSpaceVerticies[m->lines[lindx++]];
-				//	XMVECTOR v1 = screenSpaceVerticies[m->lines[lindx++]];
-
-				//	XMVECTOR c = pScene->entities[eindx]->color;
-
-				//	// check it's in the screen bounds
-				//	if (pCamera->OveralpsScreen(v0) || pCamera->OveralpsScreen(v1))
-				//	{
-				//		pCanvas->DrawLineSafe(v0, v1, c);
-				//	}
-				//}
 			}
 		}
 	}

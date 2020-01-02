@@ -21,16 +21,20 @@ void BEScene::Update(float deltaTime)
 	{
 		entity->Update(deltaTime);
 	}
+
+	for (BELight* light : lights)
+	{
+		light->Update(deltaTime);
+	}
 }
 
-void BEScene::CreateSceneTestGround()
+void BEScene::CreateSceneTest1()
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
 
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	textures.push_back(t);
-
 	BESampler* s = new BESampler(*t);
 	samplers.push_back(s);
 
@@ -45,7 +49,7 @@ void BEScene::CreateSceneTestGround()
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
 	pModel->pMesh->SetColor({ 1,0,1,1 });
 	entityRef.push_back(pEntity = pModel->CreateInstance({ -2,0,0 }));
-	pEntity->components.emplace_back(new BEEntityComponentSpinAroundY(pEntity));
+	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 
 	pModel = new BEModel();
 	models.push_back(pModel);
@@ -60,17 +64,79 @@ void BEScene::CreateSceneTestGround()
 	lights.push_back(ld);
 }
 
-void BEScene::CreateSceneTestCube()
+void BEScene::CreateSceneTest2()
 {
-	BEModel* pModel = new BEModel();
-	models.push_back(pModel);
-	pModel->pMesh = BEMeshPrimatives::CubeMesh();
+	BEModel* pModel;
+	BEEntity* pEntity;
 
-	entityRef.push_back(pModel->CreateInstance());
+	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled
+	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
+	textures.push_back(t);
+	BESampler* s = new BESampler(*t);
+	samplers.push_back(s);
+
+	pModel = new BEModel();
+	models.push_back(pModel);
+	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
+	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
+	pModel->pMesh->SetColor({ 0,0.5,1,1 });
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
+	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
+	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
+	pEntity->Translate(2, 0, 0);
+	pEntity->SetScale({0.5, 0.5, 0.5, 1});
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
+	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
+	pEntity->Translate(-2, 0, 0);
+	pEntity->SetScale({ 1.5, 1.5, 1.5, 1 });
 
 	BELightDirectional* ld = new BELightDirectional();
 	ld->color = { 1,1,1,1 };
 	ld->SetDirection({ -4, -2, -3, 1 });
 	lights.push_back(ld);
+}
+
+void BEScene::CreateSceneTest3()
+{
+	BEModel* pModel;
+	BEEntity* pEntity;
+
+	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled
+	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
+	textures.push_back(t);
+	BESampler* s = new BESampler(*t);
+	samplers.push_back(s);
+
+	pModel = new BEModel();
+	models.push_back(pModel);
+	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
+	pModel->pMesh->SetColor({ 0,0.5,1,1 });
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity, 0,-1,0));
+	pEntity->Translate(2, 0, 0);
+	pEntity->SetScale({ 2, 2, 2, 1 });
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity, 0,1,0));
+	pEntity->Translate(-1, 0, 0);
+
+	BELightDirectional* ld = new BELightDirectional();
+	ld->color = { 1,1,1,1 };
+	ld->SetDirection({ -4, -2, -3, 1 });
+	lights.push_back(ld);
+	ld->components.emplace_back(new BEEntityComponentOrbit(pEntity));
 }
 

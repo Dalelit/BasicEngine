@@ -37,6 +37,9 @@ RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is cal
 
 // global control variables
 bool running = true;
+bool doUpdate = true;
+bool raytraceIsRunning = false;
+bool raytraceKeepRunning = true;
 
 // global back buffer variables
 int bufferWidth = 0;
@@ -131,6 +134,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			running = false;
 			break;
 		case VK_SPACE:
+			doUpdate = !doUpdate;
 			break;
 		case VK_UP:
 			//camera.Pan(0, 0.1f, 0);
@@ -168,6 +172,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case 'R': //0x52: // R
 			pipeline[1]->restartLoop = true;
+			break;
+		case 'P':
+			raytraceKeepRunning = !raytraceKeepRunning;
 			break;
 		}
 		break;
@@ -302,6 +309,8 @@ DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
 
 DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 {
+	raytraceIsRunning = true;
+
 	DWORD threadIds[BE_RAYTRACE_THREADS] = {};
 	HANDLE threadHandles[BE_RAYTRACE_THREADS] = {};
 
@@ -313,35 +322,38 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	BEWriteOverlayToWindow(resultIndx, L"Starting...");
 	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 
-	// create the subsections
-	unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
-	unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
-
-	BERayTraceSubsection arg;
-	arg.indx = indx;
-	arg.available = true;
-	arg.height = sectionHeight;
-	arg.width = sectionWidth;
-
-	for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
+	// create the subsections if not already created
+	if (rayTraceArgs.size() == 0)
 	{
-		arg.yStart = y * sectionHeight;
-		for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
+		unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
+		unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
+
+		BERayTraceSubsection arg;
+		arg.indx = indx;
+		arg.available = true;
+		arg.height = sectionHeight;
+		arg.width = sectionWidth;
+
+		for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
 		{
-			arg.xStart = x * sectionWidth;
-			rayTraceArgs.emplace_back(arg);
+			arg.yStart = y * sectionHeight;
+			for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
+			{
+				arg.xStart = x * sectionWidth;
+				rayTraceArgs.emplace_back(arg);
+			}
 		}
+		std::random_device rd;
+		std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
+		// To do: check the end cases for the args width and height
 	}
-	std::random_device rd;
-	std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
-	// To do: check the end cases for the args width and height
 
 	clock_t lastTime = clock();
 
 	rayTraceMutex = CreateMutex(NULL, FALSE, NULL);
 	if (rayTraceMutex == NULL) throw "Error creating raytrace mutex"; // to do: better error checking
 
-	while (running)
+	while (running && raytraceKeepRunning)
 	{
 		pipeline[indx]->restartLoop = false;
 		pipeline[indx]->ResetStats();
@@ -378,6 +390,8 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	}
 
 	CloseHandle(rayTraceMutex);
+
+	raytraceIsRunning = false;
 
 	return 0;
 }
@@ -417,7 +431,9 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Direct3D");
 	BECreateWindow(5, hInstance, L"Scanline DirectX window");
 
-	scene.CreateSceneTestGround();
+	//scene.CreateSceneTest1();
+	//scene.CreateSceneTest2();
+	scene.CreateSceneTest3();
 	scene.Update(0);
 
 	// for scanline rendering
@@ -427,6 +443,8 @@ int WINAPI WinMain(
 	// for raytrace rendering
 	pipeline[1] = new BERenderPipelineRaytrace(&scene, &camera, &backBuffer[1]);
 	BERenderPipelineRaytrace* pRT = (BERenderPipelineRaytrace*)pipeline[1];
+	DWORD threadId;
+	HANDLE thread = nullptr;
 
 	// for wireframe rendering
 	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
@@ -447,14 +465,7 @@ int WINAPI WinMain(
 
 	// ready to go...
 
-	// put ray tracer in a separate thread
-	DWORD threadId;
-	int arg = 1;
-	HANDLE thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
-	if (thread == NULL) return -1;
-
 	BETimer deltaTime;
-
 	clock_t frametime = 1000 / 60; // 60 frames a second
 	clock_t sleeptime = 0;
 
@@ -470,7 +481,7 @@ int WINAPI WinMain(
 
 		// update loop
 		float dt = deltaTime.DeltaTime();
-		scene.Update(dt);
+		if (doUpdate) scene.Update(dt);
 
 		//
 		// scanline..........
@@ -486,8 +497,17 @@ int WINAPI WinMain(
 		BEWriteOverlayToWindow(0, swbuffer);
 
 		//
-		// raytrace.......... running in a thread so showing only
+		// raytrace..........
 		//
+		if (raytraceKeepRunning && !raytraceIsRunning)
+		{
+			if (thread != NULL) CloseHandle(thread);
+			
+			// put ray tracer in a separate thread
+			int arg = 1;
+			thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
+		}
+
 		BEDrawBackBuffer(1);
 		pipeline[1]->showBuffer = false;
 
@@ -536,8 +556,11 @@ int WINAPI WinMain(
 	}
 
 	pipeline[1]->exitLoop = true; // tell it to stop!
-	WaitForSingleObject(thread, 3000);
-	CloseHandle(thread);
+	if (thread != NULL)
+	{
+		WaitForSingleObject(thread, 3000);
+		CloseHandle(thread);
+	}
 
 	BECleanupWindow(0);
 	BECleanupWindow(1);

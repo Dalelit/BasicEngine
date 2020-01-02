@@ -103,8 +103,9 @@ void BERenderPipelineScanline::Draw()
 						BEVertex* tgt = screenSpaceVerticies;
 						for (unsigned int i = 0; i < m->vertCount; i++)
 						{
-							XMVECTOR tgtPos = XMVector3Transform(src->position, entity->GetTransform());
-							tgt->position = pCamera->WorldToScreen(tgtPos);
+							// to do: merge the matricies into a single transform
+							XMVECTOR tgtPos = entity->ModelToWorldPosition(src->position);	// model to world space
+							tgt->position = pCamera->WorldToScreen(tgtPos);					// world to screen space
 							tgt->color = src->color;
 							tgt++;
 							src++;
@@ -113,9 +114,15 @@ void BERenderPipelineScanline::Draw()
 
 					for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
 					{
-						XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal; // to do: only using the first normal for now
+						// to do: only using 1 normal for lighting at the moment
+						// get the normal for 1 vertex to see if it's visible... will get the rest later if needed
+						XMVECTOR normal = m->verticies[m->triangles[i].indx[0]].normal;
+						normal = XMVector3Normalize(entity->ModelToWorldDirection(normal)); // model to world direction
 
-						if (pCamera->IsVisible(m->verticies[m->triangles[i].indx[0]].position, normal))
+						// to do: work out if there is a more efficient way?
+						bool isVisible = pCamera->IsVisible(entity->ModelToWorldPosition(m->verticies[m->triangles[i].indx[0]].position), normal);
+
+						if (isVisible)
 						{
 							XMVECTOR v0 = screenSpaceVerticies[m->triangles[i].indx[0]].position;
 							XMVECTOR v1 = screenSpaceVerticies[m->triangles[i].indx[1]].position;

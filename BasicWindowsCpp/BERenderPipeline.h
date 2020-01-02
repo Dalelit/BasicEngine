@@ -110,7 +110,7 @@ public:
 	void DrawByLine();
 	void DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
 
-	virtual void ResetStats() { raysProcessed = 0; };
+	void ResetStats() { raysProcessed = 0; };
 
 	inline bool TriangleIntersects(DirectX::FXMVECTOR Origin, DirectX::FXMVECTOR Direction, DirectX::FXMVECTOR V0, DirectX::GXMVECTOR V1, DirectX::HXMVECTOR V2, float& Dist, float& _u, float& _v);
 
@@ -128,13 +128,14 @@ private:
 class BERenderPipelineWireframe : public BERenderPipeline
 {
 public:
-	bool drawNormals = false;
 	DirectX::XMVECTOR lineColor = { 1.0f, 1.0f, 1.0f };
-	DirectX::XMVECTOR backlineColor = { 0.25f, 0.25f, 0.25f };
-	DirectX::XMVECTOR normalColor = { 0.5f, 0.5f, 0.5f };
 
 	bool backfaceCull = false;
-	//float backfaceColorStrength = 0.25f;
+	DirectX::XMVECTOR backlineColor = { 0.25f, 0.25f, 0.25f };
+
+	bool drawNormals = false;
+	float normalLength = 0.5f;
+	DirectX::XMVECTOR normalColor = { 0.5f, 0.3f, 0.3f };
 
 	BERenderPipelineWireframe(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();

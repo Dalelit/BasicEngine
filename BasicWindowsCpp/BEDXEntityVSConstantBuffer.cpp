@@ -19,6 +19,7 @@ void BEDXEntityVSConstantBuffer::Update(BEDirectXDevice& device)
 {
 	HRESULT hr;
 
+	// to do: merge the camera and model matricies into a single matrix transform
 	buffer.transform = XMMatrixTranspose(pEntity->GetTransform());
 	buffer.transformRotation = XMMatrixTranspose(pEntity->GetTransformRotation());
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
