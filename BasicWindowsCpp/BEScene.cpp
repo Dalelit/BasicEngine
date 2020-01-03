@@ -32,10 +32,16 @@ void BEScene::CreateSceneTest1()
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
+	BEPointLight* pLight;
 
 	ambientLight = {0.1f,0.1f,0.1f,1.0f};
 	directionalLight.color = { 1,1,1,1 };
 	directionalLight.SetDirection({ -4, -2, -3, 1 });
+
+	pLight = new BEPointLight();
+	lights.push_back(pLight);
+	pLight->position = { 2,2,2,1 };
+	pLight->color = { 1.0f,0.1f,0.1f,1.0f };
 
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	textures.push_back(t);
@@ -58,7 +64,7 @@ void BEScene::CreateSceneTest1()
 	pModel = new BEModel();
 	models.push_back(pModel);
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
-	pModel->pMesh->SetColor({ 0,1,1,1 });
+	pModel->pMesh->SetColor({ 0.1f,1,1,1 });
 	entityRef.push_back(pEntity = pModel->CreateInstance({ 2,0,0 }));
 	pEntity->components.emplace_back(new BEEntityComponentOrbit(pEntity));
 }
@@ -67,10 +73,16 @@ void BEScene::CreateSceneTest2()
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
+	BEPointLight* pLight;
 
 	ambientLight = { 0.1f,0.1f,0.1f,1.0f };
 	directionalLight.color = { 1,1,1,1 };
 	directionalLight.SetDirection({ -4, -2, -3, 1 });
+
+	pLight = new BEPointLight();
+	lights.push_back(pLight);
+	pLight->position = {4,4,4,1};
+	pLight->color = {0.8f,0,0,1};
 
 	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
@@ -82,7 +94,7 @@ void BEScene::CreateSceneTest2()
 	models.push_back(pModel);
 	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
-	pModel->pMesh->SetColor({ 0,0.5,1,1 });
+	pModel->pMesh->SetColor({ 0.1f,0.5f,1.0f,1.0f });
 
 	pEntity = pModel->CreateInstance();
 	entityRef.push_back(pEntity);
@@ -108,10 +120,16 @@ void BEScene::CreateSceneTest3()
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
+	BEPointLight* pLight;
 
 	ambientLight = { 0.1f,0.1f,0.1f,1.0f };
-	directionalLight.color = { 0.5f,0.5f,0.5f,1 };
+	directionalLight.color = { 0.1f,0.1f,1.0f,1.0f };
 	directionalLight.SetDirection({ 4, -2, -3, 1 });
+
+	pLight = new BEPointLight();
+	lights.push_back(pLight);
+	pLight->position = { 2,2,2,1 };
+	pLight->color = { 1.0f,0.1f,0.1f,1.0f };
 
 	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
@@ -122,17 +140,17 @@ void BEScene::CreateSceneTest3()
 	pModel = new BEModel();
 	models.push_back(pModel);
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
-	pModel->pMesh->SetColor({ 0,0.5,1,1 });
+	pModel->pMesh->SetColor({ 0.1f,0.5f,1.0f,1.0f });
 
 	pEntity = pModel->CreateInstance();
 	entityRef.push_back(pEntity);
 	//pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity, 0,-1,0));
-	pEntity->Translate(2, 0, 0);
+	pEntity->Translate(3, 0, 0);
 	pEntity->SetScale({ 2, 2, 2, 1 });
 
 	pEntity = pModel->CreateInstance();
 	entityRef.push_back(pEntity);
 	//pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity, 0,1,0));
-	pEntity->Translate(-1, 0, 0);
+	pEntity->Translate(-2, 0, 0);
 }
 

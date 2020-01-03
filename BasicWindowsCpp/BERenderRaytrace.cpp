@@ -188,10 +188,17 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 										u, v);
 								}
 
-								XMVECTOR normal = XMVectorBaryCentric(n0, n1, n2, u, v);
+								XMVECTOR positionWS = XMVectorBaryCentric(v0, v1, v2, u, v);
+								XMVECTOR normalWS = XMVectorBaryCentric(n0, n1, n2, u, v);
 
 								XMVECTOR lights = pScene->ambientLight;
-								lights += pScene->directionalLight.CalculateColorInWorldSpace(n0ws);
+								lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS);
+
+								for (BEPointLight* pLight : pScene->lights)
+								{
+									// to do: temp lighting to test it out. Will replace with proper ray casting.
+									lights += pLight->CalculateColorInWorldSpace(positionWS, normalWS);
+								}
 
 								XMVECTOR c = XMVectorSaturate(lights * color);
 

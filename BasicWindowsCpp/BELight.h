@@ -5,8 +5,13 @@ class BEPointLight : public BEEntity
 {
 public:
 	DirectX::XMVECTOR color = { 0.5,0.5,0.5,1 };
+	float maxDistance = 100.0f;
 
-	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR point, DirectX::XMVECTOR normal);
+	// picking values from here... http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+	float linear = 0.045f;
+	float quadratic = 0.0075f;
+
+	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal);
 };
 
 class BELightAmbient
@@ -26,7 +31,6 @@ public:
 	BELightDirectional() = default;
 	BELightDirectional(DirectX::XMVECTOR color) : color(color) {};
 
-	//DirectX::XMVECTOR CalculateColorInModelSpace(DirectX::XMVECTOR normal);
 	inline DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal) {
 		return Calculate(direction, normal);
 	}
