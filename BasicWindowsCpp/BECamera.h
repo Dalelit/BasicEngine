@@ -6,7 +6,7 @@ class BECamera : public BEEntity
 public:
 	struct Ray
 	{
-		DirectX::XMVECTOR position;
+		DirectX::XMVECTOR origin;
 		DirectX::XMVECTOR direction;
 	};
 

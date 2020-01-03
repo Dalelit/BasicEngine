@@ -36,8 +36,8 @@ void BECamera::LookAt(XMVECTOR target)
 BECamera::Ray BECamera::RelativeScreenPositionToRay(float x, float y)
 {
 	Ray r;
-	r.position = centre + x * right + y * upScaled;
-	r.direction = XMVector3Normalize(r.position - position);
+	r.origin = centre + x * right + y * upScaled;
+	r.direction = XMVector3Normalize(r.origin - position);
 
 	return r;
 }

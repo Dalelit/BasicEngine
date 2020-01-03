@@ -1,113 +1,8 @@
 #include "BERenderPipeline.h"
+#include "BERaytrace.h"
 #include <DirectXCollision.h>
 
 using namespace DirectX;
-
-// Taken the code from DirectXCollision.inl for TriangleTests::Intersects
-// then added the barycentric cooridinates of the intersection to the signature and returned them.
-// To Do: maybe actually understand this!
-inline bool BERenderPipelineRaytrace::TriangleIntersects(FXMVECTOR Origin, FXMVECTOR Direction, FXMVECTOR V0, GXMVECTOR V1, HXMVECTOR V2, float& Dist, float& _u, float& _v)
-{
-	assert(DirectX::Internal::XMVector3IsUnit(Direction));
-
-	XMVECTOR Zero = XMVectorZero();
-
-	XMVECTOR e1 = XMVectorSubtract(V1, V0);
-	XMVECTOR e2 = XMVectorSubtract(V2, V0);
-
-	// p = Direction ^ e2;
-	XMVECTOR p = XMVector3Cross(Direction, e2);
-
-	// det = e1 * p;
-	XMVECTOR det = XMVector3Dot(e1, p);
-
-	XMVECTOR u, v, t;
-
-	if (XMVector3GreaterOrEqual(det, g_RayEpsilon))
-	{
-		// Determinate is positive (front side of the triangle).
-		XMVECTOR s = XMVectorSubtract(Origin, V0);
-
-		// u = s * p;
-		u = XMVector3Dot(s, p);
-
-		XMVECTOR NoIntersection = XMVectorLess(u, Zero);
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(u, det));
-
-		// q = s ^ e1;
-		XMVECTOR q = XMVector3Cross(s, e1);
-
-		// v = Direction * q;
-		v = XMVector3Dot(Direction, q);
-
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(v, Zero));
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(XMVectorAdd(u, v), det));
-
-		// t = e2 * q;
-		t = XMVector3Dot(e2, q);
-
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(t, Zero));
-
-		if (XMVector4EqualInt(NoIntersection, XMVectorTrueInt()))
-		{
-			Dist = 0.f;
-			return false;
-		}
-	}
-	else if (XMVector3LessOrEqual(det, g_RayNegEpsilon))
-	{
-		// Determinate is negative (back side of the triangle).
-		XMVECTOR s = XMVectorSubtract(Origin, V0);
-
-		// u = s * p;
-		u = XMVector3Dot(s, p);
-
-		XMVECTOR NoIntersection = XMVectorGreater(u, Zero);
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(u, det));
-
-		// q = s ^ e1;
-		XMVECTOR q = XMVector3Cross(s, e1);
-
-		// v = Direction * q;
-		v = XMVector3Dot(Direction, q);
-
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(v, Zero));
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(XMVectorAdd(u, v), det));
-
-		// t = e2 * q;
-		t = XMVector3Dot(e2, q);
-
-		NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(t, Zero));
-
-		if (XMVector4EqualInt(NoIntersection, XMVectorTrueInt()))
-		{
-			Dist = 0.f;
-			return false;
-		}
-	}
-	else
-	{
-		// Parallel ray.
-		Dist = 0.f;
-		return false;
-	}
-
-	t = XMVectorDivide(t, det);
-
-	// (u / det) and (v / dev) are the barycentric cooridinates of the intersection.
-	u /= det;
-	v /= det;
-
-	// Store the x-component to *pDist
-	XMStoreFloat(&Dist, t);
-	XMStoreFloat(&_u, u);
-	XMStoreFloat(&_v, v);
-
-	return true;
-}
-
-
-
 
 BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 {
@@ -125,94 +20,65 @@ BERenderPipelineRaytrace::~BERenderPipelineRaytrace()
 {
 }
 
+// to do: sampling?
 void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 {
 	float px = (float)x * invWidthx2 - 1.0f;
 	float py = (float)y * invHeightx2 - 1.0f;
 
-	BECamera::Ray rayWorldSpace = pCamera->RelativeScreenPositionToRay(px, py);
-	float hitDistance = pCamera->maxDistance; // to do: what distance is the max starting?
-	float distance;
+	BECamera::Ray rayWorldSpace = pCamera->RelativeScreenPositionToRay(px, py); // create the ray
 
-	for (BEModel* model : pScene->models)
+	float hitDistance = pCamera->maxDistance; // to do: what distance is good for the starting max?
+
+	BERaytraceHit hitInfo;
+
+	// if we hit, work out the color.
+	if (BERaytrace::RayHit(pScene, pCamera, rayWorldSpace.origin, rayWorldSpace.direction, hitDistance, hitInfo))
 	{
-		BEMesh* m = model->pMesh; // get it's mesh
+		XMVECTOR color;
 
-		for (BEEntity* entity : model->entities) // loop on each instance of it
+		if (hitInfo.pModel->pMesh->IsTextured())
 		{
-			XMVECTOR rayModelSpacePosition = entity->WorldToModelPosition(rayWorldSpace.position);
-			XMVECTOR rayModelSpaceDirection = XMVector3Normalize(entity->WorldToModelDirection(rayWorldSpace.direction));
+			// texture sampler
+			XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
+				hitInfo.pV0->texcoord, hitInfo.pV1->texcoord, hitInfo.pV2->texcoord,
+				hitInfo.u, hitInfo.v);
+			color = hitInfo.pModel->pMesh->pTextureSampler->SampleClosest(texcoord);
+		}
+		else
+		{
+			// color
+			color = XMVectorBaryCentric(
+				hitInfo.pV0->color, hitInfo.pV1->color, hitInfo.pV2->color,
+				hitInfo.u, hitInfo.v);
+		}
 
-			if (m->bounds.Intersects(rayModelSpacePosition, rayModelSpaceDirection)) // if the ray intersects the bounds
+		XMVECTOR positionWS = XMVectorBaryCentric(
+				hitInfo.pV0->position, hitInfo.pV1->position, hitInfo.pV2->position,
+				hitInfo.u, hitInfo.v);
+		hitInfo.pEntity->ModelToWorldPosition(positionWS);
+
+		XMVECTOR normalWS = XMVectorBaryCentric(
+			hitInfo.pV0->normal, hitInfo.pV1->normal, hitInfo.pV2->normal,
+			hitInfo.u, hitInfo.v);
+		hitInfo.pEntity->ModelToWorldDirection(normalWS);
+
+		XMVECTOR lights = pScene->ambientLight;
+		lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS);
+
+		for (BEPointLight* pLight : pScene->lights)
+		{
+			if (!BERaytrace::TargetOccluded(pScene, positionWS, pLight->position))
 			{
-				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
-				{
-					XMVECTOR v0 = m->verticies[m->triangles[i].indx[0]].position;
-					XMVECTOR n0 = m->verticies[m->triangles[i].indx[0]].normal;
-					XMVECTOR n0ws = entity->ModelToWorldDirection(n0);
-
-					if (!backfaceCull || pCamera->IsVisible(entity->ModelToWorldPosition(v0), n0ws))
-					{
-						XMVECTOR v1 = m->verticies[m->triangles[i].indx[1]].position;
-						XMVECTOR v2 = m->verticies[m->triangles[i].indx[2]].position;
-						XMVECTOR n1 = m->verticies[m->triangles[i].indx[1]].normal;
-						XMVECTOR n2 = m->verticies[m->triangles[i].indx[2]].normal;
-
-						float u = 0.0f;
-						float v = 0.0f;
-
-						// TriangleTests::Intersects(r.position, r.direction, v0, v1, v2, distold) // replaced with tweaked version
-
-						if (TriangleIntersects(rayModelSpacePosition, rayModelSpaceDirection, v0, v1, v2, distance, u, v))
-						{
-							if (distance < hitDistance)
-							{
-								XMVECTOR color;
-
-								if (m->IsTextured())
-								{
-									// texture sampler
-									XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
-										m->verticies[m->triangles[i].indx[0]].texcoord,
-										m->verticies[m->triangles[i].indx[1]].texcoord,
-										m->verticies[m->triangles[i].indx[2]].texcoord,
-										u, v);
-									color = m->pTextureSampler->SampleClosest(texcoord);
-								}
-								else
-								{
-									// color
-									color = XMVectorBaryCentric(m->verticies[m->triangles[i].indx[0]].color,
-										m->verticies[m->triangles[i].indx[1]].color,
-										m->verticies[m->triangles[i].indx[2]].color,
-										u, v);
-								}
-
-								XMVECTOR positionWS = XMVectorBaryCentric(v0, v1, v2, u, v);
-								XMVECTOR normalWS = XMVectorBaryCentric(n0, n1, n2, u, v);
-
-								XMVECTOR lights = pScene->ambientLight;
-								lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS);
-
-								for (BEPointLight* pLight : pScene->lights)
-								{
-									// to do: temp lighting to test it out. Will replace with proper ray casting.
-									lights += pLight->CalculateColorInWorldSpace(positionWS, normalWS);
-								}
-
-								XMVECTOR c = XMVectorSaturate(lights * color);
-
-								pCanvas->buffer[y * stride + x] = c;
-								hitDistance = distance;
-							}
-						}
-					}
-				}
+				lights += pLight->CalculateColorInWorldSpace(positionWS, normalWS);
 			}
 		}
-	}
 
-	//if (hitDistance == pCamera->maxDistance) pCanvas->buffer[y * stride + x] = { 1,0,0,1 }; // set color on no hit
+		// to do: reflections?
+
+		pCanvas->buffer[y * stride + x] = XMVectorSaturate(lights * color);
+	}
+	//else pCanvas->buffer[y * stride + x] = { 1,0,0,1 }; // set color on no hit - for debug
 }
 
 void BERenderPipelineRaytrace::Draw()

@@ -20,6 +20,11 @@ public:
 		return box.Intersects(rayPosition, rayDireciton, dist);
 	}
 
+	inline bool Intersects(DirectX::XMVECTOR rayPosition, DirectX::XMVECTOR rayDireciton, float maxDistance) {
+		float dist = 0.0f;
+		return box.Intersects(rayPosition, rayDireciton, dist) && dist < maxDistance;
+	}
+
 	void SetBounds(unsigned int vertexCount, BEVertex* verticies);
 
 	DirectX::BoundingBox box;

@@ -128,7 +128,7 @@ void BEScene::CreateSceneTest3()
 
 	pLight = new BEPointLight();
 	lights.push_back(pLight);
-	pLight->position = { 2,2,2,1 };
+	pLight->position = { 2,4,2,1 };
 	pLight->color = { 1.0f,0.1f,0.1f,1.0f };
 
 	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled

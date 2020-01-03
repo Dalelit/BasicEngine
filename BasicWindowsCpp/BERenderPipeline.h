@@ -112,8 +112,6 @@ public:
 
 	void ResetStats() { raysProcessed = 0; };
 
-	inline bool TriangleIntersects(DirectX::FXMVECTOR Origin, DirectX::FXMVECTOR Direction, DirectX::FXMVECTOR V0, DirectX::GXMVECTOR V1, DirectX::HXMVECTOR V2, float& Dist, float& _u, float& _v);
-
 private:
 	unsigned int stride;
 	float invWidthx2;
