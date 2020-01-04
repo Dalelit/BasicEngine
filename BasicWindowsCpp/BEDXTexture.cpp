@@ -1,12 +1,14 @@
 #include "BEDXTexture.h"
 
-BEDXTexture::BEDXTexture(BEDirectXDevice& device, unsigned int width, unsigned int height, unsigned int pitch, void* source, DXGI_FORMAT format)
+using namespace DirectX;
+
+BEDXTexture::BEDXTexture(BEDirectXDevice& device, BESurface2D<XMVECTOR>& surface, DXGI_FORMAT format)
 {
 	HRESULT hr;
 
 	D3D11_TEXTURE2D_DESC1 texDesc = {};
-	texDesc.Width = width;
-	texDesc.Height = height;
+	texDesc.Width = surface.GetWidth();
+	texDesc.Height = surface.GetHeight();
 	texDesc.MipLevels = 1u;
 	texDesc.ArraySize = 1u;
 	texDesc.Format = format;
@@ -18,8 +20,8 @@ BEDXTexture::BEDXTexture(BEDirectXDevice& device, unsigned int width, unsigned i
 	//texDesc.TextureLayout = D3D11_TEXTURE_LAYOUT_UNDEFINED;
 
 	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = source;
-	data.SysMemPitch = pitch;
+	data.pSysMem = surface.GetData();
+	data.SysMemPitch = surface.GetPitchBytes();
 
 	hr = device.pDevice->CreateTexture2D1(&texDesc, &data, &pTexture);
 
@@ -51,8 +53,8 @@ BEDXTexture::BEDXTexture(BEDirectXDevice& device, BETexture& texture, DXGI_FORMA
 	HRESULT hr;
 
 	D3D11_TEXTURE2D_DESC1 texDesc = {};
-	texDesc.Width = texture.width;
-	texDesc.Height = texture.height;
+	texDesc.Width = texture.GetWidth();
+	texDesc.Height = texture.GetHeight();
 	texDesc.MipLevels = 1u;
 	texDesc.ArraySize = 1u;
 	texDesc.Format = format;
@@ -64,8 +66,8 @@ BEDXTexture::BEDXTexture(BEDirectXDevice& device, BETexture& texture, DXGI_FORMA
 	//texDesc.TextureLayout = D3D11_TEXTURE_LAYOUT_UNDEFINED;
 
 	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = texture.canvas.buffer;
-	data.SysMemPitch = texture.canvas.GetBufferPitch();
+	data.pSysMem = texture.surface->GetData();
+	data.SysMemPitch = texture.surface->GetPitchBytes();
 
 	hr = device.pDevice->CreateTexture2D1(&texDesc, &data, &pTexture);
 

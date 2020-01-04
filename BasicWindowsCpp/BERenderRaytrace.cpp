@@ -76,9 +76,8 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 		// to do: reflections?
 
-		pCanvas->buffer[y * stride + x] = XMVectorSaturate(lights * color);
+		pCanvas->bufferSurface->SetValue(x, y, XMVectorSaturate(lights * color));
 	}
-	//else pCanvas->buffer[y * stride + x] = { 1,0,0,1 }; // set color on no hit - for debug
 }
 
 void BERenderPipelineRaytrace::Draw()

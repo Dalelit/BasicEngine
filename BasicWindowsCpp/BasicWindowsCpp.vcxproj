@@ -194,6 +194,7 @@
     <ClInclude Include="BESampler.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />
+    <ClInclude Include="BESurface2D.h" />
     <ClInclude Include="BETexture.h" />
     <ClInclude Include="BETimer.h" />
     <ClInclude Include="BEVertex.h" />

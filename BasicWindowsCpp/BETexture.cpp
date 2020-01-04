@@ -3,6 +3,8 @@
 #include <wincodec.h>
 #include <wrl.h>
 
+using namespace DirectX;
+
 BETexture::BETexture(std::wstring filename)
 {
 	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;
@@ -56,11 +58,12 @@ BETexture::BETexture(std::wstring filename)
 	BE_HR_CHECK(hr);
 
 	// storing the image in the BECanvas member
-	canvas.Initialise(width, height);
+	surface = new BESurface2D<XMVECTOR>(width, height);
 
 	hr = pConverter->CopyPixels(nullptr,
-		canvas.GetBufferPitch(), canvas.GetBufferSize(),
-		(byte*)canvas.buffer);
+		surface->GetPitchBytes(),
+		surface->GetTotalBytes(),
+		(byte*)surface->GetData());
 
 	BE_HR_CHECK(hr);
 }

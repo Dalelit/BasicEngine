@@ -5,14 +5,15 @@ using namespace DirectX;
 
 BECanvas::~BECanvas()
 {
-	if (buffer) delete buffer;
-	if (bmp) delete bmp;
-	if (depthBuffer) delete depthBuffer;
+	if (bufferSurface) delete bufferSurface;
+	if (bmpSurface) delete bmpSurface;
+	if (depthBufferSurface) delete depthBufferSurface;
 }
 
 int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 {
-	if (buffer != NULL) free(buffer);
+	if (bufferSurface) delete bufferSurface;
+	if (bmpSurface) delete bmpSurface;
 
 	width = _width;
 	height = _height;
@@ -21,9 +22,16 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 	halfWH = { halfWidth, halfHeight, 1.0f };
 
 	size = width * height;
-	buffer = new Color[size];
-	bmp = new Pixel[size];
-	depthBuffer = NULL;
+
+	bufferSurface = new BESurface2D<Color>(width, height);
+
+	bmpSurface = new BESurface2D<Pixel>(width, height);
+
+	if (depthBufferSurface)
+	{
+		delete depthBufferSurface;
+		AddDepthBuffer();
+	}
 
 	Clear();
 
@@ -34,24 +42,25 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 void BECanvas::Clear()
 {
-	memset(buffer, 0, size * sizeof(Color));
-	memset(bmp, 0, size * sizeof(Pixel));
+	bufferSurface->Clear();
+	bmpSurface->Clear();
 
-	if (depthBuffer)
-	{
-		for (unsigned int i = 0; i < size; i++) depthBuffer[i] = defaultDepthValue;
-	}
+	if (depthBufferSurface) depthBufferSurface->Clear(defaultDepthValue);
 }
 
 void BECanvas::AddDepthBuffer()
 {
-	depthBuffer = new float[size];
+	if (depthBufferSurface != nullptr) delete depthBufferSurface;
+
+	depthBufferSurface = new BESurface2D<float>(width, height);
+
+	depthBufferSurface->Clear(defaultDepthValue);
 }
 
 void BECanvas::BufferToBMP()
 {
-	Pixel* pp = bmp;
-	Color* pc = buffer;
+	Pixel* pp = bmpSurface->GetData();
+	Color* pc = bufferSurface->GetData();
 	Color c;
 
 	#pragma loop(hint_parallel(8))
@@ -59,12 +68,12 @@ void BECanvas::BufferToBMP()
 	{
 		for (unsigned int x = 0; x < width; x++)
 		{
-			c.data = pc->data * 255.0f; // to do: this line is slow
+			c = (*pc) * 255.0f; // to do: this line is slow
 
-			pp->r = (unsigned char)c.r;
-			pp->g = (unsigned char)c.g;
-			pp->b = (unsigned char)c.b;
-			pp->a = (unsigned char)c.a;
+			pp->r = (unsigned char)c.m128_f32[0];
+			pp->g = (unsigned char)c.m128_f32[1];
+			pp->b = (unsigned char)c.m128_f32[2];
+			pp->a = (unsigned char)c.m128_f32[3];
 
 			pp++;
 			pc++;
@@ -95,15 +104,15 @@ void BECanvas::BufferToBMPv2()
 
 	BE_HR_CHECK(hr);
 
-	CopyMemory(wicBmp, buffer, bufferSize);
+	CopyMemory(wicBmp, bufferSurface->GetData(), bufferSize);
 
 	pLock->Release();
 
 	hr = pConverter->CopyPixels(
 		nullptr,
-		GetBitmapPitch(),
-		GetBitmapSize(),
-		(byte*)bmp);
+		bmpSurface->GetPitchBytes(),
+		bmpSurface->GetTotalBytes(),
+		(byte*)bmpSurface->GetData());
 
 	BE_HR_CHECK(hr);
 }
@@ -174,7 +183,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 	{
 		if (fabsf(dy) < 0.5f) // draw a dot
 		{
-			buffer[(int)y * width + (int)x] = c;
+			bufferSurface->SetValue((int)x, (int)y, c);
 			return;
 		}
 
@@ -187,7 +196,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 
 			while (y <= yt && y < height)
 			{
-				buffer[(int)y * width + (int)x] = c;
+				bufferSurface->SetValue((int)x, (int)y, c);
 				y += 1.0f;
 				c = c + dc;
 			}
@@ -198,7 +207,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 
 			while (y >= yt && y >= 0.0f)
 			{
-				buffer[(int)y * width + (int)x] = c;
+				bufferSurface->SetValue((int)x, (int)y, c);
 				y -= 1.0f;
 				c = c + dc;
 			}
@@ -226,7 +235,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 
 		while (x <= xt && x < width)
 		{
-			buffer[(int)y * width + (int)x] = c;
+			bufferSurface->SetValue((int)x, (int)y, c);
 			x += 1.0f;
 			c = c + dc;
 		}
@@ -275,7 +284,7 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 	// and finally pump out pixels
 	while (x <= xt && x < width && y >= 0.0f && y < height)
 	{
-		buffer[(int)y * width + (int)x] = c;
+		bufferSurface->SetValue((int)x, (int)y, c);
 		x += dx;
 		y += dy;
 		c = c + dc;

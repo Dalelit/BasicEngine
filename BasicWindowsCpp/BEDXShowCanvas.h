@@ -12,7 +12,7 @@
 class BEDXShowCanvas : public BEDirectXDrawableNested
 {
 public:
-	BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas, bool updateable = false);
+	BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<DirectX::XMVECTOR>& surface, bool updateable = false);
 	~BEDXShowCanvas();
 	void Draw(BEDirectXDevice& device);
 

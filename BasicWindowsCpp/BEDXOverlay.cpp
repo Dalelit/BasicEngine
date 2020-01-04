@@ -137,7 +137,7 @@ void BEDXOverlay::ShowBitmap(BECanvas& canvas)
 
 	pContext->BeginDraw();
 
-	hr = pBitmap->CopyFromMemory(&rectu, canvas.bmp, canvas.GetBitmapPitch());
+	hr = pBitmap->CopyFromMemory(&rectu, canvas.bmpSurface->GetData(), canvas.bmpSurface->GetPitchBytes());
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 

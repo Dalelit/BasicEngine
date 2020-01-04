@@ -2,15 +2,6 @@
 
 using namespace DirectX;
 
-BESampler::BESampler(BETexture& texture) :
-	texture(texture)
-{
-	stride = texture.canvas.GetBufferPitch();
-	height = (float)texture.canvas.height;
-	width = (float)texture.canvas.width;
-	pBuffer = texture.canvas.buffer;
-}
-
 XMVECTOR BESampler::SampleClosest(float u, float v, BOUNDARY_MODE mode)
 {
 	switch (mode)
@@ -27,5 +18,5 @@ XMVECTOR BESampler::SampleClosest(float u, float v, BOUNDARY_MODE mode)
 	unsigned int x = (int)(u * width);
 	unsigned int y = (int)(v * height);
 
-	return pBuffer[y * texture.canvas.width + x].data;
+	return texture.surface->GetValue(x, y);
 }

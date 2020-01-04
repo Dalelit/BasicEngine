@@ -1,5 +1,6 @@
 #pragma once
 #include "BECommon.h"
+#include "BESurface2D.h"
 #include <wincodec.h>
 #include <wrl.h>
 
@@ -11,38 +12,17 @@ public:
 		unsigned char b, g, r, a;
 	};
 
-	union Color
-	{
-		DirectX::XMVECTOR data;
-		struct {
-			float r, g, b, a;
-		};
+	typedef DirectX::XMVECTOR Color;
 
-		Color() : data() {};
-		Color(float _r, float _g, float _b, float _a) { data = { _r, _g , _b, _a }; };
-		Color(const DirectX::XMVECTOR& v) : data (v) {}
-		Color(const Color& c) : data(c.data) {};
+	BESurface2D<Color>* bufferSurface = nullptr;
 
-		Color operator+(const Color& rhs) { return DirectX::XMVectorAdd(data, rhs.data); };
-		Color operator-(const Color& rhs) { return DirectX::XMVectorSubtract(data,rhs.data); };
-		Color operator-() { return DirectX::XMVectorNegate(data); };
-		Color operator*(const float rhs) { return DirectX::XMVectorScale(data, rhs); };
-		Color operator/(const float& rhs) { return DirectX::XMVectorDivide(data, DirectX::XMVectorReplicate(rhs)); };
-	};
+	BESurface2D<Pixel>* bmpSurface = nullptr;
 
-	Color* buffer = NULL;
-	Pixel* bmp = NULL;
-	float* depthBuffer = NULL;
+	BESurface2D<float>* depthBufferSurface = nullptr;
 
 	unsigned int width = 0;
 	unsigned int height = 0;
 	unsigned int size = 0;
-
-	unsigned int GetBitmapPitch() const { return width * sizeof(Pixel); };
-	unsigned int GetBufferPitch() const { return width * sizeof(Color); };
-
-	unsigned int GetBitmapSize() const { return width * height * sizeof(Pixel); };
-	unsigned int GetBufferSize() const { return width * height * sizeof(Color); };
 
 	float defaultDepthValue = FLT_MAX;
 

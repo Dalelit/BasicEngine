@@ -3,12 +3,14 @@
 #include "BEDXVertexShader.h"
 #include "BEDXPixelShader.h"
 
-BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BECanvas& canvas, bool updateable)
+using namespace DirectX;
+
+BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<XMVECTOR>& surface, bool updateable)
 {
 	if (updateable)
-		pTexUpdt = new BEDXTextureUpdateable(device, canvas.width, canvas.height, canvas.GetBufferPitch(), canvas.buffer, DXGI_FORMAT_R32G32B32A32_FLOAT);
+		pTexUpdt = new BEDXTextureUpdateable(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	else
-		pTex = new BEDXTexture(device, canvas.width, canvas.height, canvas.GetBufferPitch(), canvas.buffer, DXGI_FORMAT_R32G32B32A32_FLOAT);
+		pTex = new BEDXTexture(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
 
 	// set the verticies
 	verticies[0] = { { -1,-1,0 }, {0,0} };

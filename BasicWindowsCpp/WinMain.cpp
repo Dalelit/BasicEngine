@@ -85,7 +85,7 @@ void BEDrawBackBuffer(int bufferindx, int windowIndx)
 		0,
 		bufferWidth,
 		bufferHeight,
-		backBuffer[bufferindx].bmp,
+		backBuffer[bufferindx].bmpSurface->GetData(),
 		&(bmpInfo[bufferindx]),
 		DIB_RGB_COLORS,
 		SRCCOPY
@@ -431,9 +431,9 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Direct3D");
 	BECreateWindow(5, hInstance, L"Scanline DirectX window");
 
-	//scene.CreateSceneTest1();
+	scene.CreateSceneTest1();
 	//scene.CreateSceneTest2();
-	scene.CreateSceneTest3();
+	//scene.CreateSceneTest3();
 	scene.Update(0);
 
 	// for scanline rendering
@@ -450,7 +450,7 @@ int WINAPI WinMain(
 	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
 	BEDirectX dx2;
 	dx2.InitialiseBase(hwnd[2], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx2sc(dx2.device, backBuffer[2], true);
+	BEDXShowCanvas dx2sc(dx2.device, *(backBuffer[2].bufferSurface), true);
 
 	// for DirectX rendering
 	BEDirectX dx4;
@@ -461,7 +461,7 @@ int WINAPI WinMain(
 	// for using DirectX to show the scanline output rather than our BECanvas display
 	BEDirectX dx5;
 	dx5.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx5sc(dx5.device, backBuffer[0], true);
+	BEDXShowCanvas dx5sc(dx5.device, *(backBuffer[0].bufferSurface), true);
 
 	// ready to go...
 

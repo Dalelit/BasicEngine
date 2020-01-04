@@ -5,7 +5,7 @@
 class BEDXTexture : public BEDirectXResource
 {
 public:
-	BEDXTexture(BEDirectXDevice& device, unsigned int width, unsigned int height, unsigned int pitch, void* source, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_SNORM);
+	BEDXTexture(BEDirectXDevice& device, BESurface2D<DirectX::XMVECTOR>& surface, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_SNORM);
 	BEDXTexture(BEDirectXDevice& device, BETexture& texture, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 	~BEDXTexture() = default;
 

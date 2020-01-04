@@ -1,15 +1,15 @@
 #include "BEDXTextureUpdateable.h"
 
-BEDXTextureUpdateable::BEDXTextureUpdateable(BEDirectXDevice& device, unsigned int width, unsigned int height, unsigned int pitch, void* source, DXGI_FORMAT format)
+using namespace DirectX;
+
+BEDXTextureUpdateable::BEDXTextureUpdateable(BEDirectXDevice& device, BESurface2D<XMVECTOR>& surface, DXGI_FORMAT format) :
+	surface(surface)
 {
 	HRESULT hr;
 
-	sourceBuffer = source;
-	sourcePitch = pitch;
-
 	D3D11_TEXTURE2D_DESC1 texDesc = {};
-	texDesc.Width = width;
-	texDesc.Height = height;
+	texDesc.Width = surface.GetWidth();
+	texDesc.Height = surface.GetHeight();
 	texDesc.MipLevels = 1u;
 	texDesc.ArraySize = 1u;
 	texDesc.Format = format;
@@ -47,5 +47,5 @@ BEDXTextureUpdateable::BEDXTextureUpdateable(BEDirectXDevice& device, unsigned i
 
 void BEDXTextureUpdateable::UpdateFromSource(BEDirectXDevice& device)
 {
-	device.pImmediateContext->UpdateSubresource(pTexture.Get(), 0u, nullptr, sourceBuffer, sourcePitch, 0u);
+	device.pImmediateContext->UpdateSubresource(pTexture.Get(), 0u, nullptr, surface.GetData(), surface.GetPitchBytes(), 0u);
 }

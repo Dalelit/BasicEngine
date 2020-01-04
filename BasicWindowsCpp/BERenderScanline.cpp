@@ -55,8 +55,6 @@ inline void BERenderPipelineScanline::UpdateEdge(BEEdge* e)
 
 inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, XMVECTOR color)
 {
-	unsigned int line = y * pCanvas->width;
-
 	unsigned int x, xt;
 	if (x1 < x2) { x = x1; xt = x2; }
 	else { x = x2; xt = x1; }
@@ -65,7 +63,7 @@ inline void BERenderPipelineScanline::DrawScanLine(unsigned int y, unsigned int 
 
 	while (x < pCanvas->width && x <= xt)
 	{
-		pCanvas->buffer[line + x] = color;
+		pCanvas->bufferSurface->SetValue(x, y, color);
 		x++;
 	}
 }
@@ -247,7 +245,6 @@ void BERenderPipelineScanline::Draw()
 		sortedList = sortedList->next;
 		activeList->next = NULL;
 		int y = activeList->yStart;
-		int line = y * pCanvas->width;
 
 		while ((sortedList || activeList) && y < (int)pCanvas->height) // To Do: not cast to (int) all the time?
 		{
@@ -319,23 +316,27 @@ void BERenderPipelineScanline::Draw()
 
 					while (x <= xt && x < (int)pCanvas->width) // To Do: not cast to (int) all the time?
 					{
-						float* depthBuffer = pCanvas->depthBuffer + y * pCanvas->width + x; // to do: clean this up.. and think about int types
-						float depth = *depthBuffer;
+						//float* depthBuffer = pCanvas->depthBuffer + y * pCanvas->width + x; // to do: clean this up.. and think about int types
+						//float depth = *depthBuffer;
+
+						//float* depthBuffer = pCanvas->depthBufferSurface->GetData(x,y);
+						float depth = pCanvas->depthBufferSurface->GetValue(x, y);
 
 						if (z < depth) // closer so draw it
 						{
 							if (current->mesh->IsTextured())
 							{
 								// texture
-								pCanvas->buffer[line + x] = current->mesh->pTextureSampler->SampleClosest(u,v);
+								pCanvas->bufferSurface->SetValue(x, y, current->mesh->pTextureSampler->SampleClosest(u, v));
 							}
 							else
 							{
 								// color
-								pCanvas->buffer[line + x] = c;
+								pCanvas->bufferSurface->SetValue(x, y, c);
 							}
 
-							*depthBuffer = z; // update the depth buffer
+							pCanvas->depthBufferSurface->SetValue(x, y, z);
+							//*depthBuffer = z; // update the depth buffer
 						}
 
 						x++;
@@ -392,7 +393,6 @@ void BERenderPipelineScanline::Draw()
 			}
 
 			y++;
-			line += pCanvas->width;
 		}
 	} // done drawing
 }

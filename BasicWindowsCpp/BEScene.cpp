@@ -38,10 +38,10 @@ void BEScene::CreateSceneTest1()
 	directionalLight.color = { 1,1,1,1 };
 	directionalLight.SetDirection({ -4, -2, -3, 1 });
 
-	pLight = new BEPointLight();
-	lights.push_back(pLight);
-	pLight->position = { 2,2,2,1 };
-	pLight->color = { 1.0f,0.1f,0.1f,1.0f };
+	//pLight = new BEPointLight();
+	//lights.push_back(pLight);
+	//pLight->position = { 2,2,2,1 };
+	//pLight->color = { 1.0f,0.1f,0.1f,1.0f };
 
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	textures.push_back(t);
