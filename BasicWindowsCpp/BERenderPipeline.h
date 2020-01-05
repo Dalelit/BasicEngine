@@ -21,18 +21,18 @@
 class BERenderPipeline
 {
 public:
-	BEScene* pScene = NULL;
-	BECamera* pCamera = NULL;
-	BECanvas* pCanvas = NULL;
+	BEScene* pScene = nullptr;
+	BECamera* pCamera = nullptr;
+	BECanvas* pCanvas = nullptr;
 
 	// for slower renderers - looking at you raytracer
 	bool exitLoop = false;    // used to exit the rendering loops early
 	bool restartLoop = false; // used to force the loop to exit and restart
 	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 
-	//BERenderPipeline(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas)
+	//BERenderPipeline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 	//{
-	//	pWorld = _pWorld;
+	//	pScene = _pScene;
 	//	pCamera = _pCamera;
 	//	pCanvas = _pCanvas;
 	//}
@@ -48,7 +48,7 @@ public:
 class BERenderPipelineScanline : public BERenderPipeline
 {
 public:
-	BERenderPipelineScanline(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineScanline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineScanline();
 
 	void Draw();
@@ -102,7 +102,7 @@ public:
 
 	bool backfaceCull = true;
 
-	BERenderPipelineRaytrace(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineRaytrace();
 
 	void Draw();
@@ -135,7 +135,7 @@ public:
 	float normalLength = 0.5f;
 	DirectX::XMVECTOR normalColor = { 0.5f, 0.3f, 0.3f };
 
-	BERenderPipelineWireframe(BEScene* _pWorld, BECamera* _pCamera, BECanvas* _pCanvas);
+	BERenderPipelineWireframe(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderPipelineWireframe();
 
 	void Draw();

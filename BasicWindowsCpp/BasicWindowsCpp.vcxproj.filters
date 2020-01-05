@@ -117,6 +117,9 @@
     <ClCompile Include="BERaytrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BERenderProgrammablePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -228,6 +231,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BESurface2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BERenderProgrammablePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

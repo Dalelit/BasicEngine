@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <random>
 #include "BERenderPipeline.h"
+#include "BERenderProgrammablePipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
 #include "BEDXShowCanvas.h"
@@ -429,7 +430,7 @@ int WINAPI WinMain(
 	BECreateWindow(2, hInstance, L"Wireframe");
 	BECreateWindow(3, hInstance, L"Raytrace final");
 	BECreateWindow(4, hInstance, L"Direct3D");
-	BECreateWindow(5, hInstance, L"Scanline DirectX window");
+	BECreateWindow(5, hInstance, L"Programmable pipeline");
 
 	scene.CreateSceneTest1();
 	//scene.CreateSceneTest2();
@@ -448,7 +449,7 @@ int WINAPI WinMain(
 
 	// for wireframe rendering
 	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
-	BEDirectX dx2;
+	BEDirectX dx2; // for using DirectX to show the scanline output rather than our BECanvas display
 	dx2.InitialiseBase(hwnd[2], bufferWidth, bufferHeight);
 	BEDXShowCanvas dx2sc(dx2.device, *(backBuffer[2].bufferSurface), true);
 
@@ -458,10 +459,8 @@ int WINAPI WinMain(
 	dx4.Initialise3D(&scene, &camera);
 	dx4.LoadScene(&scene);
 
-	// for using DirectX to show the scanline output rather than our BECanvas display
-	BEDirectX dx5;
-	dx5.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx5sc(dx5.device, *(backBuffer[0].bufferSurface), true);
+	// for programmable pipeline rendering
+	pipeline[5] = new BERenderProgrammablePipeline(&scene, &camera, &backBuffer[5]);
 
 	// ready to go...
 
@@ -540,10 +539,17 @@ int WINAPI WinMain(
 		loopTimer.Start(); // here only because of where it gets displayed
 
 		//
-		// use dx to show the scanline output
+		// programmable pipeline
 		//
-		//dxwindow.ShowBitmap(backBuffer[0]); // uses the generated bmp. To Do: upsidedown
-		//dx5.DoFrameWithExtra(dx5sc);
+		backBuffer[5].Clear();
+		timers[5].Start();
+		pipeline[5]->Draw();
+		int t51 = timers[5].Tick().ElapsedMilSec();
+		BEDrawBackBuffer(5);
+		int t52 = timers[5].Tick().ElapsedMilSec();
+
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims", t51, t52, t52 - t51);
+		BEWriteOverlayToWindow(5, swbuffer);
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick

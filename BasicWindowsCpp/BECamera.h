@@ -44,7 +44,7 @@ public:
 	inline bool OveralpsScreen(DirectX::XMVECTOR _v) { 
 		float x = DirectX::XMVectorGetX(_v);
 		float y = DirectX::XMVectorGetY(_v);
-		return ((x >= -1.0f && x <= 1.0f) ||  // (x or
+		return ((x >= -1.0f && x <= 1.0f) &&  // (x and
 		        (y >= -1.0f && y <= 1.0f))    //  y in the screen)
 			   && DirectX::XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
 
