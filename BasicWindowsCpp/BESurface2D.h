@@ -8,7 +8,6 @@ public:
 
 	BESurface2D(unsigned int width, unsigned int height) :
 		width(width), height(height),
-		halfWidth((float)width / 2.0f), halfHeight((float)height / 2.0f),
 		elementSize(sizeof(T)),
 		size(width*height),
 		pitchBytes(width * elementSize),
@@ -34,11 +33,6 @@ public:
 	inline unsigned int GetPitchBytes() const { return pitchBytes; }
 	inline unsigned int GetTotalBytes() const { return totalBytes; }
 	
-	inline void GetIndexFromRelativePosition(float xCoord, float yCoord, int& xIndx, int& yIndx) {
-		xIndx = (int)((1.0f + xCoord) * halfWidth);
-		yIndx = (int)((1.0f + yCoord) * halfHeight);
-	}
-
 	inline void Clear() {
 		memset(data, 0, totalBytes);
 	}
@@ -64,7 +58,4 @@ protected:
 	unsigned int size = 0;
 	unsigned int pitchBytes = 0;
 	unsigned int totalBytes = 0;
-
-	float halfWidth = 0.0f;
-	float halfHeight = 0.0f;
 };

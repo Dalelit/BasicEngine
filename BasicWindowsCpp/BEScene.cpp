@@ -28,6 +28,39 @@ void BEScene::Update(float deltaTime)
 	}
 }
 
+void BEScene::CreateSceneTest0()
+{
+	BEModel* pModel;
+	BEEntity* pEntity;
+	//BEPointLight* pLight;
+
+	ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	directionalLight.color = { 0.75f,0.75f,0.75f,1.0f };
+	directionalLight.SetDirection({ 4, -2, -3, 1 });
+
+	//pLight = new BEPointLight();
+	//lights.push_back(pLight);
+	//pLight->position = { 2,4,2,1 };
+	//pLight->color = { 1.0f,0.1f,0.1f,1.0f };
+
+	// to do: temp inclusion to stop dx warnings... will fix when multi textures handled
+	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
+	textures.push_back(t);
+	BESampler* s = new BESampler(*t);
+	samplers.push_back(s);
+
+	pModel = new BEModel();
+	models.push_back(pModel);
+	pModel->pMesh = BEMeshPrimatives::CubeMesh();
+	//pModel->pMesh = BEMeshPrimatives::TriangleMesh();
+	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+
+	pEntity = pModel->CreateInstance();
+	entityRef.push_back(pEntity);
+	//pEntity->Translate(3, 0, 0);
+	//pEntity->SetScale({ 2, 2, 2, 1 });
+}
+
 void BEScene::CreateSceneTest1()
 {
 	BEModel* pModel;

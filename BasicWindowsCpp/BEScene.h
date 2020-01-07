@@ -23,6 +23,7 @@ public:
 
 	void Update(float deltaTime);
 
+	void CreateSceneTest0();
 	void CreateSceneTest1();
 	void CreateSceneTest2();
 	void CreateSceneTest3();

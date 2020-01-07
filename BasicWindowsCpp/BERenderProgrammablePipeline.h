@@ -1,30 +1,42 @@
 #pragma once
 #include "BERenderPipeline.h"
+#include <sstream>
 
 
 struct BEPipelineVSData
 {
-	DirectX::XMVECTOR positionWS;
-	DirectX::XMVECTOR normalWS;
-	DirectX::XMVECTOR positionSS;
-	DirectX::XMVECTOR color;
-	DirectX::XMFLOAT2 texcoord;
+	DirectX::XMVECTOR positionWS = {};
+	DirectX::XMVECTOR normalWS = {};
+	DirectX::XMVECTOR positionSS = {};
+	DirectX::XMVECTOR color = {};
+	DirectX::XMFLOAT2 texcoord = {};
+
+	inline BEPipelineVSData operator+(const BEPipelineVSData& rhs);
+	inline BEPipelineVSData operator-(const BEPipelineVSData& rhs);
+	inline BEPipelineVSData operator*(const float rhs);
+	inline BEPipelineVSData operator/(const float rhs);
+	inline BEPipelineVSData& operator+=(const BEPipelineVSData& rhs);
+	inline BEPipelineVSData& operator/=(const float rhs);
 };
 
 struct BEPipelinePSData
 {
-	DirectX::XMVECTOR positionWS;
-	DirectX::XMVECTOR normalWS;
-	DirectX::XMVECTOR color;
-	DirectX::XMFLOAT2 texcoord;
-	BEModel* pModel;
-	BEEntity* pEntity;
+	DirectX::XMVECTOR positionWS = {};
+	DirectX::XMVECTOR normalWS = {};
+	DirectX::XMVECTOR color = {};
+	DirectX::XMFLOAT2 texcoord = {};
+	BEModel* pModel = nullptr;
+	BEEntity* pEntity = nullptr;
 
-	void operator= (BEPipelineVSData& rhs) {
+	BEPipelinePSData() = default;
+
+	BEPipelinePSData(BEPipelineVSData& rhs) {
 		positionWS = rhs.positionWS;
 		normalWS = rhs.normalWS;
 		color = rhs.color;
 		texcoord = rhs.texcoord;
+		pModel = nullptr;
+		pEntity = nullptr;
 	}
 
 };
@@ -48,10 +60,28 @@ public:
 	void PixelShading();
 	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
+	//std::wstringstream message;
+
 protected:
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
 	BESurface2D<float> depthBuffer;
 
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
+
+	void DrawPoint(BEPipelineVSData* pVS, BEModel* pModel, BEEntity* pEntity, bool backFace);
+	void DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace);
+
+	inline DirectX::XMVECTOR ScreenSpaceToPixelCoord(DirectX::XMVECTOR v);
+	inline bool IsOnCanvas(DirectX::XMVECTOR& v);
+
+	inline bool CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth);
+
+	float width;
+	float height;
+	float widthHalf;
+	float heightHalf;
+
+	float backFaceAttenuation = 0.3f;
+	DirectX::XMVECTOR backFaceOffset = { 0.0f, 0.0f, 0.001f, 0.0f };
 };

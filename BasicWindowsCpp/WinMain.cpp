@@ -432,6 +432,7 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Direct3D");
 	BECreateWindow(5, hInstance, L"Programmable pipeline");
 
+	//scene.CreateSceneTest0();
 	scene.CreateSceneTest1();
 	//scene.CreateSceneTest2();
 	//scene.CreateSceneTest3();
@@ -460,7 +461,8 @@ int WINAPI WinMain(
 	dx4.LoadScene(&scene);
 
 	// for programmable pipeline rendering
-	pipeline[5] = new BERenderProgrammablePipeline(&scene, &camera, &backBuffer[5]);
+	BERenderProgrammablePipeline* progpipeline = new BERenderProgrammablePipeline(&scene, &camera, &backBuffer[5]);
+	pipeline[5] = progpipeline;
 
 	// ready to go...
 
@@ -550,6 +552,7 @@ int WINAPI WinMain(
 
 		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims", t51, t52, t52 - t51);
 		BEWriteOverlayToWindow(5, swbuffer);
+		//BEWriteOverlayToWindow(5, progpipeline->message.str().c_str());
 
 		// to use for the overall loop...
 		// to do: limit framerate? Worry about that when it actually works quick
