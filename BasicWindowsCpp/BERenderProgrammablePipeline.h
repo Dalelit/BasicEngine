@@ -1,6 +1,5 @@
 #pragma once
 #include "BERenderPipeline.h"
-#include <sstream>
 
 
 struct BEPipelineVSData
@@ -15,8 +14,8 @@ struct BEPipelineVSData
 	inline BEPipelineVSData operator-(const BEPipelineVSData& rhs);
 	inline BEPipelineVSData operator*(const float rhs);
 	inline BEPipelineVSData operator/(const float rhs);
-	inline BEPipelineVSData& operator+=(const BEPipelineVSData& rhs);
-	inline BEPipelineVSData& operator/=(const float rhs);
+	inline void operator+=(const BEPipelineVSData& rhs);
+	inline void operator/=(const float rhs);
 };
 
 struct BEPipelinePSData
@@ -49,6 +48,7 @@ public:
 
 	void Draw();
 	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height) { throw "Not implemented yet"; }
+
 	void Clear();
 
 	void VertexShading(BEModel* pModel, BEEntity* pEntity);
@@ -59,8 +59,6 @@ public:
 	void RasterizerWireframe(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
 	void PixelShading();
 	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
-
-	//std::wstringstream message;
 
 protected:
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
@@ -73,6 +71,7 @@ protected:
 	void DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace);
 
 	inline DirectX::XMVECTOR ScreenSpaceToPixelCoord(DirectX::XMVECTOR v);
+
 	inline bool IsOnCanvas(DirectX::XMVECTOR& v);
 
 	inline bool CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth);

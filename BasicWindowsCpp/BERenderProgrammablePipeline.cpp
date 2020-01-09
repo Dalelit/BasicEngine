@@ -54,7 +54,7 @@ inline BEPipelineVSData BEPipelineVSData::operator/(const float rhs)
 	};
 }
 
-inline BEPipelineVSData& BEPipelineVSData::operator+=(const BEPipelineVSData& rhs)
+inline void BEPipelineVSData::operator+=(const BEPipelineVSData& rhs)
 {
 	positionWS += rhs.positionWS;
 	normalWS += rhs.normalWS;
@@ -62,10 +62,9 @@ inline BEPipelineVSData& BEPipelineVSData::operator+=(const BEPipelineVSData& rh
 	color += rhs.color;
 	texcoord.x += rhs.texcoord.x;
 	texcoord.y += rhs.texcoord.y;
-	return *this;
 }
 
-inline BEPipelineVSData& BEPipelineVSData::operator/=(const float rhs)
+inline void BEPipelineVSData::operator/=(const float rhs)
 {
 	positionWS /= rhs;
 	normalWS /= rhs;
@@ -73,7 +72,6 @@ inline BEPipelineVSData& BEPipelineVSData::operator/=(const float rhs)
 	color /= rhs;
 	texcoord.x /= rhs;
 	texcoord.y /= rhs;
-	return *this;
 }
 
 BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas) :
@@ -90,7 +88,7 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 	heightHalf = height / 2.0f;
 
 	vsBuffer = new BEPipelineVSData[vsBufferSize];
-	memset(vsBuffer, 0, sizeof(BEPipelineVSData) * vsBufferSize);
+	//memset(vsBuffer, 0, sizeof(BEPipelineVSData) * vsBufferSize);
 
 	assert(vsBuffer != nullptr);
 }
@@ -102,6 +100,7 @@ BERenderProgrammablePipeline::~BERenderProgrammablePipeline()
 
 void BERenderProgrammablePipeline::Draw()
 {
+	// initialise
 	// assemble
 	//   vertex shading
 	//     vertex shader
@@ -128,7 +127,6 @@ void BERenderProgrammablePipeline::Clear()
 {
 	pixelShaderBuffer.Clear();
 	depthBuffer.Clear(FLT_MAX);
-	//message.str(std::wstring());
 }
 
 void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEntity)
@@ -236,7 +234,7 @@ void BERenderProgrammablePipeline::PixelShading()
 	{
 		for (unsigned int x = 0; x < pCanvas->width; x++)
 		{
-			XMVECTOR color; //to do: later write direct to buffer?
+			XMVECTOR color;
 			PixelShader(pixelShaderBuffer.GetData(x, y), &color);
 			pCanvas->bufferSurface->SetValue(x, y, color);
 		}
@@ -382,13 +380,6 @@ inline bool BERenderProgrammablePipeline::IsOnCanvas(DirectX::XMVECTOR& v)
 
 inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth)
 {
-	//if (depthBuffer.GetValue(x, y) > depth) {
-	//	depthBuffer.SetValue(x, y, depth);
-	//	return true;
-	//}
-	//else return false;
-
-	// to do: faster to do this?
 	auto pData = depthBuffer.GetData(x, y);
 	if (depth < *pData)
 	{
