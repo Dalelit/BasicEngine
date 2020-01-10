@@ -4,11 +4,11 @@
 
 struct BEPipelineVSData
 {
-	DirectX::XMVECTOR positionWS = {};
-	DirectX::XMVECTOR normalWS = {};
-	DirectX::XMVECTOR positionSS = {};
-	DirectX::XMVECTOR color = {};
-	DirectX::XMFLOAT2 texcoord = {};
+	DirectX::XMVECTOR positionWS;
+	DirectX::XMVECTOR normalWS;
+	DirectX::XMVECTOR positionSS;
+	DirectX::XMVECTOR color;
+	DirectX::XMFLOAT2 texcoord;
 
 	inline BEPipelineVSData operator+(const BEPipelineVSData& rhs);
 	inline BEPipelineVSData operator-(const BEPipelineVSData& rhs);
@@ -21,12 +21,12 @@ struct BEPipelineVSData
 
 struct BEPipelinePSData
 {
-	DirectX::XMVECTOR positionWS = {};
-	DirectX::XMVECTOR normalWS = {};
-	DirectX::XMVECTOR color = {};
-	DirectX::XMFLOAT2 texcoord = {};
-	BEModel* pModel = nullptr;
-	BEEntity* pEntity = nullptr;
+	DirectX::XMVECTOR positionWS;
+	DirectX::XMVECTOR normalWS;
+	DirectX::XMVECTOR color;
+	DirectX::XMFLOAT2 texcoord;
+	BEModel* pModel;
+	BEEntity* pEntity;
 
 	BEPipelinePSData() = default;
 
@@ -35,8 +35,8 @@ struct BEPipelinePSData
 		normalWS = rhs.normalWS;
 		color = rhs.color;
 		texcoord = rhs.texcoord;
-		pModel = nullptr;
-		pEntity = nullptr;
+		//pModel = nullptr;
+		//pEntity = nullptr;
 	}
 
 };

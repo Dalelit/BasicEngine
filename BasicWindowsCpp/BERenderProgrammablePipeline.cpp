@@ -471,18 +471,35 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData*
 	}
 
 	// draw the line
+
+	// get directly to the data for optimisation
+	auto pPixel = pixelShaderBuffer.GetData(currentX, currentY);
+	auto pDepth = depthBuffer.GetData(currentX, currentY);
+
 	while (currentX <= toX)
 	{
-		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
+		//if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
+		//{
+		//	BEPipelinePSData psData = line;
+		//	psData.pModel = pModel;
+		//	psData.pEntity = pEntity;
+		//	pixelShaderBuffer.SetValue(currentX, currentY, psData);
+		//}
+
+		// optimized
+		float z = GETZ(line.positionSS);
+		if (z < *pDepth)
 		{
-			BEPipelinePSData psData = line;
-			psData.pModel = pModel;
-			psData.pEntity = pEntity;
-			pixelShaderBuffer.SetValue(currentX, currentY, psData);
+			*pDepth = z;
+			*pPixel = line;
+			pPixel->pModel = pModel;
+			pPixel->pEntity = pEntity;
 		}
 
 		line += lineDelta;
 		currentX++; //currentX = ROUND_TO_INT_X(line.positionSS);
+		pDepth++;
+		pPixel++;
 	}
 }
 
