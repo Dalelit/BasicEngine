@@ -431,21 +431,21 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 	}
 }
 
-void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity)
+inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight, BEModel* pModel, BEEntity* pEntity)
 {
 	// to do: may need to...?
 	//   checking Y is within the space.
 	//   checking it is left to right.
 
-	float dX = GETX(pTo->positionSS) - GETX(pFrom->positionSS);
-	int currentX = ROUND_TO_INT_X(pFrom->positionSS);
-	int currentY = ROUND_TO_INT_Y(pFrom->positionSS);
+	float dX = GETX(pToRight->positionSS) - GETX(pFromLeft->positionSS);
+	int currentX = ROUND_TO_INT_X(pFromLeft->positionSS);
+	int currentY = ROUND_TO_INT_Y(pFromLeft->positionSS);
 
 	if (dX == 0.0f) // single point line
 	{
-		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(pFrom->positionSS)))
+		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(pFromLeft->positionSS)))
 		{
-			BEPipelinePSData psData = *pFrom;
+			BEPipelinePSData psData = *pFromLeft;
 			psData.pModel = pModel;
 			psData.pEntity = pEntity;
 			pixelShaderBuffer.SetValue(currentX, currentY, psData);
@@ -453,15 +453,15 @@ void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFrom,
 		return; // done
 	}
 
-	BEPipelineVSData line = *pFrom;
-	BEPipelineVSData lineDelta = (*pTo - line) / dX;
+	BEPipelineVSData line = *pFromLeft;
+	BEPipelineVSData lineDelta = (*pToRight - line) / dX;
 
-	int toX = ROUND_TO_INT_X(pTo->positionSS);
+	int toX = ROUND_TO_INT_X(pToRight->positionSS);
 
 	while (currentX < 0) // off the left of screen
 	{
 		line += lineDelta;
-		currentX = ROUND_TO_INT_X(line.positionSS);
+		currentX++; //currentX = ROUND_TO_INT_X(line.positionSS);
 	}
 
 	// draw the line
@@ -476,35 +476,35 @@ void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFrom,
 		}
 
 		line += lineDelta;
-		currentX = ROUND_TO_INT_X(line.positionSS);
+		currentX++; //currentX = ROUND_TO_INT_X(line.positionSS);
 	}
 }
 
-void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight, BEModel* pModel, BEEntity* pEntity)
 {
 	// draw flat top (v1, v2) down to bottom (v0)
 
-	if (ROUND_TO_INT_Y(pv0->positionSS) >= (int)height) return; // triangle above the screen
-	if (ROUND_TO_INT_Y(pv2->positionSS) < 0.0f) return;			// triangle below the screen
+	if (ROUND_TO_INT_Y(pBottom->positionSS) >= (int)height) return; // triangle above the screen
+	if (ROUND_TO_INT_Y(pTopRight->positionSS) < 0.0f) return;			// triangle below the screen
 
 	// create info to move up each side
 
-	float dY = GETY(pv1->positionSS) - GETY(pv0->positionSS);
+	float dY = GETY(pTopLeft->positionSS) - GETY(pBottom->positionSS);
 
-	BEPipelineVSData lineStart = *pv1;
-	BEPipelineVSData lineStartDelta = (*pv0 - lineStart) / dY;
+	BEPipelineVSData lineStart = *pTopLeft;
+	BEPipelineVSData lineStartDelta = (*pBottom - lineStart) / dY;
 
-	BEPipelineVSData lineEnd = *pv2;
-	BEPipelineVSData lineEndDelta = (*pv0 - lineEnd) / dY;
+	BEPipelineVSData lineEnd = *pTopRight;
+	BEPipelineVSData lineEndDelta = (*pBottom - lineEnd) / dY;
 
 	int currentY = ROUND_TO_INT_Y(lineStart.positionSS);
-	int toY = ROUND_TO_INT_Y(pv0->positionSS);
+	int toY = ROUND_TO_INT_Y(pBottom->positionSS);
 
 	while (currentY >= (int)height) // above the screen;
 	{
 		lineStart += lineStartDelta;
 		lineEnd += lineEndDelta;
-		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY--;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
 	}
 
 	// draw each horizontal line
@@ -515,35 +515,35 @@ void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pv0, 
 		// move up the edges
 		lineStart += lineStartDelta;
 		lineEnd += lineEndDelta;
-		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY--;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
 	}
 }
 
-void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop, BEModel* pModel, BEEntity* pEntity)
 {
 	// draw flat bottom (v0, v1) up to top (v2)
 
-	if (ROUND_TO_INT_Y(pv0->positionSS) >= (int)height) return; // triangle above the screen
-	if (ROUND_TO_INT_Y(pv2->positionSS) < 0.0f) return;			// triangle below the screen
+	if (ROUND_TO_INT_Y(pBottomLeft->positionSS) >= (int)height) return; // triangle above the screen
+	if (ROUND_TO_INT_Y(pTop->positionSS) < 0.0f) return;			// triangle below the screen
 
 	// create info to move up each side
 
-	float dY = GETY(pv2->positionSS) - GETY(pv0->positionSS);
+	float dY = GETY(pTop->positionSS) - GETY(pBottomLeft->positionSS);
 
-	BEPipelineVSData lineStart = *pv0;
-	BEPipelineVSData lineStartDelta = (*pv2 - lineStart) / dY;
+	BEPipelineVSData lineStart = *pBottomLeft;
+	BEPipelineVSData lineStartDelta = (*pTop - lineStart) / dY;
 
-	BEPipelineVSData lineEnd = *pv1;
-	BEPipelineVSData lineEndDelta = (*pv2 - lineEnd) / dY;
+	BEPipelineVSData lineEnd = *pBottomRight;
+	BEPipelineVSData lineEndDelta = (*pTop - lineEnd) / dY;
 
 	int currentY = ROUND_TO_INT_Y(lineStart.positionSS);
-	int toY = ROUND_TO_INT_Y(pv2->positionSS);
+	int toY = ROUND_TO_INT_Y(pTop->positionSS);
 
 	while (currentY < 0) // below the screen;
 	{
 		lineStart += lineStartDelta;
 		lineEnd += lineEndDelta;
-		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY++;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
 	}
 
 	// draw each horizontal line
@@ -554,7 +554,7 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pv
 		// move up the edges
 		lineStart += lineStartDelta;
 		lineEnd += lineEndDelta;
-		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY++;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
 	}
 }
 
