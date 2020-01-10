@@ -64,6 +64,16 @@ inline void BEPipelineVSData::operator+=(const BEPipelineVSData& rhs)
 	texcoord.y += rhs.texcoord.y;
 }
 
+inline void BEPipelineVSData::operator*=(const float rhs)
+{
+	positionWS *= rhs;
+	normalWS *= rhs;
+	positionSS *= rhs;
+	color *= rhs;
+	texcoord.x *= rhs;
+	texcoord.y *= rhs;
+}
+
 inline void BEPipelineVSData::operator/=(const float rhs)
 {
 	positionWS /= rhs;
@@ -173,7 +183,8 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv2 = pVSData++;
 
 			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
 			indx += 3;
 		}
 	}
@@ -188,26 +199,11 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv2 = &pVSData[*(pIndx++)];
 
 			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
 			indx += 3;
 		}
 	}
-}
-
-bool BERenderProgrammablePipeline::Cull(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
-{
-	if (IsOnCanvas(pv0->positionSS) ||
-		IsOnCanvas(pv1->positionSS) ||
-		IsOnCanvas(pv2->positionSS)
-		) // at least 1 point on the screen
-	{
-		if (pCamera->IsVisible(pv0->positionWS, pv0->normalWS)) // is facing the camera
-		{
-			return false;
-		}
-	}
-
-	return true;
 }
 
 void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
@@ -226,6 +222,74 @@ void BERenderProgrammablePipeline::RasterizerWireframe(BEPipelineVSData* pv0, BE
 	DrawLine(pv0, pv1, pModel, pEntity, backFace);
 	DrawLine(pv0, pv2, pModel, pEntity, backFace);
 	DrawLine(pv1, pv2, pModel, pEntity, backFace);
+}
+
+void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+{
+	if (!pCamera->IsVisible(pv0->positionWS, pv0->normalWS)) return; // is not facing the camera
+
+	if (!IsOnCanvas(pv0->positionSS) && !IsOnCanvas(pv1->positionSS) && !IsOnCanvas(pv2->positionSS)) return; // does not have at least 1 point on the screen
+
+	// sort verticies, lowest y to highest.
+	if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
+	if (GETY(pv1->positionSS) > GETY(pv2->positionSS)) {
+		std::swap(pv1, pv2);
+		if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
+	}
+
+	// create the vertecies for the lower and upper triangle
+	// and sort the x or correctly
+	int y0 = ROUND_TO_INT_Y(pv0->positionSS);
+	int y1 = ROUND_TO_INT_Y(pv1->positionSS);
+	int y2 = ROUND_TO_INT_Y(pv2->positionSS);
+	if (y0 == y1 && y0 == y2) // flat line // to do: is this a ideal? feels messy
+	{
+		// get leftmost vert
+		BEPipelineVSData* pLeft = pv0;
+		if (GETX(pLeft->positionSS) > GETX(pv1->positionSS)) pLeft = pv1;
+		if (GETX(pLeft->positionSS) > GETX(pv2->positionSS)) pLeft = pv2;
+		// get rightmost vert
+		BEPipelineVSData* pRight = pv0;
+		if (GETX(pRight->positionSS) < GETX(pv1->positionSS)) pRight = pv1;
+		if (GETX(pRight->positionSS) < GETX(pv2->positionSS)) pRight = pv2;
+
+		//DrawHorizontalLineLR(pLeft, pRight, pModel, pEntity);
+	}
+	else if (y0 == y1) // flat bottom triangle only
+	{
+		if (GETX(pv0->positionSS) <= GETX(pv1->positionSS))
+			DrawTriangleFlatBottomLR(pv0, pv1, pv2, pModel, pEntity);
+		else
+			DrawTriangleFlatBottomLR(pv1, pv0, pv2, pModel, pEntity);
+	}
+	else if (y1 == y2) // flat top triangle only
+	{
+		if (GETX(pv1->positionSS) <= GETX(pv2->positionSS))
+			DrawTriangleFlatTopLR(pv0, pv1, pv2, pModel, pEntity);
+		else
+			DrawTriangleFlatTopLR(pv0, pv2, pv1, pModel, pEntity);
+	}
+	else // create the 2 flat top/bottom triangles
+	{
+		float y0 = GETY(pv0->positionSS);
+		float y1 = GETY(pv1->positionSS);
+		float y2 = GETY(pv2->positionSS);
+
+		// new point is... start point v0 plus...
+		// the delta (v2 - v0) divided by how far the interium point is (heigth of 1 / height of 2)
+		BEPipelineVSData pv1a((*pv0) + ((*pv2) - (*pv0)) * ((y1 - y0) / (y2 - y0)));
+		
+		if (GETX(pv1->positionSS) <= GETX(pv1a.positionSS))
+		{
+			DrawTriangleFlatTopLR(pv0, pv1, &pv1a, pModel, pEntity);
+			DrawTriangleFlatBottomLR(pv1, &pv1a, pv2, pModel, pEntity);
+		}
+		else
+		{
+			DrawTriangleFlatTopLR(pv0, &pv1a, pv1, pModel, pEntity);
+			DrawTriangleFlatBottomLR(&pv1a, pv1, pv2, pModel, pEntity);
+		}
+	}
 }
 
 void BERenderProgrammablePipeline::PixelShading()
@@ -367,6 +431,133 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 	}
 }
 
+void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity)
+{
+	// to do: may need to...?
+	//   checking Y is within the space.
+	//   checking it is left to right.
+
+	float dX = GETX(pTo->positionSS) - GETX(pFrom->positionSS);
+	int currentX = ROUND_TO_INT_X(pFrom->positionSS);
+	int currentY = ROUND_TO_INT_Y(pFrom->positionSS);
+
+	if (dX == 0.0f) // single point line
+	{
+		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(pFrom->positionSS)))
+		{
+			BEPipelinePSData psData = *pFrom;
+			psData.pModel = pModel;
+			psData.pEntity = pEntity;
+			pixelShaderBuffer.SetValue(currentX, currentY, psData);
+		}
+		return; // done
+	}
+
+	BEPipelineVSData line = *pFrom;
+	BEPipelineVSData lineDelta = (*pTo - line) / dX;
+
+	int toX = ROUND_TO_INT_X(pTo->positionSS);
+
+	while (currentX < 0) // off the left of screen
+	{
+		line += lineDelta;
+		currentX = ROUND_TO_INT_X(line.positionSS);
+	}
+
+	// draw the line
+	while (currentX <= toX && currentX < (int)width)
+	{
+		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
+		{
+			BEPipelinePSData psData = line;
+			psData.pModel = pModel;
+			psData.pEntity = pEntity;
+			pixelShaderBuffer.SetValue(currentX, currentY, psData);
+		}
+
+		line += lineDelta;
+		currentX = ROUND_TO_INT_X(line.positionSS);
+	}
+}
+
+void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+{
+	// draw flat top (v1, v2) down to bottom (v0)
+
+	if (ROUND_TO_INT_Y(pv0->positionSS) >= (int)height) return; // triangle above the screen
+	if (ROUND_TO_INT_Y(pv2->positionSS) < 0.0f) return;			// triangle below the screen
+
+	// create info to move up each side
+
+	float dY = GETY(pv1->positionSS) - GETY(pv0->positionSS);
+
+	BEPipelineVSData lineStart = *pv1;
+	BEPipelineVSData lineStartDelta = (*pv0 - lineStart) / dY;
+
+	BEPipelineVSData lineEnd = *pv2;
+	BEPipelineVSData lineEndDelta = (*pv0 - lineEnd) / dY;
+
+	int currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	int toY = ROUND_TO_INT_Y(pv0->positionSS);
+
+	while (currentY >= (int)height) // above the screen;
+	{
+		lineStart += lineStartDelta;
+		lineEnd += lineEndDelta;
+		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	}
+
+	// draw each horizontal line
+	while (currentY >= toY && currentY >= 0)
+	{
+		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
+
+		// move up the edges
+		lineStart += lineStartDelta;
+		lineEnd += lineEndDelta;
+		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	}
+}
+
+void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+{
+	// draw flat bottom (v0, v1) up to top (v2)
+
+	if (ROUND_TO_INT_Y(pv0->positionSS) >= (int)height) return; // triangle above the screen
+	if (ROUND_TO_INT_Y(pv2->positionSS) < 0.0f) return;			// triangle below the screen
+
+	// create info to move up each side
+
+	float dY = GETY(pv2->positionSS) - GETY(pv0->positionSS);
+
+	BEPipelineVSData lineStart = *pv0;
+	BEPipelineVSData lineStartDelta = (*pv2 - lineStart) / dY;
+
+	BEPipelineVSData lineEnd = *pv1;
+	BEPipelineVSData lineEndDelta = (*pv2 - lineEnd) / dY;
+
+	int currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	int toY = ROUND_TO_INT_Y(pv2->positionSS);
+
+	while (currentY < 0) // below the screen;
+	{
+		lineStart += lineStartDelta;
+		lineEnd += lineEndDelta;
+		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	}
+
+	// draw each horizontal line
+	while (currentY <= toY && currentY < (int)height)
+	{
+		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
+
+		// move up the edges
+		lineStart += lineStartDelta;
+		lineEnd += lineEndDelta;
+		currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+	}
+}
+
 inline DirectX::XMVECTOR BERenderProgrammablePipeline::ScreenSpaceToPixelCoord(DirectX::XMVECTOR v)
 {
 	return (v + XMVECTOR({1.0f, 1.0f, 0.0f, 0.0f})) * XMVECTOR({widthHalf, heightHalf, 1.0f, 1.0f});
@@ -388,10 +579,3 @@ inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x,
 	}
 	else return false;
 }
-
-// sort
-//if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
-//if (GETY(pv1->positionSS) > GETY(pv2->positionSS)) {
-//	std::swap(pv1, pv2);
-//	if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
-//}

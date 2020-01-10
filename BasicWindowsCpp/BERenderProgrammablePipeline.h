@@ -15,6 +15,7 @@ struct BEPipelineVSData
 	inline BEPipelineVSData operator*(const float rhs);
 	inline BEPipelineVSData operator/(const float rhs);
 	inline void operator+=(const BEPipelineVSData& rhs);
+	inline void operator*=(const float rhs);
 	inline void operator/=(const float rhs);
 };
 
@@ -54,9 +55,9 @@ public:
 	void VertexShading(BEModel* pModel, BEEntity* pEntity);
 	void VertexShader(BEEntity* pEntity, BEVertex* pVertex, BEPipelineVSData* pOutput);
 	void GeometryShader(BEModel* pModel, BEEntity* pEntity);
-	bool Cull(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerPoints(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
 	void RasterizerWireframe(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
+	void RasterizerTriangle(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
 	void PixelShading();
 	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
@@ -69,6 +70,11 @@ protected:
 
 	void DrawPoint(BEPipelineVSData* pVS, BEModel* pModel, BEEntity* pEntity, bool backFace);
 	void DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace);
+
+	// draw triangles... left to right
+	void DrawHorizontalLineLR(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity);
+	void DrawTriangleFlatTopLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
+	void DrawTriangleFlatBottomLR(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
 
 	inline DirectX::XMVECTOR ScreenSpaceToPixelCoord(DirectX::XMVECTOR v);
 
