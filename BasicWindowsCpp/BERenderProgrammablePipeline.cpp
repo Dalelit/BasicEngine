@@ -1,5 +1,6 @@
 #include "BERenderProgrammablePipeline.h"
 #include "BERaytrace.h"
+#include <time.h>
 
 using namespace DirectX;
 
@@ -10,10 +11,6 @@ using namespace DirectX;
 #define ROUND_TO_INT_X(v) (int)ceilf(GETX(v) - 0.5f)
 #define ROUND_TO_INT_Y(v) (int)ceilf(GETY(v) - 0.5f)
 #define ROUND_TO_INT_Z(v) (int)ceilf(GETZ(v) - 0.5f)
-//#define ROUND_TO_INT(f) (int)roundf(f)
-//#define ROUND_TO_INT_X(v) (int)roundf(GETX(v))
-//#define ROUND_TO_INT_Y(v) (int)roundf(GETY(v))
-//#define ROUND_TO_INT_Z(v) (int)roundf(GETZ(v))
 
 inline BEPipelineVSData BEPipelineVSData::operator-(const BEPipelineVSData& rhs)
 {
@@ -124,6 +121,8 @@ void BERenderProgrammablePipeline::Draw()
 	// pixelshading
 	//   pixel shader
 
+	clock_t startTime = clock();
+
 	Clear();
 
 	for (BEModel* pModel : pScene->models)
@@ -136,16 +135,25 @@ void BERenderProgrammablePipeline::Draw()
 	}
 
 	PixelShading();
+
+	drawTime += clock() - startTime;
+	frameCount++;
 }
 
 void BERenderProgrammablePipeline::Clear()
 {
+	clock_t startTime = clock();
+
 	pixelShaderBuffer.Clear();
 	depthBuffer.Clear(FLT_MAX);
+
+	clearTime += clock() - startTime;
 }
 
 void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEntity)
 {
+	clock_t startTime = clock();
+
 	unsigned int indx = 0;
 	BEMesh* pMesh = pModel->pMesh;
 	BEVertex* pVertex = pMesh->verticies;
@@ -161,6 +169,8 @@ void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEnt
 		pVSData++;
 		indx++;
 	}
+
+	vertexTime += clock() - startTime;
 }
 
 void BERenderProgrammablePipeline::VertexShader(BEEntity* pEntity, BEVertex* pVertex, BEPipelineVSData* pOutput)
@@ -174,6 +184,8 @@ void BERenderProgrammablePipeline::VertexShader(BEEntity* pEntity, BEVertex* pVe
 
 void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEntity)
 {
+	clock_t startTime = clock();
+
 	unsigned int indx = 0;
 	BEMesh* pMesh = pModel->pMesh;
 
@@ -209,6 +221,8 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			indx += 3;
 		}
 	}
+
+	geometryTime += clock() - startTime;
 }
 
 void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
@@ -290,15 +304,32 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 
 void BERenderProgrammablePipeline::PixelShading()
 {
-	for (unsigned int y = 0; y < pCanvas->height; y++)
+	clock_t startTime = clock();
+
+	//for (unsigned int y = 0; y < pCanvas->height; y++)
+	//{
+	//	for (unsigned int x = 0; x < pCanvas->width; x++)
+	//	{
+	//		XMVECTOR color;
+	//		PixelShader(pixelShaderBuffer.GetData(x, y), &color);
+	//		pCanvas->bufferSurface->SetValue(x, y, color);
+	//	}
+	//}
+
+	auto pPSBuffer = pixelShaderBuffer.GetData();
+	unsigned int size = pixelShaderBuffer.GetSize();
+
+	auto pTarget = pCanvas->bufferSurface->GetData();
+
+	for (unsigned int i = 0; i < size; i++)
 	{
-		for (unsigned int x = 0; x < pCanvas->width; x++)
-		{
-			XMVECTOR color;
-			PixelShader(pixelShaderBuffer.GetData(x, y), &color);
-			pCanvas->bufferSurface->SetValue(x, y, color);
-		}
+		PixelShader(pPSBuffer, pTarget);
+
+		pPSBuffer++;
+		pTarget++;
 	}
+
+	pixelTime += clock() - startTime;
 }
 
 void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
@@ -309,10 +340,21 @@ void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, Direct
 		return;
 	}
 
+	XMVECTOR color;
+
+	if (pPSData->pModel->pMesh->IsTextured())
+	{
+		color = pPSData->pModel->pMesh->pTextureSampler->SampleClosest(pPSData->texcoord);
+	}
+	else
+	{
+		color = pPSData->color;
+	}
+
 	XMVECTOR lights = pScene->ambientLight;
 	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
 
-	*pOutput = XMVectorSaturate(pPSData->color * lights);
+	*pOutput = XMVectorSaturate(color * lights);
 }
 
 void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pModel, BEEntity* pEntity, bool backFace)
@@ -324,7 +366,7 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pMo
 	if (y < 0 || y >= (int)height) return;
 
 	float z;
-	if (backFace) z = GETZ(pVS->positionSS + backFaceOffset);
+	if (backFace) z = GETZ((pVS->positionSS + backFaceOffset));
 	else z = GETZ(pVS->positionSS);
 
 	if (CheckAndSetDepthBuffer(x, y, z))
@@ -478,19 +520,13 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData*
 
 	while (currentX <= toX)
 	{
-		//if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
-		//{
-		//	BEPipelinePSData psData = line;
-		//	psData.pModel = pModel;
-		//	psData.pEntity = pEntity;
-		//	pixelShaderBuffer.SetValue(currentX, currentY, psData);
-		//}
-
-		// optimized
+		//optimized - if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
 		float z = GETZ(line.positionSS);
 		if (z < *pDepth)
 		{
 			*pDepth = z;
+
+			//optimized - pixelShaderBuffer.SetValue(currentX, currentY, psData);
 			*pPixel = line;
 			pPixel->pModel = pModel;
 			pPixel->pEntity = pEntity;

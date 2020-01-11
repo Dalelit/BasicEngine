@@ -487,8 +487,8 @@ int WINAPI WinMain(
 		//
 		// scanline..........
 		//
-		backBuffer[0].Clear();
 		timers[0].Start();
+		backBuffer[0].Clear();
 		pipeline[0]->Draw();
 		int t1 = timers[0].Tick().ElapsedMilSec();
 		BEDrawBackBuffer(0);
@@ -528,8 +528,8 @@ int WINAPI WinMain(
 		//
 		// wireframe.............
 		//
-		backBuffer[2].Clear();
 		timers[2].Start();
+		backBuffer[2].Clear();
 		pipeline[2]->Draw();
 		t1 = timers[2].Tick().ElapsedMilSec();
 		dx2.overlay.message << "Wrieframe draw time: " << t1 << std::endl;
@@ -544,13 +544,14 @@ int WINAPI WinMain(
 		// programmable pipeline
 		//
 		backBuffer[5].Clear();
-		timers[5].Start();
+		//timers[5].Start();
 		pipeline[5]->Draw();
-		int t51 = timers[5].Tick().ElapsedMilSec();
+		//int t51 = timers[5].Tick().ElapsedMilSec();
 		BEDrawBackBuffer(5);
-		int t52 = timers[5].Tick().ElapsedMilSec();
+		//int t52 = timers[5].Tick().ElapsedMilSec();
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims", t51, t52, t52 - t51);
+		//swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims\nAvg draw time: %ims", t51, t52, t52 - t51, progpipeline->GetAvgMillisecPerFrame());
+		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Draw time: %2.2fms\nClear time: %2.2fms\nVertex time: %2.2fms\nGeometry time: %2.2fms\nPixel time: %2.2fms", progpipeline->GetAvgDrawMS(), progpipeline->GetAvgClearMS(), progpipeline->GetAvgVertexMS(), progpipeline->GetAvgGeomteryMS(), progpipeline->GetAvgPixelMS());
 		BEWriteOverlayToWindow(5, swbuffer);
 		//BEWriteOverlayToWindow(5, progpipeline->message.str().c_str());
 

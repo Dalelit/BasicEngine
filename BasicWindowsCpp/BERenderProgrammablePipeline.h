@@ -30,15 +30,21 @@ struct BEPipelinePSData
 
 	BEPipelinePSData() = default;
 
-	BEPipelinePSData(BEPipelineVSData& rhs) {
+	BEPipelinePSData(BEPipelineVSData& rhs) :
+		positionWS(rhs.positionWS),
+		normalWS(rhs.normalWS),
+		color(rhs.color),
+		texcoord(rhs.texcoord)
+		//pModel = nullptr;
+		//pEntity = nullptr;
+		{}
+
+	inline void operator=(BEPipelineVSData& rhs) {
 		positionWS = rhs.positionWS;
 		normalWS = rhs.normalWS;
 		color = rhs.color;
 		texcoord = rhs.texcoord;
-		//pModel = nullptr;
-		//pEntity = nullptr;
 	}
-
 };
 
 class BERenderProgrammablePipeline : public BERenderPipeline
@@ -60,6 +66,12 @@ public:
 	void RasterizerTriangle(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
 	void PixelShading();
 	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+
+	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
+	float GetAvgVertexMS() { return (float)vertexTime / (float)frameCount; }
+	float GetAvgGeomteryMS() { return (float)geometryTime / (float)frameCount; }
+	float GetAvgPixelMS() { return (float)pixelTime / (float)frameCount; }
+	float GetAvgClearMS() { return (float)clearTime / (float)frameCount; }
 
 protected:
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
@@ -89,4 +101,11 @@ protected:
 
 	float backFaceAttenuation = 0.3f;
 	DirectX::XMVECTOR backFaceOffset = { 0.0f, 0.0f, 0.001f, 0.0f };
+
+	long drawTime = 0;
+	long vertexTime = 0;
+	long geometryTime = 0;
+	long pixelTime = 0;
+	long clearTime = 0;
+	long frameCount = 0;
 };
