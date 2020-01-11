@@ -334,17 +334,14 @@ void BERenderProgrammablePipeline::PixelShading()
 
 void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
-	if (!pPSData->pEntity) // nothing to shade
-	{
-		*pOutput = g_XMZero;
-		return;
-	}
+	if (!pPSData->pEntity) return; // nothing to shade
 
 	XMVECTOR color;
 
-	if (pPSData->pModel->pMesh->IsTextured())
+	auto pMesh = pPSData->pModel->pMesh;
+	if (pMesh->IsTextured())
 	{
-		color = pPSData->pModel->pMesh->pTextureSampler->SampleClosest(pPSData->texcoord);
+		color = pMesh->pTextureSampler->SampleClosest(pPSData->texcoord);
 	}
 	else
 	{
@@ -383,6 +380,7 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pMo
 
 void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace)
 {
+	// to do: really need to rethink this
 	if (GETY(pFrom->positionSS) > GETY(pTo->positionSS)) std::swap(pFrom, pTo); // always draw lower y up.
 
 	int toX = ROUND_TO_INT_X(pTo->positionSS);
@@ -480,60 +478,44 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 
 inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight, BEModel* pModel, BEEntity* pEntity)
 {
-	// to do: may need to...?
-	//   checking Y is within the space.
-	//   checking it is left to right.
+	// to do: may need to check it is left to right? assert
 
-	float dX = GETX(pToRight->positionSS) - GETX(pFromLeft->positionSS);
-	int currentX = ROUND_TO_INT_X(pFromLeft->positionSS);
-	int currentY = ROUND_TO_INT_Y(pFromLeft->positionSS);
-	int toX = ROUND_TO_INT_X(pToRight->positionSS);
+	int currentY = ROUND_TO_INT_Y(pFromLeft->positionSS); // the line
 
-	if (toX > (int)width) toX = (int)width - 1; // if the end is past the screen, stop at the end
+	float fromXf = GETX(pFromLeft->positionSS);
+	int currentX = ROUND_TO_INT(fromXf);
 
-	if (dX == 0.0f) // single point line
-	{
-		if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(pFromLeft->positionSS)))
-		{
-			BEPipelinePSData psData = *pFromLeft;
-			psData.pModel = pModel;
-			psData.pEntity = pEntity;
-			pixelShaderBuffer.SetValue(currentX, currentY, psData);
-		}
-		return; // done
-	}
+	float toXf = GETX(pToRight->positionSS);
+	int toX = ROUND_TO_INT(toXf);		  // end pixel to stop before
 
-	BEPipelineVSData line = *pFromLeft;
-	BEPipelineVSData lineDelta = (*pToRight - line) / dX;
+	if (currentX < 0) currentX = 0; // if left of the screen, start at the left
+	if (toX > (int)width) toX = (int)width; // if the end is past the screen, stop at the end, noting we stop before this value
 
-	while (currentX < 0) // off the left of screen
-	{
-		line += lineDelta;
-		currentX++; //currentX = ROUND_TO_INT_X(line.positionSS);
-	}
+	BEPipelineVSData lineDelta = (*pToRight - *pFromLeft) / (toXf - fromXf); // the change per pixel
 
-	// draw the line
-
-	// get directly to the data for optimisation
+	// optimisation - get directly to the data. Easy on a horizontal line
 	auto pPixel = pixelShaderBuffer.GetData(currentX, currentY);
 	auto pDepth = depthBuffer.GetData(currentX, currentY);
 
-	while (currentX <= toX)
+	while (currentX < toX)
 	{
-		//optimized - if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
+		float xf = (float)currentX - 0.5f; // get the centre of the location of the pixel
+
+		BEPipelineVSData line = *pFromLeft + lineDelta * (xf - fromXf);
+
+		// optimised versopm of
+		// if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
+		//   pixelShaderBuffer.SetValue(currentX, currentY, psData);
 		float z = GETZ(line.positionSS);
 		if (z < *pDepth)
 		{
 			*pDepth = z;
-
-			//optimized - pixelShaderBuffer.SetValue(currentX, currentY, psData);
 			*pPixel = line;
 			pPixel->pModel = pModel;
 			pPixel->pEntity = pEntity;
 		}
 
-		line += lineDelta;
-		currentX++; //currentX = ROUND_TO_INT_X(line.positionSS);
+		currentX++;
 		pDepth++;
 		pPixel++;
 	}
@@ -541,84 +523,67 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData*
 
 void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight, BEModel* pModel, BEEntity* pEntity)
 {
-	// draw flat top (v1, v2) down to bottom (v0)
+	// draw flat tops down to bottom
 
-	int toY = ROUND_TO_INT_Y(pBottom->positionSS);
-	int currentY = ROUND_TO_INT_Y(pTopLeft->positionSS);
+	float toYf = GETY(pBottom->positionSS);
+	float startLeftYf = GETY(pTopLeft->positionSS);
+	float startRightYf = GETY(pTopRight->positionSS);
+
+	int currentY = ROUND_TO_INT(startLeftYf) - 1; // value to start at. Going opposite direciton so start -1
+	int toY = ROUND_TO_INT(toYf);			 // value to stop at. Going opposite direciton stop at, not before
 
 	if (toY >= (int)height) return; // triangle ending above the screen
 	if (currentY < 0.0f) return;	// triangle starting below the screen
 
 	if (toY < 0) toY = 0; // if end is below the screen, change the toY to be the end
+	if (currentY >= (int)height) currentY = (int)height - 1;
 
-	// create info to move up each side
-
-	float dY = GETY(pTopLeft->positionSS) - GETY(pBottom->positionSS);
-
-	BEPipelineVSData lineStart = *pTopLeft;
-	BEPipelineVSData lineStartDelta = (*pBottom - lineStart) / dY;
-
-	BEPipelineVSData lineEnd = *pTopRight;
-	BEPipelineVSData lineEndDelta = (*pBottom - lineEnd) / dY;
-
-
-	while (currentY >= (int)height) // above the screen;
-	{
-		lineStart += lineStartDelta;
-		lineEnd += lineEndDelta;
-		currentY--;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
-	}
+	BEPipelineVSData lineStartDelta = (*pBottom - *pTopLeft) / (startLeftYf - toYf);
+	BEPipelineVSData lineEndDelta = (*pBottom - *pTopRight) / (startRightYf - toYf);
 
 	// draw each horizontal line
 	while (currentY >= toY)
 	{
+		float yf = (float)currentY + 0.5f; // get the centre location of the pixel
+
+		BEPipelineVSData lineStart = *pTopLeft + lineStartDelta * (startLeftYf - yf);
+		BEPipelineVSData lineEnd = *pTopRight + lineEndDelta * (startRightYf - yf);
 		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
 
-		// move up the edges
-		lineStart += lineStartDelta;
-		lineEnd += lineEndDelta;
-		currentY--;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY--;
 	}
 }
 
 void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop, BEModel* pModel, BEEntity* pEntity)
 {
-	// draw flat bottom (v0, v1) up to top (v2)
+	// draw flat bottoms up to top
 
-	int currentY = ROUND_TO_INT_Y(pBottomLeft->positionSS);
-	int toY = ROUND_TO_INT_Y(pTop->positionSS);
+	float toYf = GETY(pTop->positionSS);
+	float startLeftYf = GETY(pBottomLeft->positionSS);
+	float startRightYf = GETY(pBottomRight->positionSS);
+
+	int currentY = ROUND_TO_INT(startLeftYf); // value to start at.
+	int toY = ROUND_TO_INT(toYf);			  // value to stop before
 
 	if (currentY >= (int)height) return; // triangle starts above the screen
 	if (toY < 0) return;				 // triangle ends below the screen
 
-	if (toY > (int)height) toY = (int)height - 1; // end is above the screen, so stop at the top row
+	if (toY > (int)height) toY = (int)height; // end is above the screen, so stop at the top row, which is before height
+	if (currentY < 0) currentY = 0;			  // starting below the screen, so start at 0
 
-	// create info to move up each side
-
-	float dY = GETY(pTop->positionSS) - GETY(pBottomLeft->positionSS);
-
-	BEPipelineVSData lineStart = *pBottomLeft;
-	BEPipelineVSData lineStartDelta = (*pTop - lineStart) / dY;
-
-	BEPipelineVSData lineEnd = *pBottomRight;
-	BEPipelineVSData lineEndDelta = (*pTop - lineEnd) / dY;
-
-	while (currentY < 0) // below the screen;
-	{
-		lineStart += lineStartDelta;
-		lineEnd += lineEndDelta;
-		currentY++;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
-	}
+	BEPipelineVSData lineStartDelta = (*pTop - *pBottomLeft) / (toYf - startLeftYf);
+	BEPipelineVSData lineEndDelta = (*pTop - *pBottomRight) / (toYf - startRightYf);
 
 	// draw each horizontal line
-	while (currentY <= toY)
+	while (currentY < toY)
 	{
+		float yf = (float)currentY + 0.5f; // get the centre location of the pixel
+
+		BEPipelineVSData lineStart = *pBottomLeft + lineStartDelta * (yf - startLeftYf);
+		BEPipelineVSData lineEnd = *pBottomRight + lineEndDelta * (yf - startRightYf);
 		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
 
-		// move up the edges
-		lineStart += lineStartDelta;
-		lineEnd += lineEndDelta;
-		currentY++;  //currentY = ROUND_TO_INT_Y(lineStart.positionSS);
+		currentY++;
 	}
 }
 
