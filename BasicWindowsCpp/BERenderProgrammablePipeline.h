@@ -96,8 +96,9 @@ protected:
 
 	float width;
 	float height;
-	float widthHalf;
-	float heightHalf;
+
+	DirectX::XMVECTOR xmv1100 = { 1.0f, 1.0f, 0.0f, 0.0f };
+	DirectX::XMVECTOR halfWidthHeight11;
 
 	float backFaceAttenuation = 0.3f;
 	DirectX::XMVECTOR backFaceOffset = { 0.0f, 0.0f, 0.001f, 0.0f };

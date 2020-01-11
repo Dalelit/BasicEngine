@@ -96,11 +96,10 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 
 	width = (float)pCanvas->width;
 	height = (float)pCanvas->height;
-	widthHalf = width / 2.0f;
-	heightHalf = height / 2.0f;
+
+	halfWidthHeight11 = { width / 2.0f, height / 2.0f, 1.0f, 1.0f };
 
 	vsBuffer = new BEPipelineVSData[vsBufferSize];
-	//memset(vsBuffer, 0, sizeof(BEPipelineVSData) * vsBufferSize);
 
 	assert(vsBuffer != nullptr);
 }
@@ -247,7 +246,7 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 {
 	if (!pCamera->IsVisible(pv0->positionWS, pv0->normalWS)) return; // is not facing the camera
 
-	if (!IsOnCanvas(pv0->positionSS) && !IsOnCanvas(pv1->positionSS) && !IsOnCanvas(pv2->positionSS)) return; // does not have at least 1 point on the screen
+	//if (!IsOnCanvas(pv0->positionSS) && !IsOnCanvas(pv1->positionSS) && !IsOnCanvas(pv2->positionSS)) return; // does not have at least 1 point on the screen
 
 	// sort verticies, lowest y to highest.
 	if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
@@ -260,17 +259,27 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 	float y1 = GETY(pv1->positionSS);
 	float y2 = GETY(pv2->positionSS);
 
+	if (y0 >= height) return; // above the screen
+	if (y2 < 0.0f) return;		  // below the screen
+
+	float x0 = GETX(pv0->positionSS);
+	float x1 = GETX(pv1->positionSS);
+	float x2 = GETX(pv2->positionSS);
+
+	if (x0 < 0.0f && x1 < 0.0f && x2 < 0.0f) return; // left of the screen
+	if (x0 >= width && x1 >= width && x2 >= width) return; // right of the screen
+
 	// draw the triangles
 
 	if (y0 == y1) // flat bottom triangle only
 	{
-		if (GETX(pv0->positionSS) > GETX(pv1->positionSS)) std::swap(pv0, pv1); // ensure left to right
+		if (x0 > x1) std::swap(pv0, pv1); // ensure left to right
 
 		DrawTriangleFlatBottomLR(pv0, pv1, pv2, pModel, pEntity);
 	}
 	else if (y1 == y2) // flat top triangle only
 	{
-		if (GETX(pv1->positionSS) > GETX(pv2->positionSS)) std::swap(pv1, pv2); // ensure left to right
+		if (x1 > x2) std::swap(pv1, pv2); // ensure left to right
 
 		DrawTriangleFlatTopLR(pv0, pv1, pv2, pModel, pEntity);
 	}
@@ -280,7 +289,7 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 		BEPipelineVSData v1a(*pv0 + (*pv2 - *pv0) * split); // from the start + the difference * split
 		BEPipelineVSData* pv1a = &v1a; // need a pointer to it for swapping
 
-		if (GETX(pv1->positionSS) > GETX(pv1a->positionSS)) std::swap(pv1, pv1a); // ensure left to right
+		if (x1 > GETX(pv1a->positionSS)) std::swap(pv1, pv1a); // ensure left to right
 
 		DrawTriangleFlatTopLR(pv0, pv1, pv1a, pModel, pEntity);
 		DrawTriangleFlatBottomLR(pv1, pv1a, pv2, pModel, pEntity);
@@ -349,7 +358,6 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pMo
 
 		if (backFace) psData.color *= backFaceAttenuation;
 	}
-
 }
 
 void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace)
@@ -506,9 +514,6 @@ void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBott
 	int currentY = ROUND_TO_INT(startLeftYf) - 1; // value to start at. Going opposite direciton so start -1
 	int toY = ROUND_TO_INT(toYf);			 // value to stop at. Going opposite direciton stop at, not before
 
-	if (toY >= (int)height) return; // triangle ending above the screen
-	if (currentY < 0.0f) return;	// triangle starting below the screen
-
 	if (toY < 0) toY = 0; // if end is below the screen, change the toY to be the end
 	if (currentY >= (int)height) currentY = (int)height - 1;
 
@@ -541,9 +546,6 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pB
 	int currentY = ROUND_TO_INT(startLeftYf); // value to start at.
 	int toY = ROUND_TO_INT(toYf);			  // value to stop before
 
-	if (currentY >= (int)height) return; // triangle starts above the screen
-	if (toY < 0) return;				 // triangle ends below the screen
-
 	if (toY > (int)height) toY = (int)height; // end is above the screen, so stop at the top row, which is before height
 	if (currentY < 0) currentY = 0;			  // starting below the screen, so start at 0
 
@@ -567,13 +569,18 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pB
 
 inline DirectX::XMVECTOR BERenderProgrammablePipeline::ScreenSpaceToPixelCoord(DirectX::XMVECTOR v)
 {
-	return (v + XMVECTOR({1.0f, 1.0f, 0.0f, 0.0f})) * XMVECTOR({widthHalf, heightHalf, 1.0f, 1.0f});
+	return (v + xmv1100) * halfWidthHeight11;
 }
 
 inline bool BERenderProgrammablePipeline::IsOnCanvas(DirectX::XMVECTOR& v)
 {
-	// to do: consider rounding? ie width -0.0f
-	return GETX(v) >= 0.0f && GETX(v) < width && GETY(v) >= 0.0f && GETY(v) < height;
+	int x = ROUND_TO_INT_X(v);
+	if (x < 0 || x >= (int)width) return false;
+
+	int y = ROUND_TO_INT_Y(v);
+	if (y < 0 || y >= (int)height) return false;
+
+	return true;
 }
 
 inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth)
