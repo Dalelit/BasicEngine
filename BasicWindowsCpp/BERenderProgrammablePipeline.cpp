@@ -199,8 +199,8 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv2 = pVSData++;
 
 			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			//RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
+			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
 			indx += 3;
 		}
 	}
@@ -215,8 +215,8 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv2 = &pVSData[*(pIndx++)];
 
 			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			//RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
+			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
 			indx += 3;
 		}
 	}
@@ -362,66 +362,50 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pMo
 
 void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace)
 {
-	// to do: really need to rethink this
-	if (GETY(pFrom->positionSS) > GETY(pTo->positionSS)) std::swap(pFrom, pTo); // always draw lower y up.
+	float fromXf = GETX(pFrom->positionSS);
+	float fromYf = GETY(pFrom->positionSS);
+	float toXf = GETX(pTo->positionSS);
+	float toYf = GETY(pTo->positionSS);
+	float dx = toXf - fromXf;
+	float dy = toYf - fromYf;
 
-	int toX = ROUND_TO_INT_X(pTo->positionSS);
-	int toY = ROUND_TO_INT_Y(pTo->positionSS);
-	int fromX = ROUND_TO_INT_X(pFrom->positionSS);
-	int fromY = ROUND_TO_INT_Y(pFrom->positionSS);
-
-	if (toY < 0) return;						// for when the whole line is below the screen
-	if (fromY >= (int)height) return;			// for when the whole line is above the screen
-	if (fromX < 0 && toX < 0.0f) return;		// for when the while line is left of the screen
-	if (fromX >= (int)width && toX >= (int)width) return;	// for when the while line is left of the screen
-
-	BEPipelineVSData from = *pFrom;
-	BEPipelineVSData delta = *pTo - from;
-
-	if (backFace)
+	if (fabsf(dx) > fabsf(dy)) // x distance longer than y
 	{
-		// fade back face lines
-		from.color *= backFaceAttenuation;
-		delta.color *= backFaceAttenuation;
-
-		// push it back so back buffer overdraw of full strength lines can occur
-		from.positionSS += backFaceOffset;
-	}
-
-	if (fabsf(GETX(delta.positionSS)) < 0.5f && GETY(delta.positionSS) < 0.5f) // it is a dot
-	{
-		// to do: confirm nothing? delta should be very small
-	}
-	else if (fabsf(GETX(delta.positionSS)) < GETY(delta.positionSS)) // diff x < diff y (note dy always > 0)
-	{
-		delta /= GETY(delta.positionSS);
-	}
-	else  // diff x >= diff y
-	{
-		delta /= fabsf(GETX(delta.positionSS));
-	}
-
-	// move to the first point on the screen
-	while (fromY < 0 || fromX < 0 || fromX >= (int)width)
-	{
-		from += delta;
-		fromX = ROUND_TO_INT_X(from.positionSS);
-		fromY = ROUND_TO_INT_Y(from.positionSS);
-
-		if (fromX < 0 && toX < 0) return;
-		if (fromX >= (int)width && toX >= (int)width) return;
-		if (fromY < 0 && toY < 0) return;
-		if (fromY >= (int)height && toY >= (int)height) return;
-	}
-
-	if (GETX(delta.positionSS) > 0.0f) // left to right
-	{
-		while ( fromY <= toY &&			// haven't reach target y
-				fromX <= toX &&			// haven't reach target x // to do: only for horizontal lines... make then a special case?
-				fromY < (int)height &&	// not off the top
-				fromX < (int)width)		// not off the right
+		if (fromXf > toXf) // always draw left to right
 		{
-			if (CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
+			std::swap(pFrom, pTo);
+			std::swap(fromXf, toXf);
+			std::swap(fromYf, toYf);
+			dx = -dx;
+		}
+
+		int fromX = ROUND_TO_INT(fromXf);
+		int fromY = ROUND_TO_INT(fromYf);
+		int toX = ROUND_TO_INT(toXf);
+
+		if (toX < 0) return;			 // for when the whole line is left of the screen
+		if (fromX >= (int)width) return; // for when the while line is left of the screen
+
+		if (fromX < 0) fromX = 0;				// if starting left of the screen, start on 0;
+		if (toX > (int)width) toX = (int)width; // if going past the screen, stop at the end
+
+		BEPipelineVSData from = *pFrom;
+		BEPipelineVSData delta = (*pTo - from) / dx;
+
+		if (backFace) // fade back face lines and push it back so back buffer overdraw of full strength lines can occur
+		{
+			from.color *= backFaceAttenuation;
+			delta.color *= backFaceAttenuation;
+			from.positionSS += backFaceOffset;
+		}
+
+		from = from + delta * (((float)fromX + 0.5f) - fromXf); // move to the first pixel
+
+		while (fromX < toX)
+		{
+			fromY = ROUND_TO_INT_Y(from.positionSS);
+
+			if (fromY >= 0 && fromY < (int)height && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
 				BEPipelinePSData psData = from;
 				psData.pModel = pModel;
@@ -430,19 +414,46 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 			}
 
 			from += delta;
-
-			fromX = ROUND_TO_INT_X(from.positionSS);
-			fromY = ROUND_TO_INT_Y(from.positionSS);
+			fromX++;
 		}
 	}
-	else // right to left
+	else  // y distance longer than x
 	{
-		while ( fromY <= toY &&			// haven't reach target y
-				fromX >= toX &&			// haven't reach target x // to do: only for horizontal lines... make then a special case?
-				fromY < (int)height &&	// not off the top
-				fromX >= 0)				// not off the left
+		if (fromYf > toYf) // always draw lower y up.
 		{
-			if (CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
+			std::swap(pFrom, pTo);
+			std::swap(fromXf, toXf);
+			std::swap(fromYf, toYf);
+			dy = -dy;
+		}
+
+		int fromX = ROUND_TO_INT(fromXf);
+		int fromY = ROUND_TO_INT(fromYf);
+		int toY = ROUND_TO_INT(toYf);
+
+		if (toY < 0) return;			  // for when the whole line is below the screen
+		if (fromY >= (int)height) return; // for when the whole line is above the screen
+
+		if (fromY < 0) fromY = 0;				  // if starting below the screen, start on 0;
+		if (toY > (int)height) toY = (int)height; // if going past the screen, stop at the end
+
+		BEPipelineVSData from = *pFrom;
+		BEPipelineVSData delta = (*pTo - from) / dy;
+
+		if (backFace) // fade back face lines and push it back so back buffer overdraw of full strength lines can occur
+		{
+			from.color *= backFaceAttenuation;
+			delta.color *= backFaceAttenuation;
+			from.positionSS += backFaceOffset;
+		}
+
+		from = from + delta * (((float)fromY + 0.5f) - fromYf); // move to the first pixel
+
+		while (fromY < toY)
+		{
+			fromX = ROUND_TO_INT_X(from.positionSS);
+
+			if (fromX >= 0 && fromX < (int)width && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
 				BEPipelinePSData psData = from;
 				psData.pModel = pModel;
@@ -451,9 +462,7 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 			}
 
 			from += delta;
-			
-			fromX = ROUND_TO_INT_X(from.positionSS);
-			fromY = ROUND_TO_INT_Y(from.positionSS);
+			fromY++;
 		}
 	}
 }
