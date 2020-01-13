@@ -463,6 +463,8 @@ int WINAPI WinMain(
 	// for programmable pipeline rendering
 	BERenderProgrammablePipeline* progpipeline = new BERenderProgrammablePipeline(&scene, &camera, &backBuffer[5]);
 	pipeline[5] = progpipeline;
+	//progpipeline->SetToPointsOutput();
+	//progpipeline->SetToWireframeOutput();
 
 	// ready to go...
 

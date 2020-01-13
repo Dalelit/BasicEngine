@@ -19,6 +19,12 @@ struct BEPipelineVSData
 	inline void operator/=(const float rhs);
 };
 
+struct BEPipelineVSConstants
+{
+	BEModel* pModel;
+	BEEntity* pEntity;
+};
+
 struct BEPipelinePSData
 {
 	DirectX::XMVECTOR positionWS;
@@ -58,12 +64,12 @@ public:
 
 	void Clear();
 
-	void VertexShading(BEModel* pModel, BEEntity* pEntity);
-	void VertexShader(BEEntity* pEntity, BEVertex* pVertex, BEPipelineVSData* pOutput);
-	void GeometryShader(BEModel* pModel, BEEntity* pEntity);
-	void RasterizerPoints(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
-	void RasterizerWireframe(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
-	void RasterizerTriangle(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity);
+	void VertexShading(BEPipelineVSConstants& constants);
+	void VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput);
+	void GeometryShader(BEPipelineVSConstants& constants);
+	void RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+	void RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+	void RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void PixelShading();
 	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
@@ -73,6 +79,10 @@ public:
 	float GetAvgPixelMS() { return (float)pixelTime / (float)frameCount; }
 	float GetAvgClearMS() { return (float)clearTime / (float)frameCount; }
 
+	void SetToPointsOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints; }
+	void SetToWireframeOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe; }
+	void SetToTriangleOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle; }
+
 protected:
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
 	BESurface2D<float> depthBuffer;
@@ -80,13 +90,16 @@ protected:
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
 
-	void DrawPoint(BEPipelineVSData* pVS, BEModel* pModel, BEEntity* pEntity, bool backFace);
-	void DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace);
+	// method pointer for which rasterizer to use.
+	void(BERenderProgrammablePipeline::* pRasterizerFunc)(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+
+	void DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace);
+	void DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo, bool backFace);
 
 	// draw triangles... left to right
-	inline void DrawHorizontalLineLR(BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight, BEModel* pModel, BEEntity* pEntity);
-	void DrawTriangleFlatTopLR(BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight, BEModel* pModel, BEEntity* pEntity);
-	void DrawTriangleFlatBottomLR(BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop, BEModel* pModel, BEEntity* pEntity);
+	inline void DrawHorizontalLineLR(BEPipelineVSConstants& constants, BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight);
+	void DrawTriangleFlatTopLR(BEPipelineVSConstants& constants, BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight);
+	void DrawTriangleFlatBottomLR(BEPipelineVSConstants& constants, BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop);
 
 	inline DirectX::XMVECTOR ScreenSpaceToPixelCoord(DirectX::XMVECTOR v);
 

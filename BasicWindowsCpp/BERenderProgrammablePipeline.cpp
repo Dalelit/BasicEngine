@@ -102,6 +102,8 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 	vsBuffer = new BEPipelineVSData[vsBufferSize];
 
 	assert(vsBuffer != nullptr);
+
+	SetToTriangleOutput();
 }
 
 BERenderProgrammablePipeline::~BERenderProgrammablePipeline()
@@ -124,12 +126,18 @@ void BERenderProgrammablePipeline::Draw()
 
 	Clear();
 
+	BEPipelineVSConstants vsConstants;
+
 	for (BEModel* pModel : pScene->models)
 	{
+		vsConstants.pModel = pModel;
+
 		for (BEEntity* pEntity : pModel->entities)
 		{
-			VertexShading(pModel, pEntity);
-			GeometryShader(pModel, pEntity);
+			vsConstants.pEntity = pEntity;
+
+			VertexShading(vsConstants);
+			GeometryShader(vsConstants);
 		}
 	}
 
@@ -149,12 +157,12 @@ void BERenderProgrammablePipeline::Clear()
 	clearTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::VertexShading(BEPipelineVSConstants& constants)
 {
 	clock_t startTime = clock();
 
 	unsigned int indx = 0;
-	BEMesh* pMesh = pModel->pMesh;
+	BEMesh* pMesh = constants.pModel->pMesh;
 	BEVertex* pVertex = pMesh->verticies;
 	BEPipelineVSData* pVSData = vsBuffer;
 
@@ -162,7 +170,7 @@ void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEnt
 
 	while (indx < pMesh->vertCount)
 	{
-		VertexShader(pEntity, pVertex, pVSData);
+		VertexShader(constants, pVertex, pVSData);
 
 		pVertex++;
 		pVSData++;
@@ -172,21 +180,21 @@ void BERenderProgrammablePipeline::VertexShading(BEModel* pModel, BEEntity* pEnt
 	vertexTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::VertexShader(BEEntity* pEntity, BEVertex* pVertex, BEPipelineVSData* pOutput)
+void BERenderProgrammablePipeline::VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput)
 {
-	pOutput->positionWS = pEntity->ModelToWorldPosition(pVertex->position);
-	pOutput->normalWS = pEntity->ModelToWorldDirection(pVertex->normal);
+	pOutput->positionWS = constants.pEntity->ModelToWorldPosition(pVertex->position);
+	pOutput->normalWS = constants.pEntity->ModelToWorldDirection(pVertex->normal);
 	pOutput->positionSS = ScreenSpaceToPixelCoord(pCamera->WorldToScreen(pOutput->positionWS));
 	pOutput->color = pVertex->color;
 	pOutput->texcoord = pVertex->texcoord;
 }
 
-void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constants)
 {
 	clock_t startTime = clock();
 
 	unsigned int indx = 0;
-	BEMesh* pMesh = pModel->pMesh;
+	BEMesh* pMesh = constants.pModel->pMesh;
 
 	BEPipelineVSData* pVSData = vsBuffer;
 	
@@ -198,9 +206,9 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv1 = pVSData++;
 			BEPipelineVSData* pv2 = pVSData++;
 
-			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
-			//RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerXXX(constants, pv0, pv1, pv2);
+			(this->*pRasterizerFunc)(constants, pv0, pv1, pv2);
+
 			indx += 3;
 		}
 	}
@@ -214,9 +222,9 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 			BEPipelineVSData* pv1 = &pVSData[*(pIndx++)];
 			BEPipelineVSData* pv2 = &pVSData[*(pIndx++)];
 
-			//RasterizerPoints(pv0, pv1, pv2, pModel, pEntity);
-			RasterizerWireframe(pv0, pv1, pv2, pModel, pEntity);
-			//RasterizerTriangle(pv0, pv1, pv2, pModel, pEntity);
+			//RasterizerXXX(constants, pv0, pv1, pv2);
+			(this->*pRasterizerFunc)(constants, pv0, pv1, pv2);
+
 			indx += 3;
 		}
 	}
@@ -224,25 +232,25 @@ void BERenderProgrammablePipeline::GeometryShader(BEModel* pModel, BEEntity* pEn
 	geometryTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
 	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
 
-	DrawPoint(pv0, pModel, pEntity, backFace);
-	DrawPoint(pv1, pModel, pEntity, backFace);
-	DrawPoint(pv2, pModel, pEntity, backFace);
+	DrawPoint(constants, pv0, backFace);
+	DrawPoint(constants, pv1, backFace);
+	DrawPoint(constants, pv2, backFace);
 }
 
-void BERenderProgrammablePipeline::RasterizerWireframe(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
 	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
 
-	DrawLine(pv0, pv1, pModel, pEntity, backFace);
-	DrawLine(pv0, pv2, pModel, pEntity, backFace);
-	DrawLine(pv1, pv2, pModel, pEntity, backFace);
+	DrawLine(constants, pv0, pv1, backFace);
+	DrawLine(constants, pv0, pv2, backFace);
+	DrawLine(constants, pv1, pv2, backFace);
 }
 
-void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
 	if (!pCamera->IsVisible(pv0->positionWS, pv0->normalWS)) return; // is not facing the camera
 
@@ -275,13 +283,13 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 	{
 		if (x0 > x1) std::swap(pv0, pv1); // ensure left to right
 
-		DrawTriangleFlatBottomLR(pv0, pv1, pv2, pModel, pEntity);
+		DrawTriangleFlatBottomLR(constants, pv0, pv1, pv2);
 	}
 	else if (y1 == y2) // flat top triangle only
 	{
 		if (x1 > x2) std::swap(pv1, pv2); // ensure left to right
 
-		DrawTriangleFlatTopLR(pv0, pv1, pv2, pModel, pEntity);
+		DrawTriangleFlatTopLR(constants, pv0, pv1, pv2);
 	}
 	else // create the 2 flat top/bottom triangles
 	{
@@ -291,8 +299,8 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSData* pv0, BEP
 
 		if (x1 > GETX(pv1a->positionSS)) std::swap(pv1, pv1a); // ensure left to right
 
-		DrawTriangleFlatTopLR(pv0, pv1, pv1a, pModel, pEntity);
-		DrawTriangleFlatBottomLR(pv1, pv1a, pv2, pModel, pEntity);
+		DrawTriangleFlatTopLR(constants, pv0, pv1, pv1a);
+		DrawTriangleFlatBottomLR(constants, pv1, pv1a, pv2);
 	}
 }
 
@@ -337,7 +345,7 @@ void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, Direct
 	*pOutput = XMVectorSaturate(color * lights);
 }
 
-void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pModel, BEEntity* pEntity, bool backFace)
+void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace)
 {
 	int x = ROUND_TO_INT_X(pVS->positionSS);
 	if (x < 0 || x >= (int)width) return;
@@ -353,14 +361,14 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSData* pVS, BEModel* pMo
 	{
 		BEPipelinePSData& psData = pixelShaderBuffer.GetDataByRef(x, y);
 		psData = (*pVS);
-		psData.pModel = pModel;
-		psData.pEntity = pEntity;
+		psData.pModel = constants.pModel;
+		psData.pEntity = constants.pEntity;
 
 		if (backFace) psData.color *= backFaceAttenuation;
 	}
 }
 
-void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineVSData* pTo, BEModel* pModel, BEEntity* pEntity, bool backFace)
+void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo, bool backFace)
 {
 	float fromXf = GETX(pFrom->positionSS);
 	float fromYf = GETY(pFrom->positionSS);
@@ -408,8 +416,8 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 			if (fromY >= 0 && fromY < (int)height && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
 				BEPipelinePSData psData = from;
-				psData.pModel = pModel;
-				psData.pEntity = pEntity;
+				psData.pModel = constants.pModel;
+				psData.pEntity = constants.pEntity;
 				pixelShaderBuffer.SetValue(fromX, fromY, psData);
 			}
 
@@ -456,8 +464,8 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 			if (fromX >= 0 && fromX < (int)width && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
 				BEPipelinePSData psData = from;
-				psData.pModel = pModel;
-				psData.pEntity = pEntity;
+				psData.pModel = constants.pModel;
+				psData.pEntity = constants.pEntity;
 				pixelShaderBuffer.SetValue(fromX, fromY, psData);
 			}
 
@@ -467,7 +475,7 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSData* pFrom, BEPipelineV
 	}
 }
 
-inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight, BEModel* pModel, BEEntity* pEntity)
+inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSConstants& constants, BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight)
 {
 	// to do: may need to check it is left to right? assert
 
@@ -501,8 +509,8 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData*
 		{
 			*pDepth = z;
 			*pPixel = line;
-			pPixel->pModel = pModel;
-			pPixel->pEntity = pEntity;
+			pPixel->pModel = constants.pModel;
+			pPixel->pEntity = constants.pEntity;
 		}
 
 		currentX++;
@@ -512,7 +520,7 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSData*
 	}
 }
 
-void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSConstants& constants, BEPipelineVSData* pBottom, BEPipelineVSData* pTopLeft, BEPipelineVSData* pTopRight)
 {
 	// draw flat tops down to bottom
 
@@ -536,7 +544,7 @@ void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBott
 	// draw each horizontal line
 	while (currentY >= toY)
 	{
-		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
+		DrawHorizontalLineLR(constants, &lineStart, &lineEnd);
 
 		currentY--;
 		lineStart += lineStartDelta;
@@ -544,7 +552,7 @@ void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSData* pBott
 	}
 }
 
-void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop, BEModel* pModel, BEEntity* pEntity)
+void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSConstants& constants, BEPipelineVSData* pBottomLeft, BEPipelineVSData* pBottomRight, BEPipelineVSData* pTop)
 {
 	// draw flat bottoms up to top
 
@@ -568,7 +576,7 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSData* pB
 	// draw each horizontal line
 	while (currentY < toY)
 	{
-		DrawHorizontalLineLR(&lineStart, &lineEnd, pModel, pEntity);
+		DrawHorizontalLineLR(constants, &lineStart, &lineEnd);
 
 		currentY++;
 		lineStart += lineStartDelta;
