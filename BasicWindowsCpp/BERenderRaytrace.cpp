@@ -1,10 +1,10 @@
-#include "BERenderPipeline.h"
+#include "BERenderRaytrace.h"
 #include "BERaytrace.h"
 #include <DirectXCollision.h>
 
 using namespace DirectX;
 
-BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
+BERenderRaytrace::BERenderRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas)
 {
 	pScene = _pScene;
 	pCamera = _pCamera;
@@ -16,12 +16,12 @@ BERenderPipelineRaytrace::BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _
 	raysProcessed = 0;
 }
 
-BERenderPipelineRaytrace::~BERenderPipelineRaytrace()
+BERenderRaytrace::~BERenderRaytrace()
 {
 }
 
 // to do: sampling?
-void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
+void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 {
 	float px = (float)x * invWidthx2 - 1.0f;
 	float py = (float)y * invHeightx2 - 1.0f;
@@ -80,18 +80,18 @@ void BERenderPipelineRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	}
 }
 
-void BERenderPipelineRaytrace::Draw()
+void BERenderRaytrace::Draw()
 {
 	//DrawByLine();
 	DrawBySampling(0, pCanvas->width, 0, pCanvas->height);
 }
 
-void BERenderPipelineRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
+void BERenderRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
 {
 	DrawBySampling(xFrom, width, yFrom, height);
 }
 
-void BERenderPipelineRaytrace::DrawByLine()
+void BERenderRaytrace::DrawByLine()
 {
 	for (unsigned int y = 0; y < pCanvas->height; y++)
 	{
@@ -109,7 +109,7 @@ void BERenderPipelineRaytrace::DrawByLine()
 }
 
 // to do: tidy up types... check for efficiency
-void BERenderPipelineRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
+void BERenderRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
 {
 	int size = width * height;
 	unsigned int x, y;

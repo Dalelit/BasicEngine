@@ -1,3 +1,8 @@
+///////////////////////////////////////////
+// Depricated as it is now replaced.     //
+// Keeping for it here for the memories. //
+///////////////////////////////////////////
+
 #pragma once
 #include "BEScene.h"
 #include "BECamera.h"
@@ -90,35 +95,6 @@ private:
 	inline void DrawScanLine(unsigned int y, unsigned int x1, unsigned int x2, DirectX::XMVECTOR color);
 };
 
-//////////////////////////////////////////////////////
-// Raytrace
-//
-class BERenderPipelineRaytrace : public BERenderPipeline
-{
-public:
-
-	unsigned int raysToProcess;
-	unsigned int raysProcessed;
-
-	bool backfaceCull = true;
-
-	BERenderPipelineRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
-	~BERenderPipelineRaytrace();
-
-	void Draw();
-	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
-	void DrawByLine();
-	void DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
-
-	void ResetStats() { raysProcessed = 0; };
-
-private:
-	unsigned int stride;
-	float invWidthx2;
-	float invHeightx2;
-
-	void InnerLoop(unsigned int x, unsigned int y);
-};
 
 //////////////////////////////////////////////////////
 // Wireframe

@@ -191,6 +191,7 @@
     <ClInclude Include="BERaytrace.h" />
     <ClInclude Include="BERenderPipeline.h" />
     <ClInclude Include="BERenderProgrammablePipeline.h" />
+    <ClInclude Include="BERenderRaytrace.h" />
     <ClInclude Include="BESampler.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />

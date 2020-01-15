@@ -1,5 +1,6 @@
 #pragma once
 #include "BERenderPipeline.h"
+#include <sstream>
 
 
 struct BEPipelineVSData
@@ -53,45 +54,56 @@ struct BEPipelinePSData
 	}
 };
 
-class BERenderProgrammablePipeline : public BERenderPipeline
+class BERenderProgrammablePipeline
 {
 public:
 	BERenderProgrammablePipeline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
 	~BERenderProgrammablePipeline();
 
 	void Draw();
-	void Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height) { throw "Not implemented yet"; }
 
 	void Clear();
 
 	void VertexShading(BEPipelineVSConstants& constants);
 	void VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput);
+
 	void GeometryShader(BEPipelineVSConstants& constants);
 	void RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
-	void PixelShading();
-	void PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
+	void PixelShading();
+	void PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+	void PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+	void PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+
+	// method pointer for which rasterizer to use.
+	void(BERenderProgrammablePipeline::* pRasterizerFunc)(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+
+	// method pointer for which pixel shader to use.
+	void(BERenderProgrammablePipeline::* pPixelShaderFunc)(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+
+	//void SetToPointsOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints; }
+	//void SetToWireframeOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe; }
+	//void SetToTriangleOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle; }
+
+	std::wstring GetStats();
 	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
 	float GetAvgVertexMS() { return (float)vertexTime / (float)frameCount; }
 	float GetAvgGeomteryMS() { return (float)geometryTime / (float)frameCount; }
 	float GetAvgPixelMS() { return (float)pixelTime / (float)frameCount; }
 	float GetAvgClearMS() { return (float)clearTime / (float)frameCount; }
 
-	void SetToPointsOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints; }
-	void SetToWireframeOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe; }
-	void SetToTriangleOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle; }
-
 protected:
+	BEScene* pScene = nullptr;
+	BECamera* pCamera = nullptr;
+	BECanvas* pCanvas = nullptr;
+
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
 	BESurface2D<float> depthBuffer;
 
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
-
-	// method pointer for which rasterizer to use.
-	void(BERenderProgrammablePipeline::* pRasterizerFunc)(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 
 	void DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace);
 	void DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo, bool backFace);

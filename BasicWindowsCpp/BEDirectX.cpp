@@ -3,10 +3,10 @@
 #include "BEDXVertexShader.h"
 #include "BEDXPixelShader.h"
 #include "BEDXVertexBuffer.h"
-#include "BETimer.h"
 #include "BEDXTexture.h"
 #include "BEDXEntityPSConstantBuffer.h"
 #include "BEDXEntityVSConstantBuffer.h"
+#include <time.h>
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -93,7 +93,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 
 int BEDirectX::DoFrame()
 {
-	BETimer timer;
+	clock_t startTime = clock();
 
 	device.BeginFrame();
 
@@ -101,9 +101,14 @@ int BEDirectX::DoFrame()
 
 	for (auto d : drawables) d->Draw(device);
 
-	overlay.message << "DX time: " << timer.Tick().ElapsedMilSec() << "ms";
+	drawTime += clock() - startTime;
+	frameCount++;
 
-	overlay.Draw();
+	if (showStats)
+	{
+		overlay.message << GetStats();
+		overlay.Draw();
+	}
 
 	device.PresentFrame();
 
@@ -113,8 +118,7 @@ int BEDirectX::DoFrame()
 // to do: it is a cut/paste of the draw... is there a better way?
 int BEDirectX::DoFrameWithExtra(BEDirectXDrawable& toDraw)
 {
-	BETimer timer;
-	timer.Start();
+	clock_t startTime = clock();
 
 	device.BeginFrame();
 
@@ -124,9 +128,14 @@ int BEDirectX::DoFrameWithExtra(BEDirectXDrawable& toDraw)
 
 	for (auto d : drawables) d->Draw(device);
 
-	overlay.message << "DX time: " << timer.Tick().ElapsedMilSec() << "ms";
+	drawTime += clock() - startTime;
+	frameCount++;
 
-	overlay.Draw();
+	if (showStats)
+	{
+		overlay.message << GetStats();
+		overlay.Draw();
+	}
 
 	device.PresentFrame();
 
@@ -137,4 +146,13 @@ void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
 	overlay.ShowBitmap(canvas);
 	device.PresentFrame();
+}
+
+std::wstring BEDirectX::GetStats()
+{
+	std::wstringstream msg;
+
+	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
+
+	return msg.str();
 }

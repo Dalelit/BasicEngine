@@ -9,6 +9,7 @@
 #include "BECanvas.h"
 #include <vector>
 #include <wrl.h>
+#include <sstream>
 
 namespace wrl = Microsoft::WRL;
 
@@ -18,6 +19,8 @@ public:
 
 	BEDirectXDevice device;
 	BEDXOverlay overlay;
+
+	bool showStats = true;
 
 	BEDirectX();
 	~BEDirectX();
@@ -34,9 +37,14 @@ public:
 	// show the bitmap version of the canvas. Assumes it's already stored.
 	void ShowBitmap(BECanvas& canvas);
 
+	std::wstring GetStats();
+	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
+
 private:
 	std::vector<BEDirectXResource*> resources;
 	std::vector<BEDirectXDrawable*> drawables;
 	std::vector<BEDirectXConstantBuffer*> constantbuffers;
-};
 
+	long drawTime = 0;
+	long frameCount = 0;
+};

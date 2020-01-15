@@ -103,7 +103,8 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 
 	assert(vsBuffer != nullptr);
 
-	SetToTriangleOutput();
+	pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
+	pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderFull;
 }
 
 BERenderProgrammablePipeline::~BERenderProgrammablePipeline()
@@ -151,6 +152,7 @@ void BERenderProgrammablePipeline::Clear()
 {
 	clock_t startTime = clock();
 
+	pCanvas->Clear();
 	pixelShaderBuffer.Clear();
 	depthBuffer.Clear(FLT_MAX);
 
@@ -314,7 +316,7 @@ void BERenderProgrammablePipeline::PixelShading()
 
 	for (unsigned int i = 0; i < size; i++)
 	{
-		PixelShader(pPSBuffer, pTarget);
+		(this->*pPixelShaderFunc)(pPSBuffer, pTarget);
 
 		pPSBuffer++;
 		pTarget++;
@@ -323,7 +325,7 @@ void BERenderProgrammablePipeline::PixelShading()
 	pixelTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
 	if (!pPSData->pEntity) return; // nothing to shade
 
@@ -343,6 +345,36 @@ void BERenderProgrammablePipeline::PixelShader(BEPipelinePSData* pPSData, Direct
 	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
 
 	*pOutput = XMVectorSaturate(color * lights);
+}
+
+void BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+{
+	if (!pPSData->pEntity) return; // nothing to shade
+
+	XMVECTOR color = pPSData->color;
+
+	XMVECTOR lights = pScene->ambientLight;
+	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
+
+	*pOutput = XMVectorSaturate(color * lights);
+}
+
+void BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+{
+	*pOutput = pPSData->color;
+}
+
+std::wstring BERenderProgrammablePipeline::GetStats()
+{
+	std::wstringstream msg;
+
+	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
+	msg << "Clear time: " << GetAvgClearMS() << "ms" << std::endl;
+	msg << "Vertex time: " << GetAvgVertexMS() << "ms" << std::endl;
+	msg << "Geometry time: " << GetAvgGeomteryMS() << "ms" << std::endl;
+	msg << "Pixel time: " << GetAvgPixelMS() << "ms" << std::endl;
+
+	return msg.str();
 }
 
 void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace)

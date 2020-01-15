@@ -19,6 +19,9 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{4c095aba-3288-4739-bb71-2f5a4d66fedd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Depricated">
+      <UniqueIdentifier>{aff70f45-7293-4f33-9e97-65a2825d3569}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -39,13 +42,7 @@
     <ClCompile Include="BELight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BERenderScanline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BERenderRaytrace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BERenderWireframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEDirectX.cpp">
@@ -120,15 +117,18 @@
     <ClCompile Include="BERenderProgrammablePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BERenderWireframe.cpp">
+      <Filter>Depricated</Filter>
+    </ClCompile>
+    <ClCompile Include="BERenderScanline.cpp">
+      <Filter>Depricated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BECamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BERenderPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMesh.h">
@@ -235,6 +235,12 @@
     </ClInclude>
     <ClInclude Include="BERenderProgrammablePipeline.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BERenderRaytrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BERenderPipeline.h">
+      <Filter>Depricated</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

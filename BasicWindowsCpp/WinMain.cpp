@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <random>
-#include "BERenderPipeline.h"
+#include "BERenderRaytrace.h"
 #include "BERenderProgrammablePipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
@@ -51,9 +51,9 @@ BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 // global engine variables
 BECamera camera({0,3,4,1}, {0,-2,-1,1});
 BEScene scene;
-BERenderPipeline* pipeline[BENUMBER_WINDOWS];
-BETimer timers[BENUMBER_WINDOWS];
 BETimer loopTimer;
+BETimer timers[BENUMBER_WINDOWS];
+BERenderRaytrace* pRayTracer = nullptr;
 
 /////////////////////////////////
 // back buffer functions
@@ -122,11 +122,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		break;
-	//case WM_PAINT:
-	//{
-	//	DrawBackBuffer();
-	//	break;
-	//}
 	case WM_KEYDOWN:
 	{
 		switch (wParam)
@@ -172,7 +167,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			camera.RotateDirection(0, 0.1f, 0);
 			break;
 		case 'R': //0x52: // R
-			pipeline[1]->restartLoop = true;
+			pRayTracer->restartLoop = true;
 			break;
 		case 'P':
 			raytraceKeepRunning = !raytraceKeepRunning;
@@ -297,7 +292,7 @@ DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
 	while (argIndx >= 0)
 	{
 		BERayTraceSubsection* args = &rayTraceArgs[argIndx];
-		pipeline[args->indx]->Draw(args->xStart, args->width, args->yStart, args->height);
+		pRayTracer->Draw(args->xStart, args->width, args->yStart, args->height);
 		argIndx = BEThreadFunctionGetNextRayTraceSubsection();
 	}
 	return 0;
@@ -317,8 +312,9 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
-	int indx = *((int*)lpParam);
-	int resultIndx = 3; // to do: hard coded the window indx
+	//int indx = *((int*)lpParam);
+	int indx = 3; // to do: hard coded the working window indx
+	int resultIndx = 4; // to do: hard coded the result window indx
 
 	BEWriteOverlayToWindow(resultIndx, L"Starting...");
 	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
@@ -356,8 +352,8 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 
 	while (running && raytraceKeepRunning)
 	{
-		pipeline[indx]->restartLoop = false;
-		pipeline[indx]->ResetStats();
+		pRayTracer->restartLoop = false;
+		pRayTracer->ResetStats();
 		backBuffer[indx].Clear();
 		for (int i = 0; i < rayTraceArgs.size(); i++) rayTraceArgs[i].available = true;
 
@@ -425,12 +421,12 @@ int WINAPI WinMain(
 	windowRect.bottom -= windowRect.top;
 	windowRect.top = 0;
 
-	BECreateWindow(0, hInstance, L"Scanline");
-	BECreateWindow(1, hInstance, L"Ray tracing");
-	BECreateWindow(2, hInstance, L"Wireframe");
-	BECreateWindow(3, hInstance, L"Raytrace final");
-	BECreateWindow(4, hInstance, L"Direct3D");
-	BECreateWindow(5, hInstance, L"Programmable pipeline");
+	BECreateWindow(0, hInstance, L"Points");
+	BECreateWindow(1, hInstance, L"Wireframe");
+	BECreateWindow(2, hInstance, L"Full");
+	BECreateWindow(3, hInstance, L"Raytrace working");
+	BECreateWindow(4, hInstance, L"Raytrace final");
+	BECreateWindow(5, hInstance, L"Direct3D");
 
 	//scene.CreateSceneTest0();
 	scene.CreateSceneTest1();
@@ -438,33 +434,32 @@ int WINAPI WinMain(
 	//scene.CreateSceneTest3();
 	scene.Update(0);
 
-	// for scanline rendering
-	pipeline[0] = new BERenderPipelineScanline(&scene, &camera, &backBuffer[0]);
-	backBuffer[0].AddDepthBuffer(); // to do: automatically add a depth buffer?
+	// points
+	BERenderProgrammablePipeline pointsPL(&scene, &camera, &backBuffer[0]);
+	pointsPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints;
+	pointsPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
 
-	// for raytrace rendering
-	pipeline[1] = new BERenderPipelineRaytrace(&scene, &camera, &backBuffer[1]);
-	BERenderPipelineRaytrace* pRT = (BERenderPipelineRaytrace*)pipeline[1];
+	// wireframe
+	BERenderProgrammablePipeline wireframePL(&scene, &camera, &backBuffer[1]);
+	wireframePL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe;
+	wireframePL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColorLight;
+
+	// Full output
+	BERenderProgrammablePipeline mainPL(&scene, &camera, &backBuffer[2]);
+	//mainPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
+	//mainPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderFull;
+
+	// Raytrace rendering
+	BERenderRaytrace raytracing(&scene, &camera, &backBuffer[3]);
+	pRayTracer = &raytracing;
 	DWORD threadId;
 	HANDLE thread = nullptr;
 
-	// for wireframe rendering
-	pipeline[2] = new BERenderPipelineWireframe(&scene, &camera, &backBuffer[2]);
-	BEDirectX dx2; // for using DirectX to show the scanline output rather than our BECanvas display
-	dx2.InitialiseBase(hwnd[2], bufferWidth, bufferHeight);
-	BEDXShowCanvas dx2sc(dx2.device, *(backBuffer[2].bufferSurface), true);
-
 	// for DirectX rendering
-	BEDirectX dx4;
-	dx4.InitialiseBase(hwnd[4], bufferWidth, bufferHeight);
-	dx4.Initialise3D(&scene, &camera);
-	dx4.LoadScene(&scene);
-
-	// for programmable pipeline rendering
-	BERenderProgrammablePipeline* progpipeline = new BERenderProgrammablePipeline(&scene, &camera, &backBuffer[5]);
-	pipeline[5] = progpipeline;
-	//progpipeline->SetToPointsOutput();
-	//progpipeline->SetToWireframeOutput();
+	BEDirectX dx;
+	dx.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
+	dx.Initialise3D(&scene, &camera);
+	dx.LoadScene(&scene);
 
 	// ready to go...
 
@@ -487,17 +482,25 @@ int WINAPI WinMain(
 		if (doUpdate) scene.Update(dt);
 
 		//
-		// scanline..........
+		// points..........
 		//
-		timers[0].Start();
-		backBuffer[0].Clear();
-		pipeline[0]->Draw();
-		int t1 = timers[0].Tick().ElapsedMilSec();
+		pointsPL.Draw();
 		BEDrawBackBuffer(0);
-		int t2 = timers[0].Tick().ElapsedMilSec();
+		BEWriteOverlayToWindow(0, pointsPL.GetStats().c_str());
 
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims", t1, t2, t2-t1);
-		BEWriteOverlayToWindow(0, swbuffer);
+		//
+		// wireframe..........
+		//
+		wireframePL.Draw();
+		BEDrawBackBuffer(1);
+		BEWriteOverlayToWindow(1, wireframePL.GetStats().c_str());
+
+		//
+		// main pipeline..........
+		//
+		mainPL.Draw();
+		BEDrawBackBuffer(2);
+		BEWriteOverlayToWindow(2, mainPL.GetStats().c_str());
 
 		//
 		// raytrace..........
@@ -507,58 +510,24 @@ int WINAPI WinMain(
 			if (thread != NULL) CloseHandle(thread);
 			
 			// put ray tracer in a separate thread
-			int arg = 1;
+			int arg = 0;
 			thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
 		}
 
-		BEDrawBackBuffer(1);
-		pipeline[1]->showBuffer = false;
+		BEDrawBackBuffer(3);
+		raytracing.showBuffer = false;
 
-		int todo = pRT->raysToProcess;
-		int done = pRT->raysProcessed;
+		int todo = raytracing.raysToProcess;
+		int done = raytracing.raysProcessed;
 		float pcnt = (float)done / (float)todo * 100.0f;
 		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rays to process %i\nRays processed %i(%3.2f%%)", todo, done, pcnt);
-		BEWriteOverlayToWindow(1, swbuffer);
+		BEWriteOverlayToWindow(3, swbuffer);
 
 		//
 		// directx.............
 		//
-		timers[4].Start();
-		dx4.DoFrame();
-		timers[4].Tick();
+		dx.DoFrame();
 
-		//
-		// wireframe.............
-		//
-		timers[2].Start();
-		backBuffer[2].Clear();
-		pipeline[2]->Draw();
-		t1 = timers[2].Tick().ElapsedMilSec();
-		dx2.overlay.message << "Wrieframe draw time: " << t1 << std::endl;
-		dx2.overlay.message << "Delta time: " << dt << std::endl;
-		dx2.overlay.message << "Sleep time: " << sleeptime << std::endl;
-		dx2.DoFrameWithExtra(dx2sc);
-		//BEDrawBackBuffer(2); // slow method to show the buffer
-
-		loopTimer.Start(); // here only because of where it gets displayed
-
-		//
-		// programmable pipeline
-		//
-		backBuffer[5].Clear();
-		//timers[5].Start();
-		pipeline[5]->Draw();
-		//int t51 = timers[5].Tick().ElapsedMilSec();
-		BEDrawBackBuffer(5);
-		//int t52 = timers[5].Tick().ElapsedMilSec();
-
-		//swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rendering time: %ims\nTime inc buffer draw: %ims\nBuffer time: %ims\nAvg draw time: %ims", t51, t52, t52 - t51, progpipeline->GetAvgMillisecPerFrame());
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Draw time: %2.2fms\nClear time: %2.2fms\nVertex time: %2.2fms\nGeometry time: %2.2fms\nPixel time: %2.2fms", progpipeline->GetAvgDrawMS(), progpipeline->GetAvgClearMS(), progpipeline->GetAvgVertexMS(), progpipeline->GetAvgGeomteryMS(), progpipeline->GetAvgPixelMS());
-		BEWriteOverlayToWindow(5, swbuffer);
-		//BEWriteOverlayToWindow(5, progpipeline->message.str().c_str());
-
-		// to use for the overall loop...
-		// to do: limit framerate? Worry about that when it actually works quick
 
 		// lock the framerate
 		clock_t currenttime = clock();
@@ -567,7 +536,7 @@ int WINAPI WinMain(
 		loopstarttime = currenttime;
 	}
 
-	pipeline[1]->exitLoop = true; // tell it to stop!
+	raytracing.exitLoop = true; // tell it to stop!
 	if (thread != NULL)
 	{
 		WaitForSingleObject(thread, 3000);

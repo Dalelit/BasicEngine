@@ -1,3 +1,8 @@
+///////////////////////////////////////////
+// Depricated as it is now replaced.     //
+// Keeping for it here for the memories. //
+///////////////////////////////////////////
+
 #include "BERenderPipeline.h"
 
 using namespace DirectX;
