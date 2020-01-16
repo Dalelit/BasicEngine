@@ -157,6 +157,7 @@
     <ClCompile Include="BESampler.cpp" />
     <ClCompile Include="BEScene.cpp" />
     <ClCompile Include="BEDXVertexBuffer.cpp" />
+    <ClCompile Include="BESceneTests.cpp" />
     <ClCompile Include="BETexture.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
@@ -195,6 +196,7 @@
     <ClInclude Include="BESampler.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />
+    <ClInclude Include="BESceneTests.h" />
     <ClInclude Include="BESurface2D.h" />
     <ClInclude Include="BETexture.h" />
     <ClInclude Include="BETimer.h" />

@@ -23,6 +23,7 @@
 #include "BEDirectX.h"
 #include "BETimer.h"
 #include "BEDXShowCanvas.h"
+#include "BESceneTests.h"
 
 // global windows variables and macros
 #define BENUMBER_WINDOWS 6
@@ -428,10 +429,11 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Raytrace final");
 	BECreateWindow(5, hInstance, L"Direct3D");
 
-	//scene.CreateSceneTest0();
-	scene.CreateSceneTest1();
-	//scene.CreateSceneTest2();
-	//scene.CreateSceneTest3();
+	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest1(scene);
+	//BESceneTests::CreateSceneTest2(scene);
+	//BESceneTests::CreateSceneTest3(scene);
+
 	scene.Update(0);
 
 	// points

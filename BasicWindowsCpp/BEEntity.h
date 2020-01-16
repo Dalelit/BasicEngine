@@ -39,15 +39,11 @@ public:
 	void SetScale(DirectX::XMVECTOR _scale) { scale = _scale; }
 
 	void Translate(float x, float y, float z) {
-		position.m128_f32[0] += x;
-		position.m128_f32[1] += y;
-		position.m128_f32[2] += z;
+		position = DirectX::XMVectorAdd(position, { x, y, z, 0.0f });
 	}
 
 	void Rotate(float pitch, float yaw, float roll) {
-		rotation.m128_f32[0] += pitch;
-		rotation.m128_f32[1] += yaw;
-		rotation.m128_f32[2] += roll;
+		rotation = DirectX::XMVectorAdd(rotation, { pitch, yaw, roll, 1.0f });
 	}
 
 	inline DirectX::XMVECTOR GetWorldPosition() { return DirectX::XMVector3TransformCoord(position, GetTransform()); }

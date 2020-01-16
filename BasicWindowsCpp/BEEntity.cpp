@@ -11,6 +11,7 @@ BEEntity::BEEntity(XMFLOAT3A _position)
 BEEntity::~BEEntity()
 {
 	for (auto e : children) delete e;
+	for (auto c : components) delete c;
 }
 
 void BEEntity::Update(float deltaTime)

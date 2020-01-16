@@ -22,6 +22,15 @@
     <Filter Include="Depricated">
       <UniqueIdentifier>{aff70f45-7293-4f33-9e97-65a2825d3569}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BEDirectX Header Files">
+      <UniqueIdentifier>{8e7a9ccc-e84f-44e1-8975-0385839bd71a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BEDirectX Source Files">
+      <UniqueIdentifier>{1f052edd-d471-4156-a66c-08c0f5a42220}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{83965946-25f8-43ca-ae7b-5e7f4e11e969}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -45,46 +54,10 @@
     <ClCompile Include="BERenderRaytrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BEDirectX.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXVertexShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDirectXDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXPixelShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXVertexBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BEScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshPrimatives.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXVSConstantBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXPSConstantBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXOverlay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXShowCanvas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXTexture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXTextureUpdateable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDirectXDrawable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BETexture.cpp">
@@ -99,16 +72,10 @@
     <ClCompile Include="BEMeshLoaderSTL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BEDXEntityPSConstantBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BEModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMaterial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BEDXEntityVSConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BERaytrace.cpp">
@@ -122,6 +89,51 @@
     </ClCompile>
     <ClCompile Include="BERenderScanline.cpp">
       <Filter>Depricated</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDirectX.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDirectXDevice.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDirectXDrawable.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXEntityPSConstantBuffer.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXEntityVSConstantBuffer.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXOverlay.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXPixelShader.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXPSConstantBuffer.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXShowCanvas.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXTexture.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXTextureUpdateable.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXVertexBuffer.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXVertexShader.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXVSConstantBuffer.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BESceneTests.cpp">
+      <Filter>Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,27 +155,6 @@
     <ClInclude Include="BELight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BEDirectX.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDirectXResource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXVertexShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDirectXDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXPixelShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXVertexBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDirectXDrawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BEScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -173,28 +164,7 @@
     <ClInclude Include="BEVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BEDXVSConstantBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXPSConstantBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXOverlay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BETimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDirectXConstantBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXShowCanvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXTextureUpdateable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BETexture.h">
@@ -212,16 +182,10 @@
     <ClInclude Include="BEMeshLoaderSTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BEDXEntityPSConstantBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BEModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEDXEntityVSConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEEntityComponents.h">
@@ -241,6 +205,57 @@
     </ClInclude>
     <ClInclude Include="BERenderPipeline.h">
       <Filter>Depricated</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDirectX.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDirectXConstantBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDirectXDevice.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDirectXDrawable.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDirectXResource.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXEntityPSConstantBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXEntityVSConstantBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXOverlay.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXPixelShader.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXPSConstantBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXShowCanvas.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXTexture.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXTextureUpdateable.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXVertexBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXVertexShader.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXVSConstantBuffer.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BESceneTests.h">
+      <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
