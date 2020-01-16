@@ -53,14 +53,16 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 				hitInfo.u, hitInfo.v);
 		}
 
-		XMVECTOR positionWS = XMVectorBaryCentric(
+		XMVECTOR positionMS = XMVectorBaryCentric(
 				hitInfo.pV0->position, hitInfo.pV1->position, hitInfo.pV2->position,
 				hitInfo.u, hitInfo.v);
+		XMVECTOR positionWS = hitInfo.pEntity->ModelToWorldPosition(positionMS);
 		hitInfo.pEntity->ModelToWorldPosition(positionWS);
 
-		XMVECTOR normalWS = XMVectorBaryCentric(
+		XMVECTOR normalMS = XMVectorBaryCentric(
 			hitInfo.pV0->normal, hitInfo.pV1->normal, hitInfo.pV2->normal,
 			hitInfo.u, hitInfo.v);
+		XMVECTOR normalWS = hitInfo.pEntity->ModelToWorldDirection(normalMS);
 		hitInfo.pEntity->ModelToWorldDirection(normalWS);
 
 		XMVECTOR lights = pScene->ambientLight;
