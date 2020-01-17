@@ -17,9 +17,9 @@ BEScene::~BEScene()
 
 void BEScene::Update(float deltaTime)
 {
-	for (BEEntity* entity : entityRef)
+	for (BEModel* m : models)
 	{
-		entity->Update(deltaTime);
+		m->Update(deltaTime);
 	}
 
 	for (BEPointLight* light : lights)

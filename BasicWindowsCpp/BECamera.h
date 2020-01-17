@@ -24,6 +24,7 @@ public:
 	inline void Recalc();
 
 	void LookAt(DirectX::XMVECTOR target);
+	void LookAt(float x, float y, float z) { LookAt({ x, y, z, 1.0f }); };
 
 	inline DirectX::XMMATRIX GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
 	inline DirectX::XMMATRIX GetViewMatrix() { return viewMatrix; }

@@ -34,17 +34,20 @@ public:
 
 	std::vector<BEEntityComponent*> components;
 
+	// Note: update sets the internal matricies once. They don't happen in the various other functions.
 	void Update(float deltaTime);
 
-	void SetScale(DirectX::XMVECTOR _scale) { scale = _scale; }
+	inline void SetScale(DirectX::XMVECTOR _scale) { scale = _scale; }
+	inline void SetScale(float x, float y, float z) { scale = { x, y, z, 1.0f }; }
 
-	void Translate(float x, float y, float z) {
-		position = DirectX::XMVectorAdd(position, { x, y, z, 0.0f });
-	}
+	inline void SetPosition(DirectX::XMVECTOR _position) { position = _position; }
+	inline void SetPosition(float x, float y, float z) { position = { x, y, z, 1.0f }; }
 
-	void Rotate(float pitch, float yaw, float roll) {
-		rotation = DirectX::XMVectorAdd(rotation, { pitch, yaw, roll, 1.0f });
-	}
+	inline void SetRotation(DirectX::XMVECTOR _rotation) { rotation = _rotation; }
+	inline void SetRotation(float pitch, float yaw, float roll) { rotation = { pitch, yaw, roll, 1.0f }; }
+
+	inline void Translate(float x, float y, float z) { position = DirectX::XMVectorAdd(position, { x, y, z, 0.0f }); }
+	inline void Rotate(float pitch, float yaw, float roll) { rotation = DirectX::XMVectorAdd(rotation, { pitch, yaw, roll, 0.0f }); }
 
 	inline DirectX::XMVECTOR GetWorldPosition() { return DirectX::XMVector3TransformCoord(position, GetTransform()); }
 
@@ -61,9 +64,7 @@ public:
 	inline DirectX::XMVECTOR WorldToModelPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, GetTransformInverse()); }
 	inline DirectX::XMVECTOR WorldToModelDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, GetTransformRotationInverse()); } // to do: normialise?
 
-	inline float GetDistanceInWorldSpace(DirectX::XMVECTOR worldPosition) {
-		return DirectX::XMVector3Length(DirectX::XMVectorSubtract(worldPosition, GetWorldPosition())).m128_f32[0];
-	}
+	inline float GetDistanceInWorldSpace(DirectX::XMVECTOR worldPosition) { return DirectX::XMVector3Length(DirectX::XMVectorSubtract(worldPosition, GetWorldPosition())).m128_f32[0]; }
 
 protected:
 	DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();

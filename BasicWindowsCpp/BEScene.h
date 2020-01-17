@@ -19,7 +19,5 @@ public:
 	std::vector<BETexture*> textures;
 	std::vector<BESampler*> samplers;
 
-	std::vector<BEEntity*> entityRef; // does not own the entity... used for update
-
 	void Update(float deltaTime);
 };
