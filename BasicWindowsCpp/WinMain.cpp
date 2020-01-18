@@ -36,6 +36,9 @@ int windowPosY = 0;
 int displaySizeW = 800;
 int displaySizeH = 600;
 RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is called in main to set this
+BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer properly. Using for the mouse input.
+long mouseX = 0;
+long mouseY = 0;
 
 // global control variables
 bool running = true;
@@ -123,6 +126,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		break;
+	/////// Keyboard
 	case WM_KEYDOWN:
 	{
 		switch (wParam)
@@ -174,6 +178,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			raytraceKeepRunning = !raytraceKeepRunning;
 			break;
 		}
+		break;
+	}
+	/////// Raw mouse
+	case WM_INPUT:
+	{
+		UINT size;
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1) break;
+
+		if (size == 0) break;
+
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, rawBuffer, &size, sizeof(RAWINPUTHEADER)) != size) throw "Raw buffer read did not match"; // to do: error hacking
+
+		RAWINPUT* raw = (RAWINPUT*)rawBuffer;
+
+		if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			mouseX += raw->data.mouse.lLastX;
+			mouseY += raw->data.mouse.lLastY;
+		}
+
 		break;
 	}
 	case WM_DESTROY:
@@ -249,6 +273,19 @@ int BECreateWindow(int indx, HINSTANCE hInstance, LPCWSTR name)
 void BECleanupWindow(int indx)
 {
 	ReleaseDC(hwnd[indx], hdc[indx]);
+}
+
+void BESetupRawMouseIntput()
+{
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = 0x01; // mouse page
+	rid.usUsage = 0x02; // mouse usage
+	rid.dwFlags = 0;
+	rid.hwndTarget = nullptr;
+	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+	{
+		throw "Error with RegisterRawInputDevices"; // to do: really need some error handling... more hacking
+	}
 }
 
 /////////////////////////////////
@@ -429,6 +466,8 @@ int WINAPI WinMain(
 	BECreateWindow(4, hInstance, L"Raytrace final");
 	BECreateWindow(5, hInstance, L"Direct3D");
 
+	BESetupRawMouseIntput();
+
 	//BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
@@ -483,6 +522,11 @@ int WINAPI WinMain(
 			DispatchMessage(&msg);
 		}
 
+		// handling input
+		std::wstring mousemsg = L"Mouse movement x=" + std::to_wstring(mouseX) + L", y=" + std::to_wstring(mouseY);
+		mouseX = 0;
+		mouseY = 0;
+
 		// update loop
 		float dt = deltaTime.DeltaTime();
 		clock_t updateStartTime = clock();
@@ -496,7 +540,8 @@ int WINAPI WinMain(
 		pointsPL.Draw();
 		BEDrawBackBuffer(0);
 		std::wstring msg = pointsPL.GetStats();
-		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms";
+		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms\n";
+		msg += mousemsg;
 		BEWriteOverlayToWindow(0, msg.c_str());
 
 		//
