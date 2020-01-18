@@ -1,7 +1,7 @@
 #pragma once
-#include "BEEntity.h"
+#include <DirectXMath.h>
 
-class BECamera : public BEEntity
+class BECamera
 {
 public:
 	struct Ray
@@ -9,6 +9,8 @@ public:
 		DirectX::XMVECTOR origin;
 		DirectX::XMVECTOR direction;
 	};
+
+	DirectX::XMVECTOR position = { 0,0,0,1 };
 
 	float viewPortRatio = 3.0f / 4.0f;
 	float viewPortX = 1.0f;
@@ -23,8 +25,11 @@ public:
 	BECamera(DirectX::XMVECTOR _position, DirectX::XMVECTOR _direction);
 	inline void Recalc();
 
+	inline void SetPosition(DirectX::XMVECTOR _position) { position = _position; }
+	inline void SetPosition(float x, float y, float z) { position = { x, y, z, 1.0f }; }
+
 	void LookAt(DirectX::XMVECTOR target);
-	void LookAt(float x, float y, float z) { LookAt({ x, y, z, 1.0f }); };
+	inline void LookAt(float x, float y, float z) { LookAt({ x, y, z, 1.0f }); };
 
 	inline DirectX::XMMATRIX GetViewProjectionMatrix() { return viewMatrix * projectionMatrix; }
 	inline DirectX::XMMATRIX GetViewMatrix() { return viewMatrix; }

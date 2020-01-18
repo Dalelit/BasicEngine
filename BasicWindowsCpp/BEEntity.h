@@ -46,7 +46,9 @@ public:
 	inline void SetRotation(DirectX::XMVECTOR _rotation) { rotation = _rotation; }
 	inline void SetRotation(float pitch, float yaw, float roll) { rotation = { pitch, yaw, roll, 1.0f }; }
 
-	inline void Translate(float x, float y, float z) { position = DirectX::XMVectorAdd(position, { x, y, z, 0.0f }); }
+	inline void Translate(DirectX::XMVECTOR vector) { position = DirectX::XMVectorAdd(position, vector); }
+	inline void Translate(float x, float y, float z) { Translate({ x, y, z, 0.0f }); }
+
 	inline void Rotate(float pitch, float yaw, float roll) { rotation = DirectX::XMVectorAdd(rotation, { pitch, yaw, roll, 0.0f }); }
 
 	inline DirectX::XMVECTOR GetWorldPosition() { return DirectX::XMVector3TransformCoord(position, GetTransform()); }
