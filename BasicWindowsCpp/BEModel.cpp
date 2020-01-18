@@ -6,6 +6,9 @@ BEModel::~BEModel()
 
 void BEModel::Update(float deltaTime)
 {
+	// to the component updates first
+	for (auto func : updateFunctions) (*func)(this, deltaTime);
+
 	for (BEEntity& entity : entitiesData)
 	{
 		if (entity.active) // to do: move inactive out of this list?
@@ -26,6 +29,8 @@ BEEntity* BEModel::CreateInstance(DirectX::XMFLOAT3A position)
 
 	entities.push_back(e);
 
+	entityCount++;
+
 	return e;
 }
 
@@ -39,5 +44,17 @@ void BEModel::CreateBulkInstances(unsigned int amount)
 	{
 		entitiesData.emplace_back(BEEntity());
 		entities.emplace_back(&entitiesData.back());
+	}
+
+	entityCount += amount;
+}
+
+void BEModel::AddPhysics()
+{
+	physicsData.reserve(entitiesData.capacity());
+
+	for (unsigned int i = 0; i < entitiesData.size(); i++)
+	{
+		physicsData.emplace_back(BEComponentPhysics());
 	}
 }

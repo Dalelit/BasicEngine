@@ -2,6 +2,7 @@
 #include "BEMeshPrimatives.h"
 #include "BEMeshLoaderSTL.h"
 #include "BEEntityComponents.h"
+#include "BEEntitySystems.h"
 
 void BESceneTests::CreateSceneTest0(BEScene& scene)
 {
@@ -179,24 +180,16 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	pModel->pMesh = BEMeshPrimatives::CubeMesh();
 	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 
-	int cw = 5;
-	int cd = 5;
-	pModel->CreateBulkInstances(cw * cd);
+	unsigned int w = 6;
+	unsigned int d = 5;
+	pModel->CreateBulkInstances(w * d);
 
-	float width = 8.0f;
-	float depth = 8.0f;
+	BEEntitySystem::SetPositionInGrid(pModel, 2.0f, w, d);
 
-	float z = -depth;
-	int indx = 0;
-	for (int d = 0; d < cd; d++)
-	{
-		float x = -width / 2.0f;
-		for (int w = 0; w < cw; w++)
-		{
-			pModel->entitiesData[indx].SetPosition(x, 0.0f, z);
-			x += width / (cw - 1.0f);
-			indx++;
-		}
-		z += depth / (cd - 1.0f);
-	}
+	pModel->AddPhysics();
+	pModel->updateFunctions.push_back(&BEPhysicsSystem::BasicUpdate);
+	pModel->updateFunctions.push_back(&BEPhysicsSystem::BounceUpdate);
+
+	BEPhysicsSystem::RandomRotationSetup(pModel, 1.0f);
+	BEPhysicsSystem::BounceSetup(pModel, 2.0f);
 }

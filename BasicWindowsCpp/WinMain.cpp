@@ -470,6 +470,9 @@ int WINAPI WinMain(
 	clock_t frametime = 1000 / 60; // 60 frames a second
 	clock_t sleeptime = 0;
 
+	long frameCount = 0;
+	long totalUpdateTime = 0;
+
 	clock_t loopstarttime = clock();
 	while (running)
 	{
@@ -482,14 +485,19 @@ int WINAPI WinMain(
 
 		// update loop
 		float dt = deltaTime.DeltaTime();
+		clock_t updateStartTime = clock();
 		if (doUpdate) scene.Update(dt);
+		totalUpdateTime += updateStartTime - clock();
+		frameCount++;
 
 		//
 		// points..........
 		//
 		pointsPL.Draw();
 		BEDrawBackBuffer(0);
-		BEWriteOverlayToWindow(0, pointsPL.GetStats().c_str());
+		std::wstring msg = pointsPL.GetStats();
+		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms";
+		BEWriteOverlayToWindow(0, msg.c_str());
 
 		//
 		// wireframe..........

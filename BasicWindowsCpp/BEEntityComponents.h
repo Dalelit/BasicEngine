@@ -2,6 +2,13 @@
 #include "BEEntity.h"
 #include <random>
 
+struct BEComponentPhysics
+{
+	DirectX::XMVECTOR velocity;
+	DirectX::XMVECTOR acceleration;
+	DirectX::XMVECTOR angularVelocity;
+};
+
 class BEEntityComponentOrbit : public BEEntityComponent
 {
 public:

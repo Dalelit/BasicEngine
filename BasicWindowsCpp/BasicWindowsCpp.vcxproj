@@ -143,6 +143,7 @@
     <ClCompile Include="BEDXPixelShader.cpp" />
     <ClCompile Include="BEDXVertexShader.cpp" />
     <ClCompile Include="BEEntity.cpp" />
+    <ClCompile Include="BEEntitySystems.cpp" />
     <ClCompile Include="BELight.cpp" />
     <ClCompile Include="BEMaterial.cpp" />
     <ClCompile Include="BEMesh.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="BEEntity.h" />
     <ClInclude Include="BECommon.h" />
     <ClInclude Include="BEEntityComponents.h" />
+    <ClInclude Include="BEEntitySystems.h" />
     <ClInclude Include="BELight.h" />
     <ClInclude Include="BEMaterial.h" />
     <ClInclude Include="BEMesh.h" />

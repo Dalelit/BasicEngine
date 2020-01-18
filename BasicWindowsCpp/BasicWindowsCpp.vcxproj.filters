@@ -135,6 +135,9 @@
     <ClCompile Include="BESceneTests.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="BEEntitySystems.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -256,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="BESceneTests.h">
       <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="BEEntitySystems.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
