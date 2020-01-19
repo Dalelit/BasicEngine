@@ -1,4 +1,6 @@
 #include "BECamera.h"
+#include "BEMath.h"
+#include <algorithm>
 
 using namespace DirectX;
 
@@ -22,7 +24,6 @@ inline void BECamera::Recalc()
 	viewMatrix = XMMatrixLookToRH(position, direction, {0,1,0,1});
 
 	projectionMatrix = XMMatrixPerspectiveRH(viewPortX, viewPortY, 0.5f, 10000.0f);
-
 }
 
 void BECamera::LookAt(XMVECTOR target)
@@ -54,16 +55,21 @@ void BECamera::RotateDirectionMouseInput(int x, int y)
 {
 	// convert mouse movement to radian * sensitivity
 	float scale = XM_PI / 180.0f * mouseSensitivity;
-	RotateDirection((float)x * scale, (float)y * scale);
+	RotateDirection((float)-x * scale, (float)-y * scale);
+
+	// to do: add a bool for inverting the mouse direction?
 }
 
 void BECamera::RotateDirection(float yaw, float pitch, float roll)
 {
-	mYaw += yaw;
-	mPitch += pitch;
+	constexpr float pitchBound = XM_PI / 2.0f - 0.001f;
+	mYaw = WrapAngle(mYaw + yaw);
+	mPitch = std::clamp(mPitch + pitch, -pitchBound, pitchBound);
 
-	XMMATRIX m = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
-	direction = XMVector3Normalize( XMVector3Transform(direction, m) );
+	constexpr XMVECTOR forward = {0.0f, 0.0f, -1.0f, 0.0f};
+
+	XMMATRIX m = XMMatrixRotationRollPitchYaw(mPitch, mYaw, 0.0f);
+	direction = XMVector3Normalize( XMVector3Transform(forward, m) );
 
 	Recalc();
 }

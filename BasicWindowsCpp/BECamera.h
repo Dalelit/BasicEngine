@@ -20,7 +20,8 @@ public:
 	float focalLength = 1.0f; // is this really a focal length?
 	float maxDistance = 10000.0f; // to do: need to think about this number.
 
-	float mouseSensitivity = 0.25f;
+	float moveSpeed = 0.2f; // to do: make this relevant to delta time?
+	float mouseSensitivity = 0.25f; // to do: make this relevant to delta time?
 
 	DirectX::XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
 
@@ -44,7 +45,6 @@ public:
 	Ray RelativeScreenPositionToRay(float x, float y);
 
 	void Pan(float _right, float _up, float _forward);
-	void RotateDirectionMouseInput(int x, int y);
 	void RotateDirection(float yaw, float pitch, float roll = 0.0f);
 	void RotatePosition(float yaw, float pitch);
 
@@ -57,6 +57,18 @@ public:
 		        (y >= -1.0f && y <= 1.0f))    //  y in the screen)
 			   && DirectX::XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
 
+	// User input methods.
+	// To do: move these to a separate class?
+	// To do: incorporate delta time?
+
+	void RotateDirectionMouseInput(int x, int y);
+	void MoveRight(float x) { Pan(x * moveSpeed, 0.0f, 0.0f); };
+	void MoveLeft(float x) { Pan(-x * moveSpeed, 0.0f, 0.0f); };
+	void MoveForward(float z) { Pan(0.0f, 0.0f, z * moveSpeed); };
+	void MoveBackward(float z) { Pan(0.0f, 0.0f, -z * moveSpeed); };
+	void MoveUp(float y) { Pan(0.0f, y * moveSpeed, 0.0f); };
+	void MoveDown(float y) { Pan(0.0f, -y * moveSpeed, 0.0f); };
+
 private:
 	DirectX::XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
 	DirectX::XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
@@ -64,7 +76,6 @@ private:
 
 	float mYaw = 0.0f;
 	float mPitch = 0.0f;
-	float mRoll = 0.0f;
 
 	DirectX::XMVECTOR centre;
 

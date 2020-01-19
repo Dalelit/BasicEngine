@@ -139,38 +139,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			doUpdate = !doUpdate;
 			break;
 		case VK_UP:
-			//camera.Pan(0, 0.1f, 0);
 			camera.RotatePosition(0, 0.1f);
 			break;
 		case VK_DOWN:
-			//camera.Pan(0, -0.1f, 0);
 			camera.RotatePosition(0, -0.1f);
 			break;
 		case VK_RIGHT:
-			//camera.Pan(0.1f, 0, 0);
 			camera.RotatePosition(0.1f, 0);
 			break;
 		case VK_LEFT:
-			//camera.Pan(-0.1f, 0, 0);
 			camera.RotatePosition(-0.1f, 0);
 			break;
-		case VK_ADD:
-			camera.Pan(0, 0, 0.1f);
-			break;
-		case VK_SUBTRACT:
-			camera.Pan(0, 0, -0.1f);
-			break;
 		case 'D': //0x44: // D
-			camera.RotateDirection(0.1f, 0, 0);
+			camera.MoveRight(1.0f);
 			break;
 		case 'A': //0x41: // A
-			camera.RotateDirection(-0.1f, 0, 0);
+			camera.MoveLeft(1.0f);
 			break;
 		case 'S': //0x53: // S
-			camera.RotateDirection(0, -0.1f, 0);
+			camera.MoveBackward(1.0f);
 			break;
 		case 'W': //0x57: // W
-			camera.RotateDirection(0, 0.1f, 0);
+			camera.MoveForward(1.0f);
+			break;
+		case 'E':
+			camera.MoveUp(1.0f);
+			break;
+		case 'Q':
+			camera.MoveDown(1.0f);
 			break;
 		case 'R': //0x52: // R
 			pRayTracer->restartLoop = true;
