@@ -50,8 +50,18 @@ void BECamera::Pan(float _right, float _up, float _forward)
 	Recalc();
 }
 
+void BECamera::RotateDirectionMouseInput(int x, int y)
+{
+	// convert mouse movement to radian * sensitivity
+	float scale = XM_PI / 180.0f * mouseSensitivity;
+	RotateDirection((float)x * scale, (float)y * scale);
+}
+
 void BECamera::RotateDirection(float yaw, float pitch, float roll)
 {
+	mYaw += yaw;
+	mPitch += pitch;
+
 	XMMATRIX m = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 	direction = XMVector3Normalize( XMVector3Transform(direction, m) );
 

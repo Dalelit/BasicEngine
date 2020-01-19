@@ -11,7 +11,7 @@ public:
 	};
 
 	DirectX::XMVECTOR position = { 0,0,0,1 };
-
+	
 	float viewPortRatio = 3.0f / 4.0f;
 	float viewPortX = 1.0f;
 	float viewPortY = viewPortRatio;
@@ -19,6 +19,8 @@ public:
 
 	float focalLength = 1.0f; // is this really a focal length?
 	float maxDistance = 10000.0f; // to do: need to think about this number.
+
+	float mouseSensitivity = 0.25f;
 
 	DirectX::XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
 
@@ -42,7 +44,8 @@ public:
 	Ray RelativeScreenPositionToRay(float x, float y);
 
 	void Pan(float _right, float _up, float _forward);
-	void RotateDirection(float yaw, float pitch, float roll);
+	void RotateDirectionMouseInput(int x, int y);
+	void RotateDirection(float yaw, float pitch, float roll = 0.0f);
 	void RotatePosition(float yaw, float pitch);
 
 	float DirectionDot(DirectX::XMVECTOR v) { return DirectX::XMVectorGetX(DirectX::XMVector3Dot(direction, v)); };
@@ -58,6 +61,10 @@ private:
 	DirectX::XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
 	DirectX::XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
 	DirectX::XMVECTOR upScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
+
+	float mYaw = 0.0f;
+	float mPitch = 0.0f;
+	float mRoll = 0.0f;
 
 	DirectX::XMVECTOR centre;
 

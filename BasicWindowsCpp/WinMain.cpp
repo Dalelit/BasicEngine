@@ -39,6 +39,7 @@ RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is cal
 BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer properly. Using for the mouse input.
 long mouseX = 0;
 long mouseY = 0;
+bool useMouseInput = true;
 
 // global control variables
 bool running = true;
@@ -176,6 +177,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case 'P':
 			raytraceKeepRunning = !raytraceKeepRunning;
+			break;
+		case 'M':
+			useMouseInput = !useMouseInput;
 			break;
 		}
 		break;
@@ -524,6 +528,7 @@ int WINAPI WinMain(
 
 		// handling input
 		std::wstring mousemsg = L"Mouse movement x=" + std::to_wstring(mouseX) + L", y=" + std::to_wstring(mouseY);
+		if (useMouseInput) camera.RotateDirectionMouseInput(mouseX, mouseY);
 		mouseX = 0;
 		mouseY = 0;
 
