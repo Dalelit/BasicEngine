@@ -152,9 +152,6 @@
     <ClInclude Include="BEEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BECommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BELight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -261,6 +258,9 @@
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="BEEntitySystems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

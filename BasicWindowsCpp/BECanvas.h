@@ -1,8 +1,8 @@
 #pragma once
-#include "BECommon.h"
 #include "BESurface2D.h"
 #include <wincodec.h>
 #include <wrl.h>
+#include <DirectXMath.h>
 
 // Pixel struct to make it easy to manipulate the bitmap
 class BECanvas

@@ -5,6 +5,11 @@
 
 #include "BERenderPipeline.h"
 
+#define SWAPINT(A,B)   {int temp = A; A = B; B = temp; }
+//#define SWAPFLOAT(A,B) {float temp = A; A = B; B = temp; }
+#define SWAPXMVECTOR(A,B) {XMVECTOR temp = A; A = B; B = temp; }
+//#define SWAPXMFLOAT3(A,B) {XMFLOAT3 temp = A; A = B; B = temp; }
+
 using namespace DirectX;
 
 // To Do

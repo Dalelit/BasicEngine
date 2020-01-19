@@ -1,7 +1,10 @@
 #include "BECanvas.h"
 #include <memory.h>
+#include <utility>
 
 using namespace DirectX;
+
+#define BE_HR_CHECK(hr) if (FAILED(hr)) throw hr; // to do: proper error checking
 
 BECanvas::~BECanvas()
 {
@@ -217,9 +220,9 @@ void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVE
 
 	if (dx < 0) // swap x direction if not left to right
 	{
-		SWAPFLOAT(x, xt);
+		std::swap(x, xt);
 		dx = -dx;
-		SWAPFLOAT(y, yt);
+		std::swap(y, yt);
 		dy = -dy;
 		{Color temp = c; c = ct; ct = temp; }// to do : sort out swap!
 		dc = -dc;

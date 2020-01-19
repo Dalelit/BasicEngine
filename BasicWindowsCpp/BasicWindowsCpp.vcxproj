@@ -182,7 +182,7 @@
     <ClInclude Include="BEDXPixelShader.h" />
     <ClInclude Include="BEDXVertexShader.h" />
     <ClInclude Include="BEEntity.h" />
-    <ClInclude Include="BECommon.h" />
+    <ClInclude Include="BEMath.h" />
     <ClInclude Include="BEEntityComponents.h" />
     <ClInclude Include="BEEntitySystems.h" />
     <ClInclude Include="BELight.h" />

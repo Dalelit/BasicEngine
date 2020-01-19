@@ -1,5 +1,4 @@
 #pragma once
-#include "BECommon.h"
 #include "BEBounds.h"
 #include "BESampler.h"
 #include <vector>
