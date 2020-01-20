@@ -51,15 +51,6 @@ void BECamera::Pan(float _right, float _up, float _forward)
 	Recalc();
 }
 
-void BECamera::RotateDirectionMouseInput(int x, int y)
-{
-	// convert mouse movement to radian * sensitivity
-	float scale = XM_PI / 180.0f * mouseSensitivity;
-	RotateDirection((float)-x * scale, (float)-y * scale);
-
-	// to do: add a bool for inverting the mouse direction?
-}
-
 void BECamera::RotateDirection(float yaw, float pitch, float roll)
 {
 	constexpr float pitchBound = XM_PI / 2.0f - 0.001f;

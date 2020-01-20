@@ -138,6 +138,9 @@
     <ClCompile Include="BEEntitySystems.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -261,6 +264,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

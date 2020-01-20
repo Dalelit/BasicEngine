@@ -24,6 +24,7 @@
 #include "BETimer.h"
 #include "BEDXShowCanvas.h"
 #include "BESceneTests.h"
+#include "BEInput.h"
 
 // global windows variables and macros
 #define BENUMBER_WINDOWS 6
@@ -37,9 +38,6 @@ int displaySizeW = 800;
 int displaySizeH = 600;
 RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is called in main to set this
 BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer properly. Using for the mouse input.
-long mouseX = 0;
-long mouseY = 0;
-bool useMouseInput = true;
 
 // global control variables
 bool running = true;
@@ -56,6 +54,7 @@ BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 // global engine variables
 BECamera camera({0,3,4,1}, {0,-2,-1,1});
 BEScene scene;
+BEInput input;
 BETimer loopTimer;
 BETimer timers[BENUMBER_WINDOWS];
 BERenderRaytrace* pRayTracer = nullptr;
@@ -128,54 +127,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	/////// Keyboard
+	case WM_KEYUP:
+		input.KeyUpInput((char)wParam);
+		break;
 	case WM_KEYDOWN:
 	{
+		input.KeyDownInput((char)wParam);
+
+		// keeping these for basic controls for the moment
 		switch (wParam)
 		{
 		case VK_ESCAPE:
 			running = false;
 			break;
-		case VK_SPACE:
-			doUpdate = !doUpdate;
-			break;
-		case VK_UP:
-			camera.RotatePosition(0, 0.1f);
-			break;
-		case VK_DOWN:
-			camera.RotatePosition(0, -0.1f);
-			break;
-		case VK_RIGHT:
-			camera.RotatePosition(0.1f, 0);
-			break;
-		case VK_LEFT:
-			camera.RotatePosition(-0.1f, 0);
-			break;
-		case 'D': //0x44: // D
-			camera.MoveRight(1.0f);
-			break;
-		case 'A': //0x41: // A
-			camera.MoveLeft(1.0f);
-			break;
-		case 'S': //0x53: // S
-			camera.MoveBackward(1.0f);
-			break;
-		case 'W': //0x57: // W
-			camera.MoveForward(1.0f);
-			break;
-		case 'E':
-			camera.MoveUp(1.0f);
-			break;
-		case 'Q':
-			camera.MoveDown(1.0f);
-			break;
-		case 'R': //0x52: // R
+		case 'R':
 			pRayTracer->restartLoop = true;
 			break;
 		case 'P':
 			raytraceKeepRunning = !raytraceKeepRunning;
-			break;
-		case 'M':
-			useMouseInput = !useMouseInput;
 			break;
 		}
 		break;
@@ -192,11 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		RAWINPUT* raw = (RAWINPUT*)rawBuffer;
 
-		if (raw->header.dwType == RIM_TYPEMOUSE)
-		{
-			mouseX += raw->data.mouse.lLastX;
-			mouseY += raw->data.mouse.lLastY;
-		}
+		if (raw->header.dwType == RIM_TYPEMOUSE) input.RawMouseInput(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 
 		break;
 	}
@@ -205,9 +170,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		running = false;
 		break;
-	}	default:
+	}
+	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
+
 	return 0;
 }
 
@@ -522,16 +489,13 @@ int WINAPI WinMain(
 			DispatchMessage(&msg);
 		}
 
-		// handling input
-		std::wstring mousemsg = L"Mouse movement x=" + std::to_wstring(mouseX) + L", y=" + std::to_wstring(mouseY);
-		if (useMouseInput) camera.RotateDirectionMouseInput(mouseX, mouseY);
-		mouseX = 0;
-		mouseY = 0;
-
 		// update loop
 		float dt = deltaTime.DeltaTime();
 		clock_t updateStartTime = clock();
-		if (doUpdate) scene.Update(dt);
+
+		input.Update(dt, camera);
+		if (!input.paused) scene.Update(dt);
+
 		totalUpdateTime += updateStartTime - clock();
 		frameCount++;
 
@@ -542,7 +506,6 @@ int WINAPI WinMain(
 		BEDrawBackBuffer(0);
 		std::wstring msg = pointsPL.GetStats();
 		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms\n";
-		msg += mousemsg;
 		BEWriteOverlayToWindow(0, msg.c_str());
 
 		//
