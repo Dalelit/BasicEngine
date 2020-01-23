@@ -111,8 +111,6 @@ protected:
 
 	inline DirectX::XMVECTOR ScreenSpaceToPixelCoord(DirectX::XMVECTOR v);
 
-	inline bool IsOnCanvas(DirectX::XMVECTOR& v);
-
 	inline bool CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth);
 
 	float width;

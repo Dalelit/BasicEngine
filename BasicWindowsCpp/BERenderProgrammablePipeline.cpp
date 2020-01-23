@@ -263,7 +263,7 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 		(GETX(pv0->positionSS) > w0&& GETX(pv1->positionSS) > w1&& GETX(pv2->positionSS) > w2) ||
 		(GETY(pv0->positionSS) < -w0 && GETY(pv1->positionSS) < -w1 && GETY(pv2->positionSS) < -w2) ||
 		(GETY(pv0->positionSS) > w0&& GETY(pv1->positionSS) > w1&& GETY(pv2->positionSS) > w2) ||
-		(GETZ(pv0->positionSS) < 0.0f && GETZ(pv1->positionSS) < 0.0f && GETZ(pv2->positionSS) < 0.0f)    ||
+		(GETZ(pv0->positionSS) < 0.0f && GETZ(pv1->positionSS) < 0.0f && GETZ(pv2->positionSS) < 0.0f) ||
 		(GETZ(pv0->positionSS) > w0 && GETZ(pv1->positionSS) > w1 && GETZ(pv2->positionSS) > w2))
 	{
 		cullCount++;
@@ -325,15 +325,9 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSConstants& con
 	float y1 = GETY(pv1->positionSS);
 	float y2 = GETY(pv2->positionSS);
 
-	if (y0 >= height) return; // above the screen
-	if (y2 < 0.0f) return;		  // below the screen
-
 	float x0 = GETX(pv0->positionSS);
 	float x1 = GETX(pv1->positionSS);
 	float x2 = GETX(pv2->positionSS);
-
-	if (x0 < 0.0f && x1 < 0.0f && x2 < 0.0f) return; // left of the screen
-	if (x0 >= width && x1 >= width && x2 >= width) return; // right of the screen
 
 	// draw the triangles
 
@@ -651,17 +645,6 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSConstant
 inline DirectX::XMVECTOR BERenderProgrammablePipeline::ScreenSpaceToPixelCoord(DirectX::XMVECTOR v)
 {
 	return (v + xmv1100) * halfWidthHeight11;
-}
-
-inline bool BERenderProgrammablePipeline::IsOnCanvas(DirectX::XMVECTOR& v)
-{
-	int x = ROUND_TO_INT_X(v);
-	if (x < 0 || x >= (int)width) return false;
-
-	int y = ROUND_TO_INT_Y(v);
-	if (y < 0 || y >= (int)height) return false;
-
-	return true;
 }
 
 inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x, unsigned int y, float depth)
