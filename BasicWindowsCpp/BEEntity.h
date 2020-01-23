@@ -60,11 +60,11 @@ public:
 	inline DirectX::XMMATRIX GetTransformInverse() { return DirectX::XMMatrixInverse(nullptr, transform); }
 	inline DirectX::XMMATRIX GetTransformRotationInverse() { return DirectX::XMMatrixInverse(nullptr, transformRotation); }
 
-	inline DirectX::XMVECTOR ModelToWorldPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, transform); }
-	inline DirectX::XMVECTOR ModelToWorldDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, transformRotation); } // to do: normialise?
+	inline DirectX::XMVECTOR ModelToWorldPosition(DirectX::XMVECTOR point) { return DirectX::XMVector4Transform(point, transform); }
+	inline DirectX::XMVECTOR ModelToWorldDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector4Transform(direction, transformRotation); } // to do: normialise?
 
-	inline DirectX::XMVECTOR WorldToModelPosition(DirectX::XMVECTOR point) { return DirectX::XMVector3Transform(point, GetTransformInverse()); }
-	inline DirectX::XMVECTOR WorldToModelDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector3Transform(direction, GetTransformRotationInverse()); } // to do: normialise?
+	inline DirectX::XMVECTOR WorldToModelPosition(DirectX::XMVECTOR point) { return DirectX::XMVector4Transform(point, GetTransformInverse()); }
+	inline DirectX::XMVECTOR WorldToModelDirection(DirectX::XMVECTOR direction) { return DirectX::XMVector4Transform(direction, GetTransformRotationInverse()); } // to do: normialise?
 
 	inline float GetDistanceInWorldSpace(DirectX::XMVECTOR worldPosition) { return DirectX::XMVector3Length(DirectX::XMVectorSubtract(worldPosition, GetWorldPosition())).m128_f32[0]; }
 

@@ -52,7 +52,7 @@ BECanvas backBuffer[BENUMBER_WINDOWS];
 BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
-BECamera camera({0,3,4,1}, {0,-2,-1,1});
+BECamera camera({0,2,4,1}, {0,-1,-1,1});
 BEScene scene;
 BEInput input;
 BETimer loopTimer;
@@ -435,11 +435,11 @@ int WINAPI WinMain(
 
 	BESetupRawMouseIntput();
 
-	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
-	BESceneTests::CreateBoxWorld(scene, camera);
+	//BESceneTests::CreateBoxWorld(scene, camera);
 
 	scene.Update(0);
 

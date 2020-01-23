@@ -125,6 +125,8 @@ void BERenderProgrammablePipeline::Draw()
 
 	clock_t startTime = clock();
 
+	ClearFrameStats();
+
 	Clear();
 
 	BEPipelineVSConstants vsConstants;
@@ -184,9 +186,11 @@ void BERenderProgrammablePipeline::VertexShading(BEPipelineVSConstants& constant
 
 void BERenderProgrammablePipeline::VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput)
 {
+	vertexCount++;
+
 	pOutput->positionWS = constants.pEntity->ModelToWorldPosition(pVertex->position);
 	pOutput->normalWS = constants.pEntity->ModelToWorldDirection(pVertex->normal);
-	pOutput->positionSS = ScreenSpaceToPixelCoord(pCamera->WorldToScreen(pOutput->positionWS));
+	pOutput->positionSS = pCamera->WorldToScreen(pOutput->positionWS);
 	pOutput->color = pVertex->color;
 	pOutput->texcoord = pVertex->texcoord;
 }
@@ -208,8 +212,7 @@ void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constan
 			BEPipelineVSData* pv1 = pVSData++;
 			BEPipelineVSData* pv2 = pVSData++;
 
-			//RasterizerXXX(constants, pv0, pv1, pv2);
-			(this->*pRasterizerFunc)(constants, pv0, pv1, pv2);
+			CullDraw(constants, pv0, pv1, pv2);
 
 			indx += 3;
 		}
@@ -224,14 +227,38 @@ void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constan
 			BEPipelineVSData* pv1 = &pVSData[*(pIndx++)];
 			BEPipelineVSData* pv2 = &pVSData[*(pIndx++)];
 
-			//RasterizerXXX(constants, pv0, pv1, pv2);
-			(this->*pRasterizerFunc)(constants, pv0, pv1, pv2);
+			CullDraw(constants, pv0, pv1, pv2);
 
 			indx += 3;
 		}
 	}
 
 	geometryTime += clock() - startTime;
+}
+
+void BERenderProgrammablePipeline::CullDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
+{
+	triangleCount++;
+
+	if ((GETX(pv0->positionSS) < -1.0f && GETX(pv1->positionSS) < -1.0f && GETX(pv2->positionSS) < -1.0f) ||
+		(GETX(pv0->positionSS) > 1.0f && GETX(pv1->positionSS) > 1.0f && GETX(pv2->positionSS) > 1.0f) ||
+		(GETY(pv0->positionSS) < -1.0f && GETY(pv1->positionSS) < -1.0f && GETY(pv2->positionSS) < -1.0f) ||
+		(GETY(pv0->positionSS) > 1.0f && GETY(pv1->positionSS) > 1.0f && GETY(pv2->positionSS) > 1.0f))
+	{
+		cullCount++;
+		return;
+	}
+
+	BEPipelineVSData v0(*pv0);
+	BEPipelineVSData v1(*pv1);
+	BEPipelineVSData v2(*pv2);
+
+	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS);
+	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS);
+	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS);
+
+	drawCount++;
+	(this->*pRasterizerFunc)(constants, &v0, &v1, &v2);
 }
 
 void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
@@ -316,7 +343,11 @@ void BERenderProgrammablePipeline::PixelShading()
 
 	for (unsigned int i = 0; i < size; i++)
 	{
-		(this->*pPixelShaderFunc)(pPSBuffer, pTarget);
+		if (pPSBuffer->pEntity) // something to shade
+		{
+			pixelCount++;
+			(this->*pPixelShaderFunc)(pPSBuffer, pTarget);
+		}
 
 		pPSBuffer++;
 		pTarget++;
@@ -327,8 +358,6 @@ void BERenderProgrammablePipeline::PixelShading()
 
 void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
-	if (!pPSData->pEntity) return; // nothing to shade
-
 	XMVECTOR color;
 
 	auto pMesh = pPSData->pModel->pMesh;
@@ -349,8 +378,6 @@ void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, Di
 
 void BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
-	if (!pPSData->pEntity) return; // nothing to shade
-
 	XMVECTOR color = pPSData->color;
 
 	XMVECTOR lights = pScene->ambientLight;
@@ -362,19 +389,6 @@ void BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSDa
 void BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
 	*pOutput = pPSData->color;
-}
-
-std::wstring BERenderProgrammablePipeline::GetStats()
-{
-	std::wstringstream msg;
-
-	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
-	msg << "Clear time: " << GetAvgClearMS() << "ms" << std::endl;
-	msg << "Vertex time: " << GetAvgVertexMS() << "ms" << std::endl;
-	msg << "Geometry time: " << GetAvgGeomteryMS() << "ms" << std::endl;
-	msg << "Pixel time: " << GetAvgPixelMS() << "ms" << std::endl;
-
-	return msg.str();
 }
 
 void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace)
@@ -641,4 +655,32 @@ inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x,
 		return true;
 	}
 	else return false;
+}
+
+std::wstring BERenderProgrammablePipeline::GetStats()
+{
+	std::wstringstream msg;
+
+	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
+	msg << "Clear time: " << GetAvgClearMS() << "ms" << std::endl;
+	msg << "Vertex time: " << GetAvgVertexMS() << "ms" << std::endl;
+	msg << "Geometry time: " << GetAvgGeomteryMS() << "ms" << std::endl;
+	msg << "Pixel time: " << GetAvgPixelMS() << "ms" << std::endl;
+	msg << std::endl;
+	msg << "Vertex count: " << vertexCount << std::endl;
+	msg << "Triangle count: " << triangleCount << std::endl;
+	msg << "Triangle cull count: " << cullCount << std::endl;
+	msg << "Triangle draw count: " << drawCount << std::endl;
+	msg << "Pixel count: " << pixelCount << " of " << pixelShaderBuffer.GetSize() << std::endl;
+
+	return msg.str();
+}
+
+void BERenderProgrammablePipeline::ClearFrameStats()
+{
+	vertexCount = 0;
+	triangleCount = 0;
+	cullCount = 0;
+	drawCount = 0;
+	pixelCount = 0;
 }

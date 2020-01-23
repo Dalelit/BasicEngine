@@ -29,7 +29,7 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 	BECamera::Ray rayWorldSpace = pCamera->RelativeScreenPositionToRay(px, py); // create the ray
 
-	float hitDistance = pCamera->maxDistance; // to do: what distance is good for the starting max?
+	float hitDistance = pCamera->viewDistance; // to do: what distance is good for the starting max?
 
 	BERaytraceHit hitInfo;
 

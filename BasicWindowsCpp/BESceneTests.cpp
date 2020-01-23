@@ -31,6 +31,10 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pModel->pMesh = BEMeshPrimatives::TriangleMesh();
 	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 
+	pModel->pMesh->verticies[0].color = { 1,0,0,1 };
+	pModel->pMesh->verticies[5].color = { 0,1,0,1 };
+	pModel->pMesh->verticies[20].color = { 0,0,1,1 };
+
 	pEntity = pModel->CreateInstance();
 	//pEntity->Translate(3, 0, 0);
 	//pEntity->SetScale({ 2, 2, 2, 1 });

@@ -19,11 +19,13 @@ inline void BECamera::Recalc()
 
 	upScaled = up * viewPortRatio;
 
-	centre = position + (direction * focalLength);
+	centre = position + (direction * viewNear);
 
 	viewMatrix = XMMatrixLookToRH(position, direction, {0,1,0,1});
 
-	projectionMatrix = XMMatrixPerspectiveRH(viewPortX, viewPortY, 0.5f, 10000.0f);
+	projectionMatrix = XMMatrixPerspectiveRH(viewPortX, viewPortY, 0.5f, viewDistance);
+
+	viewProjectionMatrix = viewMatrix * projectionMatrix;
 }
 
 void BECamera::LookAt(XMVECTOR target)

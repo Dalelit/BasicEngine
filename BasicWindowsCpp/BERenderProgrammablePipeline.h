@@ -68,6 +68,8 @@ public:
 	void VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput);
 
 	void GeometryShader(BEPipelineVSConstants& constants);
+	void CullDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+	
 	void RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
@@ -88,11 +90,6 @@ public:
 	//void SetToTriangleOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle; }
 
 	std::wstring GetStats();
-	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
-	float GetAvgVertexMS() { return (float)vertexTime / (float)frameCount; }
-	float GetAvgGeomteryMS() { return (float)geometryTime / (float)frameCount; }
-	float GetAvgPixelMS() { return (float)pixelTime / (float)frameCount; }
-	float GetAvgClearMS() { return (float)clearTime / (float)frameCount; }
 
 protected:
 	BEScene* pScene = nullptr;
@@ -128,10 +125,23 @@ protected:
 	float backFaceAttenuation = 0.3f;
 	DirectX::XMVECTOR backFaceOffset = { 0.0f, 0.0f, 0.001f, 0.0f };
 
+	// stats
 	long drawTime = 0;
 	long vertexTime = 0;
 	long geometryTime = 0;
 	long pixelTime = 0;
 	long clearTime = 0;
 	long frameCount = 0;
+	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
+	float GetAvgVertexMS() { return (float)vertexTime / (float)frameCount; }
+	float GetAvgGeomteryMS() { return (float)geometryTime / (float)frameCount; }
+	float GetAvgPixelMS() { return (float)pixelTime / (float)frameCount; }
+	float GetAvgClearMS() { return (float)clearTime / (float)frameCount; }
+
+	void ClearFrameStats();
+	long vertexCount = 0;
+	long triangleCount = 0;
+	long cullCount = 0;
+	long drawCount = 0;
+	long pixelCount = 0;
 };
