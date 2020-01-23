@@ -449,11 +449,13 @@ int WINAPI WinMain(
 	BERenderProgrammablePipeline pointsPL(&scene, &camera, &backBuffer[0]);
 	pointsPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints;
 	pointsPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
+	pointsPL.backFaceCull = false;
 
 	// wireframe
 	BERenderProgrammablePipeline wireframePL(&scene, &camera, &backBuffer[1]);
 	wireframePL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe;
-	wireframePL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColorLight;
+	wireframePL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
+	wireframePL.backFaceCull = false;
 
 	// Full output
 	BERenderProgrammablePipeline mainPL(&scene, &camera, &backBuffer[2]);

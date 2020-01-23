@@ -242,6 +242,13 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 	triangleCount++;
 
 	// Backface culling
+	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
+
+	if (backFaceCull && backFace)
+	{
+		cullCount++;
+		return;
+	}
 
 	// View space culling
 
@@ -263,44 +270,47 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 	// Clipping - near/far plane only
 	// to do
 
+	// copy so the vertex doesn't get updated.
 	BEPipelineVSData v0(*pv0);
 	BEPipelineVSData v1(*pv1);
 	BEPipelineVSData v2(*pv2);
 
-	// Draw
-
+	// set screen space to actual coordinates
 	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS / w0);
 	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS / w1);
 	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS / w2);
 
+	if (backFace) // for when back face is drawn
+	{
+		v0.color *= backFaceAttenuation;
+		v1.color *= backFaceAttenuation;
+		v2.color *= backFaceAttenuation;
+		v0.positionSS += backFaceOffset;
+		v1.positionSS += backFaceOffset;
+		v2.positionSS += backFaceOffset;
+	}
+
+	// Draw
 	drawCount++;
 	(this->*pRasterizerFunc)(constants, &v0, &v1, &v2);
 }
 
 void BERenderProgrammablePipeline::RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
-	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
-
-	DrawPoint(constants, pv0, backFace);
-	DrawPoint(constants, pv1, backFace);
-	DrawPoint(constants, pv2, backFace);
+	DrawPoint(constants, pv0);
+	DrawPoint(constants, pv1);
+	DrawPoint(constants, pv2);
 }
 
 void BERenderProgrammablePipeline::RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
-	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
-
-	DrawLine(constants, pv0, pv1, backFace);
-	DrawLine(constants, pv0, pv2, backFace);
-	DrawLine(constants, pv1, pv2, backFace);
+	DrawLine(constants, pv0, pv1);
+	DrawLine(constants, pv0, pv2);
+	DrawLine(constants, pv1, pv2);
 }
 
 void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
-	if (!pCamera->IsVisible(pv0->positionWS, pv0->normalWS)) return; // is not facing the camera
-
-	//if (!IsOnCanvas(pv0->positionSS) && !IsOnCanvas(pv1->positionSS) && !IsOnCanvas(pv2->positionSS)) return; // does not have at least 1 point on the screen
-
 	// sort verticies, lowest y to highest.
 	if (GETY(pv0->positionSS) > GETY(pv1->positionSS)) std::swap(pv0, pv1);
 	if (GETY(pv1->positionSS) > GETY(pv2->positionSS)) {
@@ -407,7 +417,7 @@ void BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData, D
 	*pOutput = pPSData->color;
 }
 
-void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace)
+void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS)
 {
 	int x = ROUND_TO_INT_X(pVS->positionSS);
 	if (x < 0 || x >= (int)width) return;
@@ -415,9 +425,7 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, B
 	int y = ROUND_TO_INT_Y(pVS->positionSS);
 	if (y < 0 || y >= (int)height) return;
 
-	float z;
-	if (backFace) z = GETZ((pVS->positionSS + backFaceOffset));
-	else z = GETZ(pVS->positionSS);
+	float z = GETZ(pVS->positionSS);
 
 	if (CheckAndSetDepthBuffer(x, y, z))
 	{
@@ -425,12 +433,10 @@ void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, B
 		psData = (*pVS);
 		psData.pModel = constants.pModel;
 		psData.pEntity = constants.pEntity;
-
-		if (backFace) psData.color *= backFaceAttenuation;
 	}
 }
 
-void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo, bool backFace)
+void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo)
 {
 	float fromXf = GETX(pFrom->positionSS);
 	float fromYf = GETY(pFrom->positionSS);
@@ -461,13 +467,6 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BE
 
 		BEPipelineVSData from = *pFrom;
 		BEPipelineVSData delta = (*pTo - from) / dx;
-
-		if (backFace) // fade back face lines and push it back so back buffer overdraw of full strength lines can occur
-		{
-			from.color *= backFaceAttenuation;
-			delta.color *= backFaceAttenuation;
-			from.positionSS += backFaceOffset;
-		}
 
 		from = from + delta * (((float)fromX + 0.5f) - fromXf); // move to the first pixel
 
@@ -509,13 +508,6 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BE
 
 		BEPipelineVSData from = *pFrom;
 		BEPipelineVSData delta = (*pTo - from) / dy;
-
-		if (backFace) // fade back face lines and push it back so back buffer overdraw of full strength lines can occur
-		{
-			from.color *= backFaceAttenuation;
-			delta.color *= backFaceAttenuation;
-			from.positionSS += backFaceOffset;
-		}
 
 		from = from + delta * (((float)fromY + 0.5f) - fromYf); // move to the first pixel
 

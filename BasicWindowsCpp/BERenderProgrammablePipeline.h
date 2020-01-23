@@ -91,6 +91,9 @@ public:
 
 	std::wstring GetStats();
 
+	bool backFaceCull = true;
+	float backFaceAttenuation = 0.333f;
+
 protected:
 	BEScene* pScene = nullptr;
 	BECamera* pCamera = nullptr;
@@ -102,8 +105,8 @@ protected:
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
 
-	void DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS, bool backFace);
-	void DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo, bool backFace);
+	void DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS);
+	void DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo);
 
 	// draw triangles... left to right
 	inline void DrawHorizontalLineLR(BEPipelineVSConstants& constants, BEPipelineVSData* pFromLeft, BEPipelineVSData* pToRight);
@@ -122,7 +125,6 @@ protected:
 	DirectX::XMVECTOR xmv1100 = { 1.0f, 1.0f, 0.0f, 0.0f };
 	DirectX::XMVECTOR halfWidthHeight11;
 
-	float backFaceAttenuation = 0.3f;
 	DirectX::XMVECTOR backFaceOffset = { 0.0f, 0.0f, 0.001f, 0.0f };
 
 	// stats
