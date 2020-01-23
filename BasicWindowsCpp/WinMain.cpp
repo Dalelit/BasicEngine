@@ -52,7 +52,7 @@ BECanvas backBuffer[BENUMBER_WINDOWS];
 BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
 
 // global engine variables
-BECamera camera({0,2,4,1}, {0,-1,-1,1});
+BECamera camera;
 BEScene scene;
 BEInput input;
 BETimer loopTimer;
@@ -414,8 +414,6 @@ int WINAPI WinMain(
 	MSG msg = { 0 };
 	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
-	camera.LookAt(DirectX::g_XMZero);
-
 	BERegisterWindowClass(hInstance);
 
 	// get the window size to ensure the client rect is the size we want.
@@ -435,8 +433,12 @@ int WINAPI WinMain(
 
 	BESetupRawMouseIntput();
 
-	BESceneTests::CreateSceneTest0(scene);
-	//BESceneTests::CreateSceneTest1(scene);
+	camera.viewDistance = 10.0f;
+	camera.SetPosition(0, 1, 4);
+	camera.LookAt(0, 0, 0);
+
+	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
 	//BESceneTests::CreateBoxWorld(scene, camera);

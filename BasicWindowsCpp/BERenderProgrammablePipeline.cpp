@@ -7,6 +7,7 @@ using namespace DirectX;
 #define GETX(v) XMVectorGetX(v)
 #define GETY(v) XMVectorGetY(v)
 #define GETZ(v) XMVectorGetZ(v)
+#define GETW(v) XMVectorGetW(v)
 #define ROUND_TO_INT(f) (int)ceilf(f - 0.5f)
 #define ROUND_TO_INT_X(v) (int)ceilf(GETX(v) - 0.5f)
 #define ROUND_TO_INT_Y(v) (int)ceilf(GETY(v) - 0.5f)
@@ -212,7 +213,7 @@ void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constan
 			BEPipelineVSData* pv1 = pVSData++;
 			BEPipelineVSData* pv2 = pVSData++;
 
-			CullDraw(constants, pv0, pv1, pv2);
+			CullClipDraw(constants, pv0, pv1, pv2);
 
 			indx += 3;
 		}
@@ -227,7 +228,7 @@ void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constan
 			BEPipelineVSData* pv1 = &pVSData[*(pIndx++)];
 			BEPipelineVSData* pv2 = &pVSData[*(pIndx++)];
 
-			CullDraw(constants, pv0, pv1, pv2);
+			CullClipDraw(constants, pv0, pv1, pv2);
 
 			indx += 3;
 		}
@@ -236,26 +237,41 @@ void BERenderProgrammablePipeline::GeometryShader(BEPipelineVSConstants& constan
 	geometryTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::CullDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
+void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
 {
 	triangleCount++;
 
-	if ((GETX(pv0->positionSS) < -1.0f && GETX(pv1->positionSS) < -1.0f && GETX(pv2->positionSS) < -1.0f) ||
-		(GETX(pv0->positionSS) > 1.0f && GETX(pv1->positionSS) > 1.0f && GETX(pv2->positionSS) > 1.0f) ||
-		(GETY(pv0->positionSS) < -1.0f && GETY(pv1->positionSS) < -1.0f && GETY(pv2->positionSS) < -1.0f) ||
-		(GETY(pv0->positionSS) > 1.0f && GETY(pv1->positionSS) > 1.0f && GETY(pv2->positionSS) > 1.0f))
+	// Backface culling
+
+	// View space culling
+
+	float w0 = GETW(pv0->positionSS);
+	float w1 = GETW(pv1->positionSS);
+	float w2 = GETW(pv2->positionSS);
+
+	if ((GETX(pv0->positionSS) < -w0 && GETX(pv1->positionSS) < -w1 && GETX(pv2->positionSS) < -w2) ||
+		(GETX(pv0->positionSS) > w0&& GETX(pv1->positionSS) > w1&& GETX(pv2->positionSS) > w2) ||
+		(GETY(pv0->positionSS) < -w0 && GETY(pv1->positionSS) < -w1 && GETY(pv2->positionSS) < -w2) ||
+		(GETY(pv0->positionSS) > w0&& GETY(pv1->positionSS) > w1&& GETY(pv2->positionSS) > w2) ||
+		(GETZ(pv0->positionSS) < 0.0f && GETZ(pv1->positionSS) < 0.0f && GETZ(pv2->positionSS) < 0.0f)    ||
+		(GETZ(pv0->positionSS) > w0 && GETZ(pv1->positionSS) > w1 && GETZ(pv2->positionSS) > w2))
 	{
 		cullCount++;
 		return;
 	}
 
+	// Clipping - near/far plane only
+	// to do
+
 	BEPipelineVSData v0(*pv0);
 	BEPipelineVSData v1(*pv1);
 	BEPipelineVSData v2(*pv2);
 
-	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS);
-	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS);
-	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS);
+	// Draw
+
+	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS / w0);
+	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS / w1);
+	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS / w2);
 
 	drawCount++;
 	(this->*pRasterizerFunc)(constants, &v0, &v1, &v2);

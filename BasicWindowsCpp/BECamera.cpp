@@ -4,10 +4,17 @@
 
 using namespace DirectX;
 
-BECamera::BECamera(XMVECTOR _position, XMVECTOR _direction)
+BECamera::BECamera() :
+	position({0.0f, 0.0f, 0.0f, 0.0f}),
+	direction({ 0.0f, 0.0f, -1.0f, 0.0f })
 {
-	position = _position;
-	direction = XMVector3Normalize(_direction);
+	Recalc();
+}
+
+BECamera::BECamera(XMVECTOR position, XMVECTOR direction) :
+	position(position),
+	direction(XMVector3Normalize(direction))
+{
 	Recalc();
 }
 
@@ -28,9 +35,13 @@ inline void BECamera::Recalc()
 	viewProjectionMatrix = viewMatrix * projectionMatrix;
 }
 
+void BECamera::SetPosition(DirectX::XMVECTOR _position)
+{
+	position = _position;
+}
+
 void BECamera::LookAt(XMVECTOR target)
 {
-	XMVECTOR lookAtPosition = target;
 	direction = XMVector3Normalize(target - position);
 
 	Recalc();

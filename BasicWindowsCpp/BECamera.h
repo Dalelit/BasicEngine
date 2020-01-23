@@ -17,16 +17,17 @@ public:
 	float viewPortY = viewPortRatio;
 	//DirectX::XMVECTOR viewPort = { 1.0f, viewPortRatio, 1.0f, 1.0f };
 
-	float viewNear = 1.0f; // is this really a focal length?
-	float viewDistance = 10000.0f; // to do: need to think about this number.
+	float viewNear = 1.0f;
+	float viewDistance = 1000.0f; // to do: need to think about this number.
 
 	DirectX::XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
 
-	BECamera(DirectX::XMVECTOR _position, DirectX::XMVECTOR _direction);
+	BECamera();
+	BECamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction);
 	inline void Recalc();
 
-	inline void SetPosition(DirectX::XMVECTOR _position) { position = _position; }
-	inline void SetPosition(float x, float y, float z) { position = { x, y, z, 1.0f }; }
+	void SetPosition(DirectX::XMVECTOR _position);
+	inline void SetPosition(float x, float y, float z) { SetPosition({ x, y, z, 1.0f }); }
 
 	void LookAt(DirectX::XMVECTOR target);
 	inline void LookAt(float x, float y, float z) { LookAt({ x, y, z, 1.0f }); };
@@ -35,7 +36,7 @@ public:
 	inline DirectX::XMMATRIX GetViewMatrix() { return viewMatrix; }
 	inline DirectX::XMMATRIX GetProjectionMatrix() { return projectionMatrix; }
 
-	inline DirectX::XMVECTOR WorldToScreen(DirectX::XMVECTOR coord) { return DirectX::XMVector3TransformCoord(coord, viewProjectionMatrix); }
+	inline DirectX::XMVECTOR WorldToScreen(DirectX::XMVECTOR coord) { return DirectX::XMVector4Transform(coord, viewProjectionMatrix); }
 
 	inline bool IsVisible(DirectX::XMVECTOR point, DirectX::XMVECTOR normal) { return DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVectorSubtract(point, position), normal)) < 0.0f; }
 
