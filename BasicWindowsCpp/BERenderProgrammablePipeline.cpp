@@ -2,6 +2,9 @@
 #include "BERaytrace.h"
 #include <time.h>
 
+// To Do:
+// - check if the normalising of normals is being done too much.
+
 using namespace DirectX;
 
 #define GETX(v) XMVectorGetX(v)
@@ -190,7 +193,7 @@ void BERenderProgrammablePipeline::VertexShader(BEPipelineVSConstants& constants
 	vertexCount++;
 
 	pOutput->positionWS = constants.pEntity->ModelToWorldPosition(pVertex->position);
-	pOutput->normalWS = constants.pEntity->ModelToWorldDirection(pVertex->normal);
+	pOutput->normalWS = XMVector3Normalize(constants.pEntity->ModelToWorldDirection(pVertex->normal));
 	pOutput->positionSS = pCamera->WorldToScreen(pOutput->positionWS);
 	pOutput->color = pVertex->color;
 	pOutput->texcoord = pVertex->texcoord;
@@ -555,6 +558,7 @@ inline void BERenderProgrammablePipeline::DrawHorizontalLineLR(BEPipelineVSConst
 
 	while (currentX < toX)
 	{
+		line.normalWS = XMVector3Normalize(line.normalWS);
 		// optimised version of
 		// if (CheckAndSetDepthBuffer(currentX, currentY, GETZ(line.positionSS)))
 		//   pixelShaderBuffer.SetValue(currentX, currentY, psData);
@@ -598,6 +602,9 @@ void BERenderProgrammablePipeline::DrawTriangleFlatTopLR(BEPipelineVSConstants& 
 	// draw each horizontal line
 	while (currentY >= toY)
 	{
+		lineStart.normalWS = XMVector3Normalize(lineStart.normalWS);
+		lineEnd.normalWS = XMVector3Normalize(lineEnd.normalWS);
+
 		DrawHorizontalLineLR(constants, &lineStart, &lineEnd);
 
 		currentY--;
@@ -630,6 +637,9 @@ void BERenderProgrammablePipeline::DrawTriangleFlatBottomLR(BEPipelineVSConstant
 	// draw each horizontal line
 	while (currentY < toY)
 	{
+		lineStart.normalWS = XMVector3Normalize(lineStart.normalWS);
+		lineEnd.normalWS = XMVector3Normalize(lineEnd.normalWS);
+
 		DrawHorizontalLineLR(constants, &lineStart, &lineEnd);
 
 		currentY++;

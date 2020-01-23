@@ -85,10 +85,6 @@ public:
 	// method pointer for which pixel shader to use.
 	void(BERenderProgrammablePipeline::* pPixelShaderFunc)(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
-	//void SetToPointsOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints; }
-	//void SetToWireframeOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe; }
-	//void SetToTriangleOutput() { pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle; }
-
 	std::wstring GetStats();
 
 	bool backFaceCull = true;
