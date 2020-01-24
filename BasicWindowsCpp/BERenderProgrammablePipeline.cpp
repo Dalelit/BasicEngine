@@ -159,8 +159,8 @@ void BERenderProgrammablePipeline::Clear()
 	clock_t startTime = clock();
 
 	pCanvas->Clear();
-	pixelShaderBuffer.Clear();
-	depthBuffer.Clear(FLT_MAX);
+	//pixelShaderBuffer.Clear(); // too slow and not needed
+	depthBuffer.Clear(depthDefaultValue);
 
 	clearTime += clock() - startTime;
 }
@@ -459,18 +459,20 @@ void BERenderProgrammablePipeline::PixelShading()
 	clock_t startTime = clock();
 
 	auto pPSBuffer = pixelShaderBuffer.GetData();
+	auto pDepthBuffer = depthBuffer.GetData();
 	auto size = pixelShaderBuffer.GetSize();
 	auto pTarget = pCanvas->bufferSurface->GetData();
 
 	for (unsigned int i = 0; i < size; i++)
 	{
-		if (pPSBuffer->pEntity) // something to shade
+		if (*pDepthBuffer < depthDefaultValue) // something to shade
 		{
 			pixelCount++;
 			(this->*pPixelShaderFunc)(pPSBuffer, pTarget);
 		}
 
 		pPSBuffer++;
+		pDepthBuffer++;
 		pTarget++;
 	}
 

@@ -27,7 +27,7 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 	Clear();
 
-	InitialiseBitmapConversion();
+	//InitialiseBitmapConversion(); // not use toBMPv2 at the moment
 
 	return 0; // TO DO - no error checking for memory
 }

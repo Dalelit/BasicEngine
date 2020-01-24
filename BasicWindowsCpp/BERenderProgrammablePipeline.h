@@ -95,6 +95,7 @@ protected:
 
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
 	BESurface2D<float> depthBuffer;
+	static constexpr float depthDefaultValue = FLT_MAX;
 
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
