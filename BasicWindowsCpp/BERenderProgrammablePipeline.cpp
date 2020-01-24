@@ -245,7 +245,9 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 	triangleCount++;
 
 	// Backface culling
-	bool backFace = !pCamera->IsVisible(pv0->positionWS, pv0->normalWS);
+	bool backFace = false;
+	if (!pCamera->IsVisible(pv0->positionWS, pv0->normalWS) && !pCamera->IsVisible(pv1->positionWS, pv1->normalWS) && !pCamera->IsVisible(pv2->positionWS, pv2->normalWS))
+		backFace = true;
 
 	if (backFaceCull && backFace)
 	{
@@ -270,18 +272,114 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 		return;
 	}
 
-	// Clipping - near/far plane only
-	// to do
+	// Clipping - near (<0) and far (>w) plane
+	// else draw
+	if (GETZ(pv0->positionSS) < 0.0f)
+	{
+		if (GETZ(pv1->positionSS) < 0.0f) Clip12DrawNear(constants, pv2, pv0, pv1, backFace); // v0 & v1 are out
+		else if (GETZ(pv2->positionSS) < 0.0f) Clip12DrawNear(constants, pv1, pv0, pv2, backFace); // v0 & v2 are out
+		else Clip0DrawNear(constants, pv0, pv1, pv2, backFace); // v0 only out
+	}
+	else if (GETZ(pv1->positionSS) < 0.0f)
+	{
+		if (GETZ(pv2->positionSS) < 0.0f) Clip12DrawNear(constants, pv0, pv1, pv2, backFace); // v1 & v2 are out
+		else Clip0DrawNear(constants, pv1, pv0, pv2, backFace); // v1 only out
+	}
+	else if (GETZ(pv2->positionSS) < 0.0f)
+	{
+		Clip0DrawNear(constants, pv2, pv0, pv1, backFace); // v2 only out
+	}
+	else if (GETZ(pv0->positionSS) > w0)
+	{
+		if (GETZ(pv1->positionSS) > w1) Clip12DrawFar(constants, pv2, pv0, pv1, backFace); // v0 & v1 are out
+		else if (GETZ(pv2->positionSS) > w2) Clip12DrawFar(constants, pv1, pv0, pv2, backFace); // v0 & v2 are out
+		else Clip0DrawFar(constants, pv0, pv1, pv2, backFace); // v0 only out
+	}
+	else if (GETZ(pv1->positionSS) > w1)
+	{
+		if (GETZ(pv2->positionSS) > w2) Clip12DrawFar(constants, pv0, pv1, pv2, backFace); // v1 & v2 are out
+		else Clip0DrawFar(constants, pv1, pv0, pv2, backFace); // v1 only out
+	}
+	else if (GETZ(pv2->positionSS) > w2)
+	{
+		Clip0DrawFar(constants, pv2, pv0, pv1, backFace); // v2 only out
+	}
+	else Draw(constants, pv0, pv1, pv2, backFace); // none need clipping
+}
 
+void BERenderProgrammablePipeline::Clip0DrawNear(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace)
+{
+	float z0 = GETZ(pv0->positionSS);
+	float z1 = GETZ(pv1->positionSS);
+	float z2 = GETZ(pv2->positionSS);
+	float a1 = (-z0) / (z1 - z0);
+	float a2 = (-z0) / (z2 - z0);
+
+	BEPipelineVSData v01 = (*pv0) + ((*pv1) - (*pv0)) * a1;
+	BEPipelineVSData v02 = (*pv0) + ((*pv2) - (*pv0)) * a2;
+
+	clipCount++;
+	Draw(constants, &v01, pv1, pv2, backFace);
+	Draw(constants, &v02, &v01, pv2, backFace);
+}
+
+void BERenderProgrammablePipeline::Clip12DrawNear(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace)
+{
+	float z0 = GETZ(pv0->positionSS);
+	float z1 = GETZ(pv1->positionSS);
+	float z2 = GETZ(pv2->positionSS);
+	float a1 = (-z0) / (z1 - z0);
+	float a2 = (-z0) / (z2 - z0);
+
+	BEPipelineVSData v01 = (*pv0) + ((*pv1) - (*pv0)) * a1;
+	BEPipelineVSData v02 = (*pv0) + ((*pv2) - (*pv0)) * a2;
+
+	clipCount++;
+	Draw(constants, pv0, &v01, &v02, backFace);
+}
+
+void BERenderProgrammablePipeline::Clip0DrawFar(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace)
+{
+	float z0 = GETZ(pv0->positionSS) / GETW(pv0->positionSS);
+	float z1 = GETZ(pv1->positionSS) / GETW(pv1->positionSS);
+	float z2 = GETZ(pv2->positionSS) / GETW(pv2->positionSS);
+	float a1 = (1.0f - z0) / (z1 - z0);
+	float a2 = (1.0f - z0) / (z2 - z0);
+
+	BEPipelineVSData v01 = (*pv0) + ((*pv1) - (*pv0)) * a1;
+	BEPipelineVSData v02 = (*pv0) + ((*pv2) - (*pv0)) * a2;
+
+	clipCount++;
+	Draw(constants, &v01, pv1, pv2, backFace);
+	Draw(constants, &v02, &v01, pv2, backFace);
+}
+
+void BERenderProgrammablePipeline::Clip12DrawFar(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace)
+{
+	float z0 = GETZ(pv0->positionSS) / GETW(pv0->positionSS);
+	float z1 = GETZ(pv1->positionSS) / GETW(pv1->positionSS);
+	float z2 = GETZ(pv2->positionSS) / GETW(pv2->positionSS);
+	float a1 = (1.0f - z0) / (z1 - z0);
+	float a2 = (1.0f - z0) / (z2 - z0);
+
+	BEPipelineVSData v01 = (*pv0) + ((*pv1) - (*pv0)) * a1;
+	BEPipelineVSData v02 = (*pv0) + ((*pv2) - (*pv0)) * a2;
+
+	clipCount++;
+	Draw(constants, pv0, &v01, &v02, backFace);
+}
+
+void BERenderProgrammablePipeline::Draw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace)
+{
 	// copy so the vertex doesn't get updated.
 	BEPipelineVSData v0(*pv0);
 	BEPipelineVSData v1(*pv1);
 	BEPipelineVSData v2(*pv2);
 
 	// set screen space to actual coordinates
-	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS / w0);
-	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS / w1);
-	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS / w2);
+	v0.positionSS = ScreenSpaceToPixelCoord(pv0->positionSS / GETW(pv0->positionSS));
+	v1.positionSS = ScreenSpaceToPixelCoord(pv1->positionSS / GETW(pv1->positionSS));
+	v2.positionSS = ScreenSpaceToPixelCoord(pv2->positionSS / GETW(pv2->positionSS));
 
 	if (backFace) // for when back face is drawn
 	{
@@ -293,7 +391,7 @@ void BERenderProgrammablePipeline::CullClipDraw(BEPipelineVSConstants& constants
 		v2.positionSS += backFaceOffset;
 	}
 
-	// Draw
+	// Draw using the specified rasteriser
 	drawCount++;
 	(this->*pRasterizerFunc)(constants, &v0, &v1, &v2);
 }
@@ -671,6 +769,7 @@ std::wstring BERenderProgrammablePipeline::GetStats()
 	msg << "Vertex count: " << vertexCount << std::endl;
 	msg << "Triangle count: " << triangleCount << std::endl;
 	msg << "Triangle cull count: " << cullCount << std::endl;
+	msg << "Triangle clip count: " << clipCount << std::endl;
 	msg << "Triangle draw count: " << drawCount << std::endl;
 	msg << "Pixel count: " << pixelCount << " of " << pixelShaderBuffer.GetSize() << std::endl;
 
@@ -682,6 +781,7 @@ void BERenderProgrammablePipeline::ClearFrameStats()
 	vertexCount = 0;
 	triangleCount = 0;
 	cullCount = 0;
+	clipCount = 0;
 	drawCount = 0;
 	pixelCount = 0;
 }

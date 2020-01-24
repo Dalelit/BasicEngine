@@ -64,12 +64,8 @@ public:
 
 	void Clear();
 
-	void VertexShading(BEPipelineVSConstants& constants);
 	void VertexShader(BEPipelineVSConstants& constants, BEVertex* pVertex, BEPipelineVSData* pOutput);
 
-	void GeometryShader(BEPipelineVSConstants& constants);
-	void CullClipDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
-	
 	void RasterizerPoints(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerWireframe(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 	void RasterizerTriangle(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
@@ -100,6 +96,15 @@ protected:
 
 	BEPipelineVSData* vsBuffer = nullptr;
 	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
+
+	void VertexShading(BEPipelineVSConstants& constants);
+	void GeometryShader(BEPipelineVSConstants& constants);
+	void CullClipDraw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
+	void Clip0DrawNear(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace);
+	void Clip12DrawNear(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace);
+	void Clip0DrawFar(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace);
+	void Clip12DrawFar(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace);
+	void Draw(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2, bool backFace);
 
 	void DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS);
 	void DrawLine(BEPipelineVSConstants& constants, BEPipelineVSData* pFrom, BEPipelineVSData* pTo);
@@ -138,6 +143,7 @@ protected:
 	long vertexCount = 0;
 	long triangleCount = 0;
 	long cullCount = 0;
+	long clipCount = 0;
 	long drawCount = 0;
 	long pixelCount = 0;
 };
