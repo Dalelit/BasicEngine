@@ -1,5 +1,7 @@
 #pragma once
-#include "BERenderPipeline.h"
+#include "BEScene.h"
+#include "BECamera.h"
+#include "BECanvas.h"
 #include <sstream>
 
 
@@ -42,8 +44,8 @@ struct BEPipelinePSData
 		normalWS(rhs.normalWS),
 		color(rhs.color),
 		texcoord(rhs.texcoord)
-		//pModel = nullptr;
-		//pEntity = nullptr;
+		//pModel(nullptr),
+		//pEntity(nullptr)
 		{}
 
 	inline void operator=(BEPipelineVSData& rhs) {

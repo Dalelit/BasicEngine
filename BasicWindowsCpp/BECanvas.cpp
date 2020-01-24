@@ -10,7 +10,6 @@ BECanvas::~BECanvas()
 {
 	if (bufferSurface) delete bufferSurface;
 	if (bmpSurface) delete bmpSurface;
-	if (depthBufferSurface) delete depthBufferSurface;
 }
 
 int BECanvas::Initialise(unsigned int _width, unsigned int _height)
@@ -20,21 +19,11 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 
 	width = _width;
 	height = _height;
-	halfWidth = floorf(width * 0.5f);
-	halfHeight = floorf(height * 0.5f);
-	halfWH = { halfWidth, halfHeight, 1.0f };
-
 	size = width * height;
 
 	bufferSurface = new BESurface2D<Color>(width, height);
 
 	bmpSurface = new BESurface2D<Pixel>(width, height);
-
-	if (depthBufferSurface)
-	{
-		delete depthBufferSurface;
-		AddDepthBuffer();
-	}
 
 	Clear();
 
@@ -46,18 +35,7 @@ int BECanvas::Initialise(unsigned int _width, unsigned int _height)
 void BECanvas::Clear()
 {
 	bufferSurface->Clear();
-	bmpSurface->Clear();
-
-	if (depthBufferSurface) depthBufferSurface->Clear(defaultDepthValue);
-}
-
-void BECanvas::AddDepthBuffer()
-{
-	if (depthBufferSurface != nullptr) delete depthBufferSurface;
-
-	depthBufferSurface = new BESurface2D<float>(width, height);
-
-	depthBufferSurface->Clear(defaultDepthValue);
+	//bmpSurface->Clear(); // don't need to clear, it gets written over in BufferToBMP
 }
 
 void BECanvas::BufferToBMP()
@@ -154,142 +132,4 @@ void BECanvas::InitialiseBitmapConversion()
 		WICBitmapPaletteTypeCustom);
 
 	BE_HR_CHECK(hr);
-}
-
-void BECanvas::DrawLineSafe(XMVECTOR from, XMVECTOR to, XMVECTOR colorFrom, XMVECTOR colorTo)
-{
-	float fromX = XMVectorGetX(from);
-	float fromY = XMVectorGetY(from);
-	float toX = XMVectorGetX(to);
-	float toY = XMVectorGetY(to);
-
-	if (fromX < -1.0f && toX < -1.0f) return;
-	if (fromY < -1.0f && toY < -1.0f) return;
-	if (fromX >= 1.0f && toX >= 1.0f) return;
-	if (fromY >= 1.0f && toY >= 1.0f) return;
-
-	// convert screen space to pixels
-	float x = (fromX + 1.0f) * halfWidth;
-	float xt = (toX + 1.0f) * halfWidth;
-	float y = (fromY + 1.0f) * halfHeight;
-	float yt = (toY + 1.0f) * halfHeight;
-	Color c = colorFrom;
-	Color ct = colorTo;
-
-	float dx = xt - x;
-	float dy = yt - y;
-	Color dc = colorTo - colorFrom;
-
-	// special case
-	// To do - optimise later
-	if (fabsf(dx) < 0.5f) // change in x is less than 1 pixel... so a vertical line
-	{
-		if (fabsf(dy) < 0.5f) // draw a dot
-		{
-			bufferSurface->SetValue((int)x, (int)y, c);
-			return;
-		}
-
-		dc = dc / fabsf(dy);
-
-		if (dy > 0.0f)
-		{
-
-			if (y < 0.0f) y = 0.0f;  // To Do - fix color to start with jump
-
-			while (y <= yt && y < height)
-			{
-				bufferSurface->SetValue((int)x, (int)y, c);
-				y += 1.0f;
-				c = c + dc;
-			}
-		}
-		else if (dy < 0.0f)
-		{
-			if (y >= height) y = height - 1.0f;  // To Do - fix color to start with jump
-
-			while (y >= yt && y >= 0.0f)
-			{
-				bufferSurface->SetValue((int)x, (int)y, c);
-				y -= 1.0f;
-				c = c + dc;
-			}
-		}
-		return;
-	}
-
-	if (dx < 0) // swap x direction if not left to right
-	{
-		std::swap(x, xt);
-		dx = -dx;
-		std::swap(y, yt);
-		dy = -dy;
-		{Color temp = c; c = ct; ct = temp; }// to do : sort out swap!
-		dc = -dc;
-	}
-
-	// special case
-	// To do - optimise later
-	if (fabsf(dy) < 0.5f) // change in y is less than 1 pixel, so horizontal
-	{
-		dc = dc / dx;
-
-		if (x < 0.0f) x = 0.0f;  // To Do - fix color to start with jump
-
-		while (x <= xt && x < width)
-		{
-			bufferSurface->SetValue((int)x, (int)y, c);
-			x += 1.0f;
-			c = c + dc;
-		}
-		return;
-	}
-
-	// set increment based on longest change
-	if (dx > fabsf(dy))
-	{
-		dy /= dx;
-		dc = dc / dx;
-		dx = 1.0f;
-	}
-	else
-	{
-		dx /= fabsf(dy);
-		dc = dc / fabsf(dy);
-		dy = (dy > 0.0f ? 1.0f : -1.0f);
-	}
-
-	// move start point to 0.0 if off the left of the screen
-	if (x < 0.0f)
-	{
-		// To Do - fix color to start with jump
-		y += (-x) * dy; // move y along by the distance x needs to go
-		x = 0.0f;
-	}
-
-	// move start point to 0.0 if off the bottom of the screen
-	if (y < 0.0f)
-	{
-		// To Do - fix color to start with jump
-		x += (-y) * dx;
-		y = 0.0f;
-	}
-
-	// move start point to height if off the top of the screen
-	if (y >= height)
-	{
-		// To Do - fix color to start with jump
-		float yold = y;
-		y = height - 1.0f;
-		x += (yold - y) * dx;
-	}
-
-	// and finally pump out pixels
-	while (x <= xt && x < width && y >= 0.0f && y < height)
-	{
-		bufferSurface->SetValue((int)x, (int)y, c);
-		x += dx;
-		y += dy;
-		c = c + dc;
-	}
 }
