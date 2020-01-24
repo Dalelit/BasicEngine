@@ -79,7 +79,8 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 		// to do: reflections?
 
-		pCanvas->bufferSurface->SetValue(x, y, XMVectorSaturate(lights * color));
+		color = XMVectorSaturate(lights * color) * 255.0f;
+		pCanvas->bmpSurface->GetDataByRef(x, y) = color;
 	}
 }
 

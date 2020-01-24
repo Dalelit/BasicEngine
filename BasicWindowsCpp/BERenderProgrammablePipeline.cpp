@@ -461,14 +461,18 @@ void BERenderProgrammablePipeline::PixelShading()
 	auto pPSBuffer = pixelShaderBuffer.GetData();
 	auto pDepthBuffer = depthBuffer.GetData();
 	auto size = pixelShaderBuffer.GetSize();
-	auto pTarget = pCanvas->bufferSurface->GetData();
+	auto pTarget = pCanvas->bmpSurface->GetData();
 
 	for (unsigned int i = 0; i < size; i++)
 	{
 		if (*pDepthBuffer < depthDefaultValue) // something to shade
 		{
+			XMVECTOR color;
+			(this->*pPixelShaderFunc)(pPSBuffer, &color);
+			color *= 255.0f;
+
 			pixelCount++;
-			(this->*pPixelShaderFunc)(pPSBuffer, pTarget);
+			*pTarget = color;
 		}
 
 		pPSBuffer++;

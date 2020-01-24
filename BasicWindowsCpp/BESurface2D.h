@@ -38,7 +38,6 @@ public:
 	}
 
 	inline void Clear(T value) {
-		#pragma loop(hint_parallel(8))
 		for (unsigned int i = 0; i < size; i++) data[i] = value;
 	}
 

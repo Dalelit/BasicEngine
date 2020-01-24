@@ -8,13 +8,18 @@
 class BECanvas
 {
 public:
-	struct Pixel {
-		unsigned char b, g, r, a;
-	};
-
 	typedef DirectX::XMVECTOR Color;
 
-	BESurface2D<Color>* bufferSurface = nullptr;
+	struct Pixel {
+		unsigned char b, g, r, a;
+
+		void operator=(DirectX::XMVECTOR& c) {
+			r = (unsigned char)c.m128_f32[0];
+			g = (unsigned char)c.m128_f32[1];
+			b = (unsigned char)c.m128_f32[2];
+			a = (unsigned char)c.m128_f32[3];
+		}
+	};
 
 	BESurface2D<Pixel>* bmpSurface = nullptr;
 
@@ -27,14 +32,4 @@ public:
 	int Initialise(unsigned int width, unsigned int height);
 
 	void Clear();
-
-	void BufferToBMP();
-	void BufferToBMPv2();
-
-private:
-	void InitialiseBitmapConversion();
-	WICRect rect = {};
-	Microsoft::WRL::ComPtr<IWICBitmap> pBitmap = nullptr;
-	Microsoft::WRL::ComPtr<IWICFormatConverter> pConverter = nullptr;
-	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;
 };

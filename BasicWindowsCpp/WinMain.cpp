@@ -76,9 +76,12 @@ void BECreateBackBuffer(int indx)
 	bmpInfo[indx].bmiHeader.biCompression = BI_RGB;
 }
 
+long drawBackBufferTime = 0;
+long drawBackBufferCount = 0;
 void BEDrawBackBuffer(int bufferindx, int windowIndx)
 {
-	backBuffer[bufferindx].BufferToBMP();
+	drawBackBufferCount++;
+	clock_t startTime = clock();
 
 	StretchDIBits(
 		hdc[windowIndx],
@@ -95,6 +98,8 @@ void BEDrawBackBuffer(int bufferindx, int windowIndx)
 		DIB_RGB_COLORS,
 		SRCCOPY
 	);
+
+	drawBackBufferTime += clock() - startTime;
 }
 
 void BEDrawBackBuffer(int indx)
@@ -510,6 +515,7 @@ int WINAPI WinMain(
 		BEDrawBackBuffer(0);
 		std::wstring msg = pointsPL.GetStats();
 		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms\n";
+		msg += L"Draw back buffer avg time: " + std::to_wstring((float)drawBackBufferTime / (float)drawBackBufferCount) + L"ms\n";
 		BEWriteOverlayToWindow(0, msg.c_str());
 
 		//
