@@ -130,7 +130,6 @@
   <ItemGroup>
     <ClCompile Include="BEBounds.cpp" />
     <ClCompile Include="BECamera.cpp" />
-    <ClCompile Include="BECanvas.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEDirectXDevice.cpp" />
     <ClCompile Include="BEDirectXDrawable.cpp" />

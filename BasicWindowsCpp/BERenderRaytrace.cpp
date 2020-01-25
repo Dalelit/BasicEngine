@@ -10,10 +10,10 @@ BERenderRaytrace::BERenderRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanva
 	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
-	stride = pCanvas->width;
-	invWidthx2 = 2.0f / (float)pCanvas->width;
-	invHeightx2 = 2.0f / (float)pCanvas->height;
-	raysToProcess = pCanvas->width * pCanvas->height;
+	stride = pCanvas->Width();
+	invWidthx2 = 2.0f / (float)pCanvas->Width();
+	invHeightx2 = 2.0f / (float)pCanvas->Height();
+	raysToProcess = pCanvas->Width() * pCanvas->Height();
 	raysProcessed = 0;
 }
 
@@ -87,7 +87,7 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 void BERenderRaytrace::Draw()
 {
 	//DrawByLine();
-	DrawBySampling(0, pCanvas->width, 0, pCanvas->height);
+	DrawBySampling(0, pCanvas->Width(), 0, pCanvas->Height());
 }
 
 void BERenderRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
@@ -97,9 +97,9 @@ void BERenderRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int
 
 void BERenderRaytrace::DrawByLine()
 {
-	for (unsigned int y = 0; y < pCanvas->height; y++)
+	for (unsigned int y = 0; y < pCanvas->Height(); y++)
 	{
-		for (unsigned int x = 0; x < pCanvas->width; x++)
+		for (unsigned int x = 0; x < pCanvas->Width(); x++)
 		{
 			InnerLoop(x, y);
 

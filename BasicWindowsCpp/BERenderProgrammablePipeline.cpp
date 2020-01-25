@@ -91,15 +91,15 @@ inline void BEPipelineVSData::operator/=(const float rhs)
 }
 
 BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas) :
-	pixelShaderBuffer(_pCanvas->width, _pCanvas->height),
-	depthBuffer(_pCanvas->width, _pCanvas->height)
+	pixelShaderBuffer(_pCanvas->Width(), _pCanvas->Height()),
+	depthBuffer(_pCanvas->Width(), _pCanvas->Height())
 {
 	pScene  = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
 
-	width = (float)pCanvas->width;
-	height = (float)pCanvas->height;
+	width = (float)pCanvas->Width();
+	height = (float)pCanvas->Height();
 
 	halfWidthHeight11 = { width / 2.0f, height / 2.0f, 1.0f, 1.0f };
 

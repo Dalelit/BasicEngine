@@ -4,12 +4,12 @@
 #include <wrl.h>
 #include <DirectXMath.h>
 
-// Pixel struct to make it easy to manipulate the bitmap
+// Wrapper of a surface with a pixel struct to make it easy to manage the target output
 class BECanvas
 {
 public:
-	typedef DirectX::XMVECTOR Color;
 
+	// Pixel struct to make it easy to manipulate the bitmap
 	struct Pixel {
 		unsigned char b, g, r, a;
 
@@ -23,13 +23,20 @@ public:
 
 	BESurface2D<Pixel>* bmpSurface = nullptr;
 
-	unsigned int width = 0;
-	unsigned int height = 0;
-	unsigned int size = 0;
+	~BECanvas() { if (bmpSurface) delete bmpSurface; };
 
-	~BECanvas();
+	inline void Clear() { bmpSurface->Clear(); };
 
-	int Initialise(unsigned int width, unsigned int height);
+	inline unsigned int Width() { return bmpSurface->GetWidth(); };
+	inline unsigned int Height() { return bmpSurface->GetHeight(); };
 
-	void Clear();
+	void Initialise(unsigned int width, unsigned int height) {
+
+		if (bmpSurface) delete bmpSurface;
+
+		bmpSurface = new BESurface2D<Pixel>(width, height);
+
+		Clear();
+	};
+
 };
