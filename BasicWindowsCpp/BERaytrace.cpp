@@ -55,16 +55,13 @@ bool BERaytrace::RayHit(BEScene* pScene, BECamera* pCamera, DirectX::XMVECTOR ra
 				for (unsigned int i = 0; i < pMesh->triCount; i++) // look at each triangle
 				{
 					BEVertex* pV0 = &(pMesh->verticies[pMesh->triangles[i].indx[0]]);
+					BEVertex* pV1 = &(pMesh->verticies[pMesh->triangles[i].indx[1]]);
+					BEVertex* pV2 = &(pMesh->verticies[pMesh->triangles[i].indx[2]]);
 
-					// to do: is back face culling optional?
-					XMVECTOR n0ws = pEntity->ModelToWorldDirection(pV0->normal); // get a normal in world space for culling
+					auto visibleTest = [rayModelSpaceOrigin](BEVertex* v) { return XMVectorGetX(XMVector3Dot((v->position - rayModelSpaceOrigin), v->normal)) < 0.0f; };
 
-					// to do: convert the camera to model space once then check? may do less calcs.
-					if (pCamera->IsVisible(pEntity->ModelToWorldPosition(pV0->position), n0ws)) // back face culling
+					if ( visibleTest(pV0) || visibleTest(pV1) || visibleTest(pV2))
 					{
-						BEVertex* pV1 = &(pMesh->verticies[pMesh->triangles[i].indx[1]]);
-						BEVertex* pV2 = &(pMesh->verticies[pMesh->triangles[i].indx[2]]);
-
 						float u = 0.0f;
 						float v = 0.0f;
 						float triangleHitDistance;
