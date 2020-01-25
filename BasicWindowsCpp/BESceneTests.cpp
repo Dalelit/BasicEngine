@@ -27,13 +27,19 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 
 	pModel = new BEModel();
 	scene.models.push_back(pModel);
-	pModel->pMesh = BEMeshPrimatives::CubeMesh();
+	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
 	//pModel->pMesh = BEMeshPrimatives::TriangleMesh();
-	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 
-	pModel->pMesh->verticies[0].color = { 1,0,0,1 };
-	pModel->pMesh->verticies[5].color = { 0,1,0,1 };
-	pModel->pMesh->verticies[20].color = { 0,0,1,1 };
+	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\sphere.stl");
+	{ // temp hack: update the normals.
+		auto verts = pModel->pMesh->verticies;
+		for (int i = 0; i < pModel->pMesh->vertCount; i++)
+		{
+			verts[i].normal = DirectX::XMVector3Normalize(verts[i].position);
+		}
+	}
+
+	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 
 	pEntity = pModel->CreateInstance();
 	//pEntity->Translate(3, 0, 0);

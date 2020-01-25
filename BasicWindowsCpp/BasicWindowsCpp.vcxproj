@@ -248,6 +248,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="STL\monkey.stl" />
+    <None Include="STL\sphere.stl" />
     <None Include="STL\torus.stl" />
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@ VSOut main(float4 pos : Position, float4 nor : Normal, float4 col : Color, float
 	// to do: merge the camera and model matricies into a single matrix transform
 	result.position = mul(mul(pos, entityTransform), cameraTransform);
 	result.color = col;
-	result.normal = mul(nor, entityTransformRotation);
+	result.normal = normalize(mul(nor, entityTransformRotation));
 	result.tc = texcoord;
 
 	return result;

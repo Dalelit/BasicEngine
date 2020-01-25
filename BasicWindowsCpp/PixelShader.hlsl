@@ -16,6 +16,8 @@ float4 main(float4 col : Color, float4 nor : normal, float2 tc : Texcoord) : SV_
 {
 	float4 surfaceColor;
 
+	nor = normalize(nor);
+
 	if (textured)
 	{
 		surfaceColor = float4(tex.Sample(smplr, tc).rgb, 1.0f);

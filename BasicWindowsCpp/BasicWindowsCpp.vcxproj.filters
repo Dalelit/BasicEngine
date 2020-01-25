@@ -19,9 +19,6 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{4c095aba-3288-4739-bb71-2f5a4d66fedd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Depricated">
-      <UniqueIdentifier>{aff70f45-7293-4f33-9e97-65a2825d3569}</UniqueIdentifier>
-    </Filter>
     <Filter Include="BEDirectX Header Files">
       <UniqueIdentifier>{8e7a9ccc-e84f-44e1-8975-0385839bd71a}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,9 @@
     </Filter>
     <Filter Include="Scenes">
       <UniqueIdentifier>{83965946-25f8-43ca-ae7b-5e7f4e11e969}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{a29868a6-e6a9-4e2a-9e45-d3bc6e9f64c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -259,17 +259,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="VSPassthrough.hlsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PSPassthrough.hlsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VSPassthrough.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +282,9 @@
       <Filter>Resource Files\STL</Filter>
     </None>
     <None Include="STL\torus.stl">
+      <Filter>Resource Files\STL</Filter>
+    </None>
+    <None Include="STL\sphere.stl">
       <Filter>Resource Files\STL</Filter>
     </None>
   </ItemGroup>
