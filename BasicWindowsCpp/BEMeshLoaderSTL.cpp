@@ -99,6 +99,8 @@ BEMesh* BEMeshLoaderSTL::LoadSTL(std::wstring filename)
 	}
 
 	BEMesh* pMesh = new BEMesh(verticies, normals);
+
+	pMesh->SetBounds();
 	
 	return pMesh;
 }

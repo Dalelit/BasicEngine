@@ -29,11 +29,14 @@ void BEEntity::Update(float deltaTime)
 		transformRotation = DirectX::XMMatrixIdentity();
 	}
 
+	// update the tranform matricies
+
 	transformRotation = XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation);
 	transform *= transformRotation;
 	transform *= XMMatrixTranslationFromVector(position);
 
-	// update the tranform matricies
+	invTransform = XMMatrixInverse(nullptr, transform);
+	invTransformRotation = XMMatrixInverse(nullptr, transformRotation);
 
 	// loop throught the components... they may update the matricies further
 	for (BEEntityComponent* cmp : components) cmp->Update(deltaTime);

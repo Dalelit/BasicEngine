@@ -117,7 +117,6 @@ BEMesh::~BEMesh()
 {
 	if (verticies) delete verticies;
 	if (indicies) delete indicies;
-	if (lines) delete lines;
 }
 
 void BEMesh::SwapIndexOrder()

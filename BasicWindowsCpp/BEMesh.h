@@ -14,8 +14,7 @@ public:
 	enum class BEMeshTopology
 	{
 		TRIANGLE_LIST,
-		TRIANGLE_INDEX,
-		LINES
+		TRIANGLE_INDEX
 	};
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
@@ -26,10 +25,6 @@ public:
 
 	unsigned int* indicies = nullptr;
 	unsigned int indxCount = 0;
-
-	unsigned int lCount = 0;
-	unsigned int lBufferSize = 0;
-	unsigned int* lines = nullptr;
 
 	DirectX::XMVECTOR defaultColor = {1,1,1,1};
 

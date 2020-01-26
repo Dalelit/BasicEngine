@@ -70,8 +70,8 @@ void BESceneTests::CreateSceneTest1(BEScene& scene)
 
 	pModel = new BEModel();
 	scene.models.push_back(pModel);
-	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
-	pModel->pMesh->SetColor({ 1,0,0,1 });
+	pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeySmooth.ply");
+	pModel->pMesh->SetColor({ 0,0,1,1 });
 	pEntity = pModel->CreateInstance({ -2,0,0 });
 	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 

@@ -48,7 +48,7 @@ bool BERaytrace::RayHit(BEScene* pScene, BECamera* pCamera, DirectX::XMVECTOR ra
 		for (BEEntity* pEntity : pModel->entities) // loop on each instance of it
 		{
 			XMVECTOR rayModelSpaceOrigin = pEntity->WorldToModelPosition(rayOrigin);
-			XMVECTOR rayModelSpaceDirection = XMVector3Normalize(pEntity->WorldToModelDirection(rayDirection));
+			XMVECTOR rayModelSpaceDirection = pEntity->WorldToModelDirection(rayDirection);
 
 			if (pMesh->bounds.Intersects(rayModelSpaceOrigin, rayModelSpaceDirection, distance)) // if the ray intersects the bounds
 			{
