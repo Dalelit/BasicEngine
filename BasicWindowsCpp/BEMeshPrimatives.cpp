@@ -16,9 +16,7 @@ BEMesh* BEMeshPrimatives::TriangleMesh()
 	m->indicies[1] = 1;
 	m->indicies[2] = 2;
 
-	m->triangles[0].indx = m->indicies;
-
-	m->CalculateTriangleInfo();
+	m->SetBounds();
 
 	return m;
 }
@@ -106,7 +104,7 @@ BEMesh* BEMeshPrimatives::CubeMesh()
 	m->indicies[i++] = 20; m->indicies[i++] = 21; m->indicies[i++] = 22;
 	m->indicies[i++] = 20; m->indicies[i++] = 22; m->indicies[i++] = 23;
 
-	m->CalculateTriangleInfo();
+	m->SetBounds();
 
 	return m;
 }
@@ -196,7 +194,7 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 		}
 	}
 
-	m->CalculateTriangleInfo();
+	m->SetBounds();
 
 	return m;
 }

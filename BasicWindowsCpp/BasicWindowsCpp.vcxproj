@@ -152,6 +152,7 @@
     <ClCompile Include="BELight.cpp" />
     <ClCompile Include="BEMaterial.cpp" />
     <ClCompile Include="BEMesh.cpp" />
+    <ClCompile Include="BEMeshLoaderPLY.cpp" />
     <ClCompile Include="BEMeshPrimatives.cpp" />
     <ClCompile Include="BEMeshLoaderSTL.cpp" />
     <ClCompile Include="BEModel.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="BELight.h" />
     <ClInclude Include="BEMaterial.h" />
     <ClInclude Include="BEMesh.h" />
+    <ClInclude Include="BEMeshLoaderPLY.h" />
     <ClInclude Include="BEMeshPrimatives.h" />
     <ClInclude Include="BEMeshLoaderSTL.h" />
     <ClInclude Include="BEModel.h" />
@@ -250,6 +252,10 @@
     <ResourceCompile Include="BasicEngine.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="PLY\monkeyFlat.ply" />
+    <None Include="PLY\monkeySmooth.ply" />
+    <None Include="PLY\sphereFlat.ply" />
+    <None Include="PLY\sphereSmooth.ply" />
     <None Include="STL\monkey.stl" />
     <None Include="STL\sphere.stl" />
     <None Include="STL\torus.stl" />

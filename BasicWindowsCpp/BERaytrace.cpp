@@ -18,13 +18,13 @@ bool BERaytrace::RayIntersects(BEScene* pScene, DirectX::XMVECTOR rayOrigin, Dir
 
 			if (m->bounds.Intersects(rayModelSpaceOrigin, rayModelSpaceDirection)) // if the ray intersects the bounds
 			{
-				for (unsigned int i = 0; i < m->triCount; i++) // look at each triangle
+				for (unsigned int i = 0; i < m->indxCount; ) // look at each triangle
 				{
 					if (DirectX::TriangleTests::Intersects(
 							rayModelSpaceOrigin, rayModelSpaceDirection,
-							m->verticies[m->triangles[i].indx[0]].position,
-							m->verticies[m->triangles[i].indx[1]].position,
-							m->verticies[m->triangles[i].indx[2]].position,
+							m->verticies[m->indicies[i++]].position,
+							m->verticies[m->indicies[i++]].position,
+							m->verticies[m->indicies[i++]].position,
 							distance))
 					{
 						return true;
@@ -52,11 +52,11 @@ bool BERaytrace::RayHit(BEScene* pScene, BECamera* pCamera, DirectX::XMVECTOR ra
 
 			if (pMesh->bounds.Intersects(rayModelSpaceOrigin, rayModelSpaceDirection, distance)) // if the ray intersects the bounds
 			{
-				for (unsigned int i = 0; i < pMesh->triCount; i++) // look at each triangle
+				for (unsigned int i = 0; i < pMesh->indxCount; ) // look at each triangle
 				{
-					BEVertex* pV0 = &(pMesh->verticies[pMesh->triangles[i].indx[0]]);
-					BEVertex* pV1 = &(pMesh->verticies[pMesh->triangles[i].indx[1]]);
-					BEVertex* pV2 = &(pMesh->verticies[pMesh->triangles[i].indx[2]]);
+					BEVertex* pV0 = &(pMesh->verticies[pMesh->indicies[i++]]);
+					BEVertex* pV1 = &(pMesh->verticies[pMesh->indicies[i++]]);
+					BEVertex* pV2 = &(pMesh->verticies[pMesh->indicies[i++]]);
 
 					auto visibleTest = [rayModelSpaceOrigin](BEVertex* v) { return XMVectorGetX(XMVector3Dot((v->position - rayModelSpaceOrigin), v->normal)) < 0.0f; };
 

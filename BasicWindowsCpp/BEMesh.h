@@ -27,9 +27,6 @@ public:
 	unsigned int* indicies = nullptr;
 	unsigned int indxCount = 0;
 
-	BETriangle* triangles = nullptr;
-	unsigned int triCount = 0;
-
 	unsigned int lCount = 0;
 	unsigned int lBufferSize = 0;
 	unsigned int* lines = nullptr;
@@ -37,12 +34,9 @@ public:
 	DirectX::XMVECTOR defaultColor = {1,1,1,1};
 
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
-	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals, BEMeshTopology _topology);
+	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals);
+	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals, std::vector<DirectX::XMFLOAT2> texcoord, std::vector<unsigned int> index);
 	~BEMesh();
-
-	void AddLines(unsigned int _lCount);
-
-	void CalculateTriangleInfo();
 
 	inline void SetColor(DirectX::XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }
 

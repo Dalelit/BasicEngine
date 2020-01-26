@@ -98,9 +98,7 @@ BEMesh* BEMeshLoaderSTL::LoadSTL(std::wstring filename)
 		else throw "Something unexpected in STL load";
 	}
 
-	BEMesh* pMesh = new BEMesh(verticies, normals, BEMesh::BEMeshTopology::TRIANGLE_LIST);
+	BEMesh* pMesh = new BEMesh(verticies, normals);
 	
-	pMesh->CalculateTriangleInfo();
-
 	return pMesh;
 }

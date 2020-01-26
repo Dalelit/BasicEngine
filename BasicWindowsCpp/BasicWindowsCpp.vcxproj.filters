@@ -31,6 +31,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{a29868a6-e6a9-4e2a-9e45-d3bc6e9f64c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\PLY">
+      <UniqueIdentifier>{a6968ad6-2328-4fcf-af3d-3e103a1cb3cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -130,6 +133,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEMeshLoaderPLY.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -257,6 +263,9 @@
     <ClInclude Include="BEInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEMeshLoaderPLY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -286,6 +295,18 @@
     </None>
     <None Include="STL\sphere.stl">
       <Filter>Resource Files\STL</Filter>
+    </None>
+    <None Include="PLY\monkeyFlat.ply">
+      <Filter>Resource Files\PLY</Filter>
+    </None>
+    <None Include="PLY\monkeySmooth.ply">
+      <Filter>Resource Files\PLY</Filter>
+    </None>
+    <None Include="PLY\sphereFlat.ply">
+      <Filter>Resource Files\PLY</Filter>
+    </None>
+    <None Include="PLY\sphereSmooth.ply">
+      <Filter>Resource Files\PLY</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

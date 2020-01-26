@@ -15,96 +15,107 @@ BEMesh::BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _
 
 	if (_triCount > 0)
 	{
-		triCount = _triCount;
-		triangles = new BETriangle[triCount];
-
-		indxCount = triCount * 3;
+		indxCount = _triCount * 3;
 		indicies = new unsigned int[indxCount];
 	}
 }
 
-BEMesh::BEMesh(std::vector<XMFLOAT3> _verticies, std::vector<XMFLOAT3> _normals, BEMeshTopology _topology)
+BEMesh::BEMesh(std::vector<XMFLOAT3> _verticies, std::vector<XMFLOAT3> _normals)
 {
-	topology = _topology;
+	// note: assumes 1 normal for a face (i.e. for 3 verticies).
+	// to do: tidy this up and have it handle either 1 or 3 normals per vertex
+
+	topology = BEMeshTopology::TRIANGLE_LIST;
 	vertCount = (unsigned int)_verticies.size();
-	triCount = (unsigned int)_normals.size();
 
 	if (vertCount == 0) return;
 
 	verticies = new BEVertex[vertCount];
-	unsigned int i = 0;
+	BEVertex* pv = verticies;
 
 	for (auto v : _verticies)
 	{
-		XMVECTOR position = XMLoadFloat3(&v);
-		position.m128_f32[3] = 1.0f;
-		verticies[i].position = position;
-		verticies[i].color = defaultColor;
-		i++;
+		pv->position = XMLoadFloat3(&v);
+		pv->position.m128_f32[3] = 1.0f;
+		pv->color = defaultColor;
+		pv++;
 	}
 
-	// to do: temp hack to check
-	if (vertCount != _normals.size() * 3) throw "Temp hack: BEMesh expects normals to be 1/3 of verticies";
-
-	i = 0;
+	pv = verticies;
 	for (auto n : _normals)
 	{
-		XMVECTOR normal = XMLoadFloat3(&n);
-		normal.m128_f32[3] = 1.0f;
-
-		verticies[i++].normal = normal;
-		verticies[i++].normal = normal;
-		verticies[i++].normal = normal;
+		pv->normal = XMLoadFloat3(&n);
+		pv->normal.m128_f32[3] = 1.0f;
+		pv++;
+		pv->normal = XMLoadFloat3(&n);
+		pv->normal.m128_f32[3] = 1.0f;
+		pv++;
+		pv->normal = XMLoadFloat3(&n);
+		pv->normal.m128_f32[3] = 1.0f;
+		pv++;
 	}
 
+	indxCount = vertCount;
+	indicies = new unsigned int[indxCount];
 
-	if (triCount > 0)
+	for (unsigned int j = 0; j < indxCount; j++)
 	{
-		triangles = new BETriangle[triCount];
-
-		indxCount = triCount * 3;
-		indicies = new unsigned int[indxCount];
-
-		for (unsigned int j = 0; j < indxCount; j++)
-		{
-			indicies[j] = j;
-		}
+		indicies[j] = j;
 	}
+
+	SetBounds();
+}
+
+BEMesh::BEMesh(std::vector<DirectX::XMFLOAT3> _verticies, std::vector<DirectX::XMFLOAT3> _normals, std::vector<DirectX::XMFLOAT2> _texcoord, std::vector<unsigned int> _index)
+{
+	// note: assumes 1 normal per vertex. Like the other constructure... need to tidy up.
+
+	topology = BEMeshTopology::TRIANGLE_INDEX;
+	vertCount = (unsigned int)_verticies.size();
+
+	if (vertCount == 0) return;
+
+	verticies = new BEVertex[vertCount];
+	BEVertex* pv = verticies;
+
+	for (auto v : _verticies)
+	{
+		pv->position = XMLoadFloat3(&v);
+		pv->position.m128_f32[3] = 1.0f;
+		pv->color = defaultColor;
+		pv++;
+	}
+
+	pv = verticies;
+	for (auto n : _normals)
+	{
+		pv->normal = XMVector3Normalize(XMLoadFloat3(&n));
+		pv->normal.m128_f32[3] = 1.0f;
+		pv++;
+	}
+
+	pv = verticies;
+	for (auto n : _texcoord)
+	{
+		pv->texcoord = n;
+	}
+
+	indxCount = (unsigned int)_index.size();
+	indicies = new unsigned int[indxCount];
+
+	unsigned int* pi = indicies;
+	for (auto n : _index)
+	{
+		*pi = n;
+		pi++;
+	}
+
+	SetBounds();
 }
 
 BEMesh::~BEMesh()
 {
 	if (verticies) delete verticies;
 	if (indicies) delete indicies;
-	if (triangles) delete triangles;
 	if (lines) delete lines;
-}
-
-void BEMesh::AddLines(unsigned int _lCount)
-{
-	lCount = _lCount;
-	lBufferSize = lCount * 2;
-	if (lCount > 0) lines = new unsigned int[lBufferSize];
-}
-
-void BEMesh::CalculateTriangleInfo()
-{
-	// To Do: sort out if I need to skip this if it's a triangle list only.
-
-	// sort out the indx info
-	unsigned int* pIndx = indicies;
-	for (unsigned int tindx = 0; tindx < triCount; tindx++)
-	{
-		triangles[tindx].indx = pIndx;
-		pIndx += 3;
-	}
-
-	SetBounds();
-
-	//for (unsigned int tindx = 0; tindx < triCount; tindx++)
-	//{
-	//	XMVECTOR v0 = verticies[triangles[tindx].indx[0]].position;
-	//	XMVECTOR v1 = verticies[triangles[tindx].indx[1]].position - v0;
-	//	XMVECTOR v2 = verticies[triangles[tindx].indx[2]].position - v0;
-	//}
 }

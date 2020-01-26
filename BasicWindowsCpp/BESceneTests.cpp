@@ -1,6 +1,7 @@
 #include "BESceneTests.h"
 #include "BEMeshPrimatives.h"
 #include "BEMeshLoaderSTL.h"
+#include "BEMeshLoaderPLY.h"
 #include "BEEntityComponents.h"
 #include "BEEntitySystems.h"
 
@@ -29,17 +30,12 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	scene.models.push_back(pModel);
 	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
 	//pModel->pMesh = BEMeshPrimatives::TriangleMesh();
-
-	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\sphere.stl");
-	{ // temp hack: update the normals.
-		auto verts = pModel->pMesh->verticies;
-		for (int i = 0; i < pModel->pMesh->vertCount; i++)
-		{
-			verts[i].normal = DirectX::XMVector3Normalize(verts[i].position);
-		}
-	}
-
-	pModel->pMesh->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+	//pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
+	//pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\sphere.stl");
+	pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\sphereSmooth.ply");
+	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\sphereFlat.ply");
+	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeySmooth.ply");
+	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeyFlat.ply");
 
 	pEntity = pModel->CreateInstance();
 	//pEntity->Translate(3, 0, 0);
