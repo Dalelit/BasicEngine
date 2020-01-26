@@ -12,7 +12,7 @@ cbuffer entityConstObj {
 	bool textured;
 };
 
-float4 main(float4 col : Color, float4 nor : normal, float2 tc : Texcoord) : SV_TARGET
+float4 main(float4 col : Color, float3 nor : normal, float2 tc : Texcoord) : SV_TARGET
 {
 	float4 surfaceColor;
 
@@ -28,7 +28,7 @@ float4 main(float4 col : Color, float4 nor : normal, float2 tc : Texcoord) : SV_
 	}
 
 	float4 light = ambientColor;
-	light += max(0, -dot(nor, lightDirection)) * lightColor;
+	light += max(0, -dot(nor, lightDirection.xyz)) * lightColor;
 
 	return saturate(light * surfaceColor);
 }
