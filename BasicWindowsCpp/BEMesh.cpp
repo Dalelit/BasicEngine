@@ -119,3 +119,11 @@ BEMesh::~BEMesh()
 	if (indicies) delete indicies;
 	if (lines) delete lines;
 }
+
+void BEMesh::SwapIndexOrder()
+{
+	for (unsigned int i = 0; i < indxCount; i += 3)
+	{
+		std::swap(indicies[i + 1], indicies[i + 2]);
+	}
+}

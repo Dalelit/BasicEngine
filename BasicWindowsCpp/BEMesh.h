@@ -51,4 +51,6 @@ public:
 	BEBoundsBox bounds;
 	//BEBoundsSphere bounds;
 	void SetBounds() { bounds.SetBounds(vertCount, verticies); };
+
+	void SwapIndexOrder();
 };

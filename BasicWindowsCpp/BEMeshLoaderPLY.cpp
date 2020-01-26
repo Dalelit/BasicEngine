@@ -32,7 +32,7 @@ BEMesh* BEMeshLoaderPLY::LoadPLY(std::wstring filename)
 	std::vector<XMFLOAT3> verticies;
 	std::vector<XMFLOAT3> normals;
 	std::vector<XMFLOAT2> texcoords;
-	std::vector<unsigned int> indecies;
+	std::vector<unsigned int> indices;
 	bool done = false;
 	bool headerDone = false;
 
@@ -95,12 +95,15 @@ BEMesh* BEMeshLoaderPLY::LoadPLY(std::wstring filename)
 		if (vcount != 3u) throw "Unexpected count in face line";
 
 		srcFile >> vindx;
-		indecies.push_back(vindx);
+		indices.push_back(vindx);
 		srcFile >> vindx;
-		indecies.push_back(vindx);
+		indices.push_back(vindx);
 		srcFile >> vindx;
-		indecies.push_back(vindx);
+		indices.push_back(vindx);
 	}
+	BEMesh* pMesh = new BEMesh(verticies, normals, texcoords, indices);
 
-	return new BEMesh(verticies, normals, texcoords, indecies);
+	pMesh->SwapIndexOrder();
+
+	return pMesh;
 }
