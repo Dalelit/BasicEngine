@@ -454,6 +454,33 @@ void BERenderProgrammablePipeline::RasterizerTriangle(BEPipelineVSConstants& con
 	}
 }
 
+void BERenderProgrammablePipeline::RasterizerWireFrameAndNormals(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2)
+{
+	DrawLine(constants, pv0, pv1);
+	DrawLine(constants, pv0, pv2);
+	DrawLine(constants, pv1, pv2);
+
+	auto SetNormalPoint = [this](BEPipelineVSData& n, BEPipelineVSData* pv) {
+		n = *pv;
+		n.positionWS += n.normalWS * 0.25;
+		n.positionWS.m128_f32[3] = 1.0f;
+		n.positionSS = pCamera->WorldToScreen(n.positionWS);
+		n.positionSS = ScreenSpaceToPixelCoord(n.positionSS / GETW(n.positionSS));
+		n.color = {1,0,0,1};
+	};
+
+	BEPipelineVSData normalv;
+
+	SetNormalPoint(normalv, pv0);
+	DrawLine(constants, pv0, &normalv);
+
+	SetNormalPoint(normalv, pv1);
+	DrawLine(constants, pv1, &normalv);
+
+	SetNormalPoint(normalv, pv2);
+	DrawLine(constants, pv2, &normalv);
+}
+
 void BERenderProgrammablePipeline::PixelShading()
 {
 	clock_t startTime = clock();

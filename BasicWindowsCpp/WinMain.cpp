@@ -452,7 +452,7 @@ int WINAPI WinMain(
 
 	// points
 	BERenderProgrammablePipeline pointsPL(&scene, &camera, &backBuffer[0]);
-	pointsPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerPoints;
+	pointsPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireFrameAndNormals;
 	pointsPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
 	pointsPL.backFaceCull = false;
 
