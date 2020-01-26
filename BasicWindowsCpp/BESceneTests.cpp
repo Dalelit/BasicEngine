@@ -111,20 +111,18 @@ void BESceneTests::CreateSceneTest2(BEScene& scene)
 	pModel->pMesh->SetColor({ 0.1f,0.5f,1.0f,1.0f });
 
 	pEntity = pModel->CreateInstance();
-	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
-	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 
 	pEntity = pModel->CreateInstance();
-	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
-	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 	pEntity->Translate(2, 0, 0);
 	pEntity->SetScale({ 0.5, 0.5, 0.5, 1 });
 
 	pEntity = pModel->CreateInstance();
-	//pEntity->Rotate(0, DirectX::XMConvertToRadians(45.0f), 0);
-	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 	pEntity->Translate(-2, 0, 0);
 	pEntity->SetScale({ 1.5, 1.5, 1.5, 1 });
+
+	pModel->AddPhysics();
+	BEPhysicsSystem::RandomRotationSetup(pModel, 0.5f);
+	pModel->updateFunctions.push_back(BEPhysicsSystem::BasicUpdate);
 }
 
 void BESceneTests::CreateSceneTest3(BEScene& scene)

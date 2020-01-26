@@ -10,11 +10,11 @@ bool BERaytrace::RayIntersects(BEScene* pScene, DirectX::XMVECTOR rayOrigin, Dir
 	{
 		BEMesh* m = model->pMesh; // get it's mesh
 
-		for (BEEntity* entity : model->entities) // loop on each instance the model
+		for (BEEntity& entity : model->entities) // loop on each instance the model
 		{
 			// change the ray to be in the model space
-			XMVECTOR rayModelSpaceOrigin = entity->WorldToModelPosition(rayOrigin);
-			XMVECTOR rayModelSpaceDirection = XMVector3Normalize(entity->WorldToModelDirection(rayDirection));
+			XMVECTOR rayModelSpaceOrigin = entity.WorldToModelPosition(rayOrigin);
+			XMVECTOR rayModelSpaceDirection = XMVector3Normalize(entity.WorldToModelDirection(rayDirection));
 
 			if (m->bounds.Intersects(rayModelSpaceOrigin, rayModelSpaceDirection)) // if the ray intersects the bounds
 			{
@@ -45,10 +45,10 @@ bool BERaytrace::RayHit(BEScene* pScene, BECamera* pCamera, DirectX::XMVECTOR ra
 	{
 		BEMesh* pMesh = pModel->pMesh; // get it's mesh
 
-		for (BEEntity* pEntity : pModel->entities) // loop on each instance of it
+		for (BEEntity& entity : pModel->entities) // loop on each instance of it
 		{
-			XMVECTOR rayModelSpaceOrigin = pEntity->WorldToModelPosition(rayOrigin);
-			XMVECTOR rayModelSpaceDirection = pEntity->WorldToModelDirection(rayDirection);
+			XMVECTOR rayModelSpaceOrigin = entity.WorldToModelPosition(rayOrigin);
+			XMVECTOR rayModelSpaceDirection = entity.WorldToModelDirection(rayDirection);
 
 			if (pMesh->bounds.Intersects(rayModelSpaceOrigin, rayModelSpaceDirection, distance)) // if the ray intersects the bounds
 			{
@@ -79,7 +79,7 @@ bool BERaytrace::RayHit(BEScene* pScene, BECamera* pCamera, DirectX::XMVECTOR ra
 								distance = triangleHitDistance;
 
 								hitInfo.pModel = pModel;
-								hitInfo.pEntity = pEntity;
+								hitInfo.pEntity = &entity;
 								hitInfo.pV0 = pV0;
 								hitInfo.pV1 = pV1;
 								hitInfo.pV2 = pV2;

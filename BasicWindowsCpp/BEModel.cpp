@@ -6,10 +6,10 @@ BEModel::~BEModel()
 
 void BEModel::Update(float deltaTime)
 {
-	// to the component updates first
+	// do the component updates first
 	for (auto func : updateFunctions) (*func)(this, deltaTime);
 
-	for (BEEntity& entity : entitiesData)
+	for (BEEntity& entity : entities)
 	{
 		if (entity.active) // to do: move inactive out of this list?
 		{
@@ -22,38 +22,37 @@ void BEModel::Update(float deltaTime)
 // to do: not going to be efficient to resize vector. Not explecting to use this much in the future so not changing for now.
 BEEntity* BEModel::CreateInstance(DirectX::XMFLOAT3A position)
 {
-	entitiesData.emplace_back(BEEntity(position));
+	entities.emplace_back(BEEntity(position));
 
-	BEEntity* e = &entitiesData.back();
+	BEEntity* e = &entities.back();
 	e->material.pTextureSampler = pMesh->pTextureSampler; // to do: temp setup this way
-
-	entities.push_back(e);
-
-	entityCount++;
 
 	return e;
 }
 
 void BEModel::CreateBulkInstances(unsigned int amount)
 {
-	if (entitiesData.size() > 0) throw "Already bulk created";
+	unsigned int requiredCapacity = (unsigned int)entities.size() + amount;
 
-	if (entitiesData.capacity() < amount) entitiesData.reserve(amount);
+	if (entities.capacity() < requiredCapacity) ReserveInstances(requiredCapacity);
 
 	for (unsigned int i = 0; i < amount; i++)
 	{
-		entitiesData.emplace_back(BEEntity());
-		entities.emplace_back(&entitiesData.back());
+		entities.emplace_back(BEEntity());
 	}
+}
 
-	entityCount += amount;
+void BEModel::ReserveInstances(unsigned int amount)
+{
+	// to do: logging when this happens?
+	entities.reserve(amount);
 }
 
 void BEModel::AddPhysics()
 {
-	physicsData.reserve(entitiesData.capacity());
+	physicsData.reserve(entities.capacity());
 
-	for (unsigned int i = 0; i < entitiesData.size(); i++)
+	for (unsigned int i = (unsigned int)physicsData.size(); i < entities.size(); i++)
 	{
 		physicsData.emplace_back(BEComponentPhysics());
 	}

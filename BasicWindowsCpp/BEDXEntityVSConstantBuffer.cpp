@@ -1,7 +1,7 @@
 #include "BEDXEntityVSConstantBuffer.h"
 
-BEDXEntityVSConstantBuffer::BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity) :
-	pEntity(pEntity)
+BEDXEntityVSConstantBuffer::BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity& entity) :
+	entity(entity)
 {
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
@@ -20,8 +20,8 @@ void BEDXEntityVSConstantBuffer::Update(BEDirectXDevice& device)
 	HRESULT hr;
 
 	// to do: merge the camera and model matricies into a single matrix transform
-	buffer.transform = XMMatrixTranspose(pEntity->GetTransform());
-	buffer.transformRotation = XMMatrixTranspose(pEntity->GetTransformRotation());
+	buffer.transform = XMMatrixTranspose(entity.GetTransform());
+	buffer.transformRotation = XMMatrixTranspose(entity.GetTransformRotation());
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 
 	BEDXRESOURCE_ERRORCHECK(hr)

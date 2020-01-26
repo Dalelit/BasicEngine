@@ -10,7 +10,7 @@ public:
 		bool textured;
 	};
 
-	BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity);
+	BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEEntity& entity);
 	void Update(BEDirectXDevice& device);
 	void Bind(BEDirectXDevice& device);
 

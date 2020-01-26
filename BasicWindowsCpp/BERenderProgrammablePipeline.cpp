@@ -139,9 +139,9 @@ void BERenderProgrammablePipeline::Draw()
 	{
 		vsConstants.pModel = pModel;
 
-		for (BEEntity* pEntity : pModel->entities)
+		for (BEEntity& entity : pModel->entities)
 		{
-			vsConstants.pEntity = pEntity;
+			vsConstants.pEntity = &entity;
 
 			VertexShading(vsConstants);
 			GeometryShader(vsConstants);

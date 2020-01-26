@@ -60,7 +60,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 	{
 		BEMesh* m = model->pMesh; // get it's mesh
 
-		for (BEEntity* e : model->entities)
+		for (BEEntity& e : model->entities)
 		{
 			if (m)
 			{

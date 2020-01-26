@@ -10,12 +10,12 @@ public:
 		DirectX::XMMATRIX transformRotation;
 	};
 
-	BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity* pEntity);
+	BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity& entity);
 	void Update(BEDirectXDevice& device);
 	void Bind(BEDirectXDevice& device);
 
 private:
 	Buffer buffer = {};
-	BEEntity* pEntity;
+	BEEntity& entity;
 };
 
