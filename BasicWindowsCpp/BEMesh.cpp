@@ -113,6 +113,39 @@ BEMesh::BEMesh(std::vector<DirectX::XMFLOAT3> _verticies, std::vector<DirectX::X
 	SetBounds();
 }
 
+BEMesh::BEMesh(std::vector<BEVertex> srcVerticies)
+{
+	topology = BEMeshTopology::TRIANGLE_LIST;
+	vertCount = (unsigned int)srcVerticies.size();
+
+	if (vertCount == 0) return;
+
+	verticies = new BEVertex[vertCount];
+	BEVertex* pv = verticies;
+
+	for (auto v : srcVerticies)
+	{
+		*pv = v;
+		
+		// ensure some rules have been followed.
+		pv->position.m128_f32[3] = 1.0f;
+		pv->normal = XMVector3Normalize(pv->normal);
+		pv->normal.m128_f32[3] = 1.0f;
+		
+		pv++;
+	}
+
+	indxCount = vertCount;
+	indicies = new unsigned int[indxCount];
+
+	for (unsigned int j = 0; j < indxCount; j++)
+	{
+		indicies[j] = j;
+	}
+
+	SetBounds();
+}
+
 BEMesh::~BEMesh()
 {
 	if (verticies) delete verticies;

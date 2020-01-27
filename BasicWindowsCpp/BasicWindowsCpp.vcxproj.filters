@@ -34,6 +34,9 @@
     <Filter Include="Resource Files\PLY">
       <UniqueIdentifier>{a6968ad6-2328-4fcf-af3d-3e103a1cb3cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Models">
+      <UniqueIdentifier>{c32dbf43-308d-48eb-915e-c08b73d048b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -136,6 +139,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshLoaderPLY.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEMeshLoaderOBJ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -266,6 +272,9 @@
     <ClInclude Include="BEMeshLoaderPLY.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEMeshLoaderOBJ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -308,10 +317,24 @@
     <None Include="PLY\sphereSmooth.ply">
       <Filter>Resource Files\PLY</Filter>
     </None>
+    <None Include="Models\coneFlat.mtl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Models\coneSmooth.mtl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\4-sunset-over-water-focusstock.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Models\coneSmooth.obj">
+      <Filter>Resource Files\Models</Filter>
+    </Object>
+    <Object Include="Models\coneFlat.obj">
+      <Filter>Resource Files\Models</Filter>
+    </Object>
   </ItemGroup>
 </Project>

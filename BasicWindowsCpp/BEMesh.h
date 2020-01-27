@@ -2,6 +2,7 @@
 #include "BEBounds.h"
 #include "BESampler.h"
 #include <vector>
+#include <string>
 
 // Notes/Reminders/To check
 // - RH coord system... sticking with this? DX is LH
@@ -20,6 +21,8 @@ public:
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
 	BESampler* pTextureSampler = nullptr;
 
+	std::wstring name;
+
 	BEVertex* verticies = nullptr;
 	unsigned int vertCount = 0;
 
@@ -31,6 +34,7 @@ public:
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
 	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals);
 	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals, std::vector<DirectX::XMFLOAT2> texcoord, std::vector<unsigned int> index);
+	BEMesh(std::vector<BEVertex> srcVerticies);
 	~BEMesh();
 
 	inline void SetColor(DirectX::XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }

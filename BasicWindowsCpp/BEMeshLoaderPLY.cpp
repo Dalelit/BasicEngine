@@ -33,7 +33,6 @@ BEMesh* BEMeshLoaderPLY::LoadPLY(std::wstring filename)
 	std::vector<XMFLOAT3> normals;
 	std::vector<XMFLOAT2> texcoords;
 	std::vector<unsigned int> indices;
-	bool done = false;
 	bool headerDone = false;
 
 	unsigned int vertexCount = 0;
