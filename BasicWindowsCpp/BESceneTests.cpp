@@ -38,7 +38,6 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeySmooth.ply");
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeyFlat.ply");
 	pModel->pMesh = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
-	//pModel->pMesh = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneSmooth.obj");
 	
 	pEntity = pModel->CreateInstance();
 	//pEntity->Translate(3, 0, 0);
