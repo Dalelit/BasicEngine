@@ -320,6 +320,9 @@
     <None Include="Models\coneFlat.mtl">
       <Filter>Resource Files\Models</Filter>
     </None>
+    <None Include="Models\torusSmooth.mtl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\4-sunset-over-water-focusstock.jpg">
@@ -328,6 +331,9 @@
   </ItemGroup>
   <ItemGroup>
     <Object Include="Models\coneFlat.obj">
+      <Filter>Resource Files\Models</Filter>
+    </Object>
+    <Object Include="Models\torusSmooth.obj">
       <Filter>Resource Files\Models</Filter>
     </Object>
   </ItemGroup>

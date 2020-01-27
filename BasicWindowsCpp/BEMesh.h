@@ -1,6 +1,7 @@
 #pragma once
 #include "BEBounds.h"
 #include "BESampler.h"
+#include "BEMaterial.h"
 #include <vector>
 #include <string>
 
@@ -19,6 +20,7 @@ public:
 	};
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
+	BEMaterial material;
 	BESampler* pTextureSampler = nullptr;
 
 	std::wstring name;
