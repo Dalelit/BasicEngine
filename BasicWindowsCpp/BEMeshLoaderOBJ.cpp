@@ -22,11 +22,14 @@ using namespace DirectX;
 // f 1/1/1 12/2/1 2/3/1  --> vertex/texture/normal indices
 
 
-BEMesh* BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
+std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 {
+	std::vector<BEMesh*> meshes;
+
 	std::wifstream srcFile(filename);
 	std::wstring token;
 	std::wstring name;
+	bool activeMesh = false;
 	std::vector<XMFLOAT3> verticies;
 	std::vector<XMFLOAT3> normals;
 	std::vector<XMFLOAT2> texcoords;
@@ -34,7 +37,7 @@ BEMesh* BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 	std::map<std::wstring, BEMaterial> materials;
 	std::wstring currentMat;
 
-	if (!srcFile.is_open()) return nullptr;
+	if (!srcFile.is_open()) return meshes;
 
 	srcFile >> token;
 	while (srcFile.good())
@@ -51,7 +54,19 @@ BEMesh* BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 		}
 		else if (token == L"o")
 		{
+			// create the mesh object if we've already been building it up and clear things out to start again.
+			if (activeMesh)
+			{
+				BEMesh* pMesh = new BEMesh(meshVerticies);
+				pMesh->name = name;
+				pMesh->material = materials[currentMat];
+				meshes.push_back(pMesh);
+				// do not clear data as file structure appears to continue adding
+			}
+
+			// start the mesh
 			std::getline(srcFile, name);
+			activeMesh = true;
 		}
 		else if (token == L"v")
 		{
@@ -131,11 +146,15 @@ BEMesh* BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 		srcFile >> token; // next line
 	}
 
-	BEMesh* pMesh = new BEMesh(meshVerticies);
-	pMesh->name = name;
-	pMesh->material = materials[currentMat];
+	if (activeMesh)
+	{
+		BEMesh* pMesh = new BEMesh(meshVerticies);
+		pMesh->name = name;
+		pMesh->material = materials[currentMat];
+		meshes.push_back(pMesh);
+	}
 
-	return pMesh;
+	return meshes;
 }
 
 std::map<std::wstring, BEMaterial> BEMeshLoaderOBJ::LoadMTL(std::wstring filename)

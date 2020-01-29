@@ -257,6 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Models\coneFlat.mtl" />
+    <None Include="Models\simpleScene1.mtl" />
     <None Include="Models\torusSmooth.mtl" />
     <None Include="PLY\monkeyFlat.ply" />
     <None Include="PLY\monkeySmooth.ply" />
@@ -271,6 +272,10 @@
   </ItemGroup>
   <ItemGroup>
     <Object Include="Models\coneFlat.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Models\simpleScene1.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Object>

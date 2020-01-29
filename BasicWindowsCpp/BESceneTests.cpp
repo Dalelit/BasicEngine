@@ -27,8 +27,8 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	BESampler* s = new BESampler(*t);
 	scene.samplers.push_back(s);
 
-	pModel = new BEModel();
-	scene.models.push_back(pModel);
+	//pModel = new BEModel();
+	//scene.models.push_back(pModel);
 	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
 	//pModel->pMesh = BEMeshPrimatives::TriangleMesh();
 	//pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\monkey.stl");
@@ -37,10 +37,19 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\sphereFlat.ply");
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeySmooth.ply");
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeyFlat.ply");
-	//pModel->pMesh = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
-	pModel->pMesh = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
+	//pEntity = pModel->CreateInstance();
 
-	pEntity = pModel->CreateInstance();
+	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
+	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
+	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\simpleScene1.obj");
+	for (auto m : meshes)
+	{
+		pModel = new BEModel();
+		pModel->pMesh = m;
+		scene.models.push_back(pModel);
+		pEntity = pModel->CreateInstance();
+	}
+
 	//pEntity->Translate(3, 0, 0);
 	//pEntity->SetScale({ 2, 2, 2, 1 });
 }
