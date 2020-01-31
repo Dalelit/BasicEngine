@@ -12,6 +12,8 @@ public:
 	float quadratic = 0.0075f;
 
 	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal);
+
+	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition);
 };
 
 class BELightAmbient

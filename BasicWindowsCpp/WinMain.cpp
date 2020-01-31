@@ -465,7 +465,7 @@ int WINAPI WinMain(
 	// Full output
 	BERenderProgrammablePipeline mainPL(&scene, &camera, &backBuffer[2]);
 	//mainPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
-	//mainPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderFull;
+	//mainPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderPointOnly;
 
 	// Raytrace rendering
 	BERenderRaytrace raytracing(&scene, &camera, &backBuffer[3]);

@@ -77,6 +77,7 @@ public:
 	void PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 	void PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 	void PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+	void PixelShaderPointOnly(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
 
 	// method pointer for which rasterizer to use.
 	void(BERenderProgrammablePipeline::* pRasterizerFunc)(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);

@@ -527,6 +527,11 @@ void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, Di
 	XMVECTOR lights = pScene->ambientLight;
 	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
 
+	for (auto l : pScene->lights)
+	{
+		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
+	}
+
 	*pOutput = XMVectorSaturate(color * lights);
 }
 
@@ -543,6 +548,17 @@ void BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSDa
 void BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
 {
 	*pOutput = pPSData->color;
+}
+
+void BERenderProgrammablePipeline::PixelShaderPointOnly(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+{
+	XMVECTOR lights = {};
+
+	for (auto l : pScene->lights)
+	{
+		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
+	}
+	*pOutput = XMVectorSaturate(pPSData->color * lights);
 }
 
 void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS)

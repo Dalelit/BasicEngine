@@ -71,9 +71,10 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 
 		for (BEPointLight* pLight : pScene->lights)
 		{
-			if (!BERaytrace::TargetOccluded(pScene, positionWS, pLight->position))
+			// note: move the point a fraction off the surface when testing for occlusion as it could block itself. To do: what small number should it be?
+			if (!BERaytrace::TargetOccluded(pScene, positionWS + normalWS * 0.00001f, pLight->position))
 			{
-				lights += pLight->CalculateColorInWorldSpace(positionWS, normalWS);
+				lights += pLight->CalculateColorSpecInWorldSpace(positionWS, normalWS, pCamera->position);
 			}
 		}
 

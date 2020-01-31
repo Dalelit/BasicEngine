@@ -10,16 +10,16 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
-	//BEPointLight* pLight;
 
 	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.75f,0.75f,0.75f,1.0f };
 	scene.directionalLight.SetDirection({ 4, -2, -3, 1 });
 
-	//pLight = new BEPointLight();
-	//lights.push_back(pLight);
-	//pLight->position = { 2,4,2,1 };
-	//pLight->color = { 1.0f,0.1f,0.1f,1.0f };
+	BEPointLight* pLight;
+	pLight = new BEPointLight();
+	scene.lights.push_back(pLight);
+	pLight->position = { 4,4,4,1 };
+	pLight->color = { 0.5f,0.5f,0.5f,1.0f };
 
 	// to do: temp inclusion to stop dx warnings... will fix when multi scene.textures handled
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
