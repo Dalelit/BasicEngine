@@ -8,7 +8,7 @@
 
 void BESceneTests::CreateSceneTest0(BEScene& scene)
 {
-	BEModel* pModel;
+	BEModel* pModel = nullptr;
 	BEEntity* pEntity;
 
 	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
@@ -49,6 +49,9 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 		scene.models.push_back(pModel);
 		pEntity = pModel->CreateInstance();
 	}
+	pModel->AddPhysics();
+	BEPhysicsSystem::RandomRotationSetup(pModel, 1.0f);
+	pModel->updateFunctions.push_back(BEPhysicsSystem::BasicUpdate);
 
 	//pEntity->Translate(3, 0, 0);
 	//pEntity->SetScale({ 2, 2, 2, 1 });

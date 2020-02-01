@@ -61,7 +61,8 @@ std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 				pMesh->name = name;
 				pMesh->material = materials[currentMat];
 				meshes.push_back(pMesh);
-				// do not clear data as file structure appears to continue adding
+				// do not clear raw file data as file structure appears to continue adding
+				meshVerticies.clear();
 			}
 
 			// start the mesh
