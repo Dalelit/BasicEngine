@@ -20,18 +20,19 @@ BECamera::BECamera(XMVECTOR position, XMVECTOR direction) :
 
 inline void BECamera::Recalc()
 {
+	// axis
 	right = XMVector3Normalize(XMVector3Cross(direction, {0,1,0,1}));
-
 	up = XMVector3Normalize( XMVector3Cross(right, direction) );
 
-	upScaled = up * viewPortRatio;
+	// ray info
+	float tanFov = tanf(fieldOfViewY * 0.5f);
+	rightScaled = right * tanFov * viewPortRatioY;
+	upScaled = up * tanFov;
+	centre = position + direction;
 
-	centre = position + (direction * viewNear);
-
+	// matricies
 	viewMatrix = XMMatrixLookToRH(position, direction, {0,1,0,1});
-
-	projectionMatrix = XMMatrixPerspectiveRH(viewPortX, viewPortY, 0.5f, viewDistance);
-
+	projectionMatrix = XMMatrixPerspectiveFovRH(fieldOfViewY, viewPortRatioY, viewNear, viewDistance);
 	viewProjectionMatrix = viewMatrix * projectionMatrix;
 }
 
@@ -50,7 +51,7 @@ void BECamera::LookAt(XMVECTOR target)
 BECamera::Ray BECamera::RelativeScreenPositionToRay(float x, float y)
 {
 	Ray r;
-	r.origin = centre + x * right + y * upScaled;
+	r.origin = centre + x * rightScaled + y * upScaled;
 	r.direction = XMVector3Normalize(r.origin - position);
 
 	return r;

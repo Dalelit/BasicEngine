@@ -12,15 +12,11 @@ public:
 
 	DirectX::XMVECTOR position = { 0,0,0,1 };
 	
-	float viewPortRatio = 3.0f / 4.0f;
-	float viewPortX = 1.0f;
-	float viewPortY = viewPortRatio;
-	//DirectX::XMVECTOR viewPort = { 1.0f, viewPortRatio, 1.0f, 1.0f };
+	float viewPortRatioY = 4.0f / 3.0f;
+	float fieldOfViewY = DirectX::XMConvertToRadians(74.0f);
 
 	float viewNear = 1.0f;
-	float viewDistance = 1000.0f; // to do: need to think about this number.
-
-	DirectX::XMVECTOR up = {0.0f, 1.0f, 0.0f, 1.0f};
+	float viewDistance = 1000.0f;
 
 	BECamera();
 	BECamera(DirectX::XMVECTOR position, DirectX::XMVECTOR direction);
@@ -57,18 +53,20 @@ public:
 
 
 private:
+	DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 1.0f };
 	DirectX::XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
 	DirectX::XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };
+
+	// for creating rays
+	DirectX::XMVECTOR centre;
 	DirectX::XMVECTOR upScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
+	DirectX::XMVECTOR rightScaled = { 0.0f, 1.0f, 0.0f ,1.0f };
 
 	float mYaw = 0.0f;
 	float mPitch = 0.0f;
 
-	DirectX::XMVECTOR centre;
-
 	DirectX::XMMATRIX projectionMatrix;
 	DirectX::XMMATRIX viewMatrix;
 	DirectX::XMMATRIX viewProjectionMatrix;
-
 };
 
