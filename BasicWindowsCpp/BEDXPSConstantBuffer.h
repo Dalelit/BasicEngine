@@ -12,6 +12,9 @@ public:
 		DirectX::XMVECTOR ambientColor;
 		DirectX::XMVECTOR lightDirection;
 		DirectX::XMVECTOR lightColor;
+		DirectX::XMVECTOR pointLightPosition;
+		DirectX::XMVECTOR pointLightColor = {};
+		DirectX::XMVECTOR cameraPosition;
 	};
 
 	BEDXPSConstantBuffer(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera);

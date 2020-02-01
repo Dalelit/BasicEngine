@@ -24,6 +24,14 @@ void BEDXPSConstantBuffer::Update(BEDirectXDevice& device)
 	buffer.ambientColor = pScene->ambientLight;
 	buffer.lightColor = pScene->directionalLight.color;
 	buffer.lightDirection = pScene->directionalLight.GetDireciton();
+	buffer.cameraPosition = pCamera->position;
+
+	if (pScene->lights.size() > 0)
+	{
+		BEPointLight* pLight = pScene->lights[0];
+		buffer.pointLightPosition = pLight->position;
+		buffer.pointLightColor = pLight->color;
+	}
 
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 

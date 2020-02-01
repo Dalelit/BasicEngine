@@ -34,7 +34,7 @@ XMVECTOR BEPointLight::CalculateColorInWorldSpace(XMVECTOR targetPoint, XMVECTOR
 
 DirectX::XMVECTOR BEPointLight::CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition)
 {
-	XMVECTOR toLight = XMVector3Normalize(position - targetPoint);
+	XMVECTOR toLight = position - targetPoint;
 
 	// calc light from point source
 	XMVECTOR light = g_XMZero;
