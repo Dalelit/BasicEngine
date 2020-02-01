@@ -61,16 +61,16 @@ void BESceneTests::CreateSceneTest1(BEScene& scene)
 {
 	BEModel* pModel;
 	BEEntity* pEntity;
-	//BEPointLight* pLight;
 
 	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
-	scene.directionalLight.color = { 1,1,1,1 };
+	scene.directionalLight.color = { 0.5f,0.5f,0.5f,1 };
 	scene.directionalLight.SetDirection({ -4, -2, -3, 1 });
 
-	//pLight = new BEPointLight();
-	//lights.push_back(pLight);
-	//pLight->position = { 2,2,2,1 };
-	//pLight->color = { 1.0f,0.1f,0.1f,1.0f };
+	BEPointLight* pLight;
+	pLight = new BEPointLight();
+	scene.lights.push_back(pLight);
+	pLight->position = { 5,5,5,1 };
+	pLight->color = { 1.0f,1.0f,1.0f,1.0f };
 
 	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
 	scene.textures.push_back(t);
