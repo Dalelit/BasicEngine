@@ -105,13 +105,16 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 
 	halfWidthHeight11 = { width / 2.0f, height / 2.0f, 1.0f, 1.0f };
 
+	// preallocated memory for vertex data output
 	vsBuffer = new BEPipelineVSData[vsBufferSize];
 
 	assert(vsBuffer != nullptr);
 
+	// default functions set
 	pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
 	pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderFull;
 
+	// initialise some common pointers in the buffer. Need for parallel for_each in pixel shader
 	BEPipelinePointers ptrs;
 	ptrs.depth = depthBuffer.Begin();
 	ptrs.source = pixelShaderBuffer.Begin();

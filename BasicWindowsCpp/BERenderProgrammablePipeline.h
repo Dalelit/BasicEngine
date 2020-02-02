@@ -56,6 +56,8 @@ struct BEPipelinePSData
 	}
 };
 
+// note: This is static data once initialised. Seems to be quicker keeping this
+//       in a separate buffer so the psData buffer is a small as possible.
 struct BEPipelinePointers
 {
 	float* depth;
