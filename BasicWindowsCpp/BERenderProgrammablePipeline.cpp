@@ -622,10 +622,10 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BE
 
 			if (fromY >= 0 && fromY < (int)height && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
-				BEPipelinePSData psData = from;
-				psData.pModel = constants.pModel;
-				psData.pEntity = constants.pEntity;
-				pixelShaderBuffer.SetValue(fromX, fromY, psData);
+				auto pPSData = pixelShaderBuffer.GetData(fromX, fromY);
+				*pPSData = from;
+				pPSData->pModel = constants.pModel;
+				pPSData->pEntity = constants.pEntity;
 			}
 
 			from += delta;
@@ -663,10 +663,10 @@ void BERenderProgrammablePipeline::DrawLine(BEPipelineVSConstants& constants, BE
 
 			if (fromX >= 0 && fromX < (int)width && CheckAndSetDepthBuffer(fromX, fromY, GETZ(from.positionSS)))
 			{
-				BEPipelinePSData psData = from;
-				psData.pModel = constants.pModel;
-				psData.pEntity = constants.pEntity;
-				pixelShaderBuffer.SetValue(fromX, fromY, psData);
+				auto pPSData = pixelShaderBuffer.GetData(fromX, fromY);
+				*pPSData = from;
+				pPSData->pModel = constants.pModel;
+				pPSData->pEntity = constants.pEntity;
 			}
 
 			from += delta;
