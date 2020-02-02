@@ -1,6 +1,7 @@
 #include "BERenderProgrammablePipeline.h"
 #include "BERaytrace.h"
 #include <time.h>
+#include <execution>
 
 // To Do:
 // - check if the normalising of normals is being done too much.
@@ -92,7 +93,8 @@ inline void BEPipelineVSData::operator/=(const float rhs)
 
 BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas) :
 	pixelShaderBuffer(_pCanvas->Width(), _pCanvas->Height()),
-	depthBuffer(_pCanvas->Width(), _pCanvas->Height())
+	depthBuffer(_pCanvas->Width(), _pCanvas->Height()),
+	pointerBuffer(_pCanvas->Width(), _pCanvas->Height())
 {
 	pScene  = _pScene;
 	pCamera = _pCamera;
@@ -109,6 +111,15 @@ BERenderProgrammablePipeline::BERenderProgrammablePipeline(BEScene* _pScene, BEC
 
 	pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
 	pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderFull;
+
+	BEPipelinePointers ptrs;
+	ptrs.depth = depthBuffer.Begin();
+	ptrs.source = pixelShaderBuffer.Begin();
+	ptrs.target = pCanvas->bmpSurface->Begin();
+
+	BEPipelinePointers* pCurrent = pointerBuffer.Begin();
+	BEPipelinePointers* pEnd = pointerBuffer.End();
+	for (; pCurrent != pEnd; pCurrent++) { *pCurrent = ptrs; ptrs.inc(); }
 }
 
 BERenderProgrammablePipeline::~BERenderProgrammablePipeline()
@@ -485,27 +496,18 @@ void BERenderProgrammablePipeline::PixelShading()
 {
 	clock_t startTime = clock();
 
-	auto pPSBuffer = pixelShaderBuffer.GetData();
-	auto pDepthBuffer = depthBuffer.GetData();
-	auto size = pixelShaderBuffer.GetSize();
-	auto pTarget = pCanvas->bmpSurface->GetData();
-
-	for (unsigned int i = 0; i < size; i++)
-	{
-		if (*pDepthBuffer < depthDefaultValue) // something to shade
+	auto pixelFunc = [this](BEPipelinePointers& ptr) {
+		if (*ptr.depth < depthDefaultValue)
 		{
 			XMVECTOR color;
-			(this->*pPixelShaderFunc)(pPSBuffer, &color);
+			(this->*pPixelShaderFunc)(ptr.source, &color);
 			color *= 255.0f;
-
 			pixelCount++;
-			*pTarget = color;
+			*ptr.target = color;
 		}
+	};
 
-		pPSBuffer++;
-		pDepthBuffer++;
-		pTarget++;
-	}
+	std::for_each(std::execution::par, pointerBuffer.Begin(), pointerBuffer.End(), pixelFunc);
 
 	pixelTime += clock() - startTime;
 }

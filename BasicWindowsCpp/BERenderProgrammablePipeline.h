@@ -56,6 +56,19 @@ struct BEPipelinePSData
 	}
 };
 
+struct BEPipelinePointers
+{
+	float* depth;
+	BEPipelinePSData* source;
+	BECanvas::Pixel* target;
+
+	inline void inc() {
+		depth++;
+		source++;
+		target++;
+	}
+};
+
 class BERenderProgrammablePipeline
 {
 public:
@@ -97,6 +110,7 @@ protected:
 
 	BESurface2D<BEPipelinePSData> pixelShaderBuffer;
 	BESurface2D<float> depthBuffer;
+	BESurface2D<BEPipelinePointers> pointerBuffer;
 	static constexpr float depthDefaultValue = FLT_MAX;
 
 	BEPipelineVSData* vsBuffer = nullptr;
