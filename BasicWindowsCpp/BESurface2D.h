@@ -38,7 +38,11 @@ public:
 	}
 
 	inline void Clear(T value) {
-		for (unsigned int i = 0; i < size; i++) data[i] = value;
+		//std::for_each(std::execution::par, Begin(), End(), [value](float& val) { val = value; });
+
+		auto first = Begin();
+		auto last = End();
+		for (; first != last; ++first) *first = value;
 	}
 
 	inline void SetValue(unsigned int x, unsigned int y, T value) {
@@ -48,6 +52,9 @@ public:
 	inline T GetValue(unsigned int x, unsigned int y) {
 		return data[y * width + x];
 	}
+
+	inline T* Begin() { return data; }
+	inline T* End() { return data + size; }
 
 protected:
 	T* data = nullptr;
