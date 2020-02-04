@@ -21,7 +21,6 @@ public:
 
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
 	BEMaterial material;
-	BESampler* pTextureSampler = nullptr;
 
 	std::wstring name;
 
@@ -46,8 +45,6 @@ public:
 	inline void Scale(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorMultiply(verticies[i].position, v); }
 
 	inline void Transform(DirectX::XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVector3Transform(verticies[i].position, m); }
-
-	inline bool IsTextured() { return pTextureSampler != nullptr; }
 
 	BEBoundsBox bounds;
 	//BEBoundsSphere bounds;

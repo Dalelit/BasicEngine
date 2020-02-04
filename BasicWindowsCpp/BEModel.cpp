@@ -25,7 +25,6 @@ BEEntity* BEModel::CreateInstance(DirectX::XMFLOAT3A position)
 	entities.emplace_back(BEEntity(position));
 
 	BEEntity* e = &entities.back();
-	e->material.pTextureSampler = pMesh->pTextureSampler; // to do: temp setup this way
 
 	return e;
 }

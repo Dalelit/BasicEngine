@@ -80,7 +80,7 @@ void BESceneTests::CreateSceneTest1(BEScene& scene)
 	pModel = new BEModel();
 	scene.models.push_back(pModel);
 	pModel->pMesh = BEMeshPrimatives::Ground(10, 10, 10, 10, -1.5f, -0.5f);
-	pModel->pMesh->pTextureSampler = s;
+	pModel->pMesh->material.pTextureSampler = s;
 	pEntity = pModel->CreateInstance();
 
 	pModel = new BEModel();

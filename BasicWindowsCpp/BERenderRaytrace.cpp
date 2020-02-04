@@ -38,13 +38,15 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	{
 		XMVECTOR color;
 
-		if (hitInfo.pModel->pMesh->IsTextured())
+		auto pMat = &hitInfo.pModel->pMesh->material;
+
+		if (pMat->IsTextured())
 		{
 			// texture sampler
 			XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
 				hitInfo.pV0->texcoord, hitInfo.pV1->texcoord, hitInfo.pV2->texcoord,
 				hitInfo.u, hitInfo.v);
-			color = hitInfo.pModel->pMesh->pTextureSampler->SampleClosest(texcoord);
+			color = pMat->pTextureSampler->SampleClosest(texcoord);
 		}
 		else
 		{

@@ -25,8 +25,6 @@ public:
 	DirectX::XMVECTOR position = { 0,0,0,1 };
 	DirectX::XMVECTOR rotation = { 0,0,0,1 };
 	
-	BEMaterial material; // to do: work out where this should be
-
 	BEEntity() = default;
 	BEEntity(DirectX::XMFLOAT3A _position);
 

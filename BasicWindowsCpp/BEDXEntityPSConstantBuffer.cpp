@@ -1,9 +1,9 @@
 #include "BEDXEntityPSConstantBuffer.h"
 
-BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEEntity& entity) :
+BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEMesh& mesh, BEEntity& entity) :
 	pEntity(pEntity)
 {
-	buffer.textured = entity.material.IsTextured();
+	buffer.textured = mesh.material.IsTextured();
 
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;

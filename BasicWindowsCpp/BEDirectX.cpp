@@ -64,7 +64,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 		{
 			if (m)
 			{
-				BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, e);
+				BEDXEntityPSConstantBuffer* pEntityPSCB = new BEDXEntityPSConstantBuffer(device, *m, e);
 				pEntityPSCB->slot = 1u; // to do: sort this out properly
 
 				BEDXEntityVSConstantBuffer* pEntityVSCB = new BEDXEntityVSConstantBuffer(device, e);

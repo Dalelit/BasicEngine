@@ -519,10 +519,10 @@ void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, Di
 {
 	XMVECTOR color;
 
-	auto pMesh = pPSData->pModel->pMesh;
-	if (pMesh->IsTextured())
+	auto pMat = &pPSData->pModel->pMesh->material;
+	if (pMat->IsTextured())
 	{
-		color = pMesh->pTextureSampler->SampleClosest(pPSData->texcoord);
+		color = pMat->pTextureSampler->SampleClosest(pPSData->texcoord);
 	}
 	else
 	{
