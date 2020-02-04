@@ -14,7 +14,7 @@ public:
 	struct Pixel {
 		unsigned char b, g, r, a;
 
-		void operator=(DirectX::XMVECTOR& c) {
+		void operator=(DirectX::XMVECTOR c) {
 			r = (unsigned char)c.m128_f32[0];
 			g = (unsigned char)c.m128_f32[1];
 			b = (unsigned char)c.m128_f32[2];

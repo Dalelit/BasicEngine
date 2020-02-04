@@ -89,16 +89,16 @@ public:
 	void RasterizerWireFrameAndNormals(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 
 	void PixelShading();
-	void PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
-	void PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
-	void PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
-	void PixelShaderPointOnly(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+	DirectX::XMVECTOR PixelShaderFull(BEPipelinePSData* pPSData);
+	DirectX::XMVECTOR PixelShaderColorLight(BEPipelinePSData* pPSData);
+	DirectX::XMVECTOR PixelShaderColor(BEPipelinePSData* pPSData);
+	DirectX::XMVECTOR PixelShaderPointOnly(BEPipelinePSData* pPSData);
 
 	// method pointer for which rasterizer to use.
 	void(BERenderProgrammablePipeline::* pRasterizerFunc)(BEPipelineVSConstants& constants, BEPipelineVSData* pv0, BEPipelineVSData* pv1, BEPipelineVSData* pv2);
 
 	// method pointer for which pixel shader to use.
-	void(BERenderProgrammablePipeline::* pPixelShaderFunc)(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput);
+	DirectX::XMVECTOR (BERenderProgrammablePipeline::* pPixelShaderFunc)(BEPipelinePSData* pPSData);
 
 	std::wstring GetStats();
 

@@ -502,11 +502,8 @@ void BERenderProgrammablePipeline::PixelShading()
 	auto pixelFunc = [this](BEPipelinePointers& ptr) {
 		if (*ptr.depth < depthDefaultValue)
 		{
-			XMVECTOR color;
-			(this->*pPixelShaderFunc)(ptr.source, &color);
-			color *= 255.0f;
+			*ptr.target = (this->*pPixelShaderFunc)(ptr.source) * 255.0f;
 			pixelCount++;
-			*ptr.target = color;
 		}
 	};
 
@@ -515,7 +512,7 @@ void BERenderProgrammablePipeline::PixelShading()
 	pixelTime += clock() - startTime;
 }
 
-void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData)
 {
 	XMVECTOR color;
 
@@ -537,25 +534,25 @@ void BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData, Di
 		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
 	}
 
-	*pOutput = XMVectorSaturate(color * lights);
+	return XMVectorSaturate(color * lights);
 }
 
-void BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSData)
 {
 	XMVECTOR color = pPSData->color;
 
 	XMVECTOR lights = pScene->ambientLight;
 	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
 
-	*pOutput = XMVectorSaturate(color * lights);
+	return XMVectorSaturate(color * lights);
 }
 
-void BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData)
 {
-	*pOutput = pPSData->color;
+	return pPSData->color;
 }
 
-void BERenderProgrammablePipeline::PixelShaderPointOnly(BEPipelinePSData* pPSData, DirectX::XMVECTOR* pOutput)
+DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderPointOnly(BEPipelinePSData* pPSData)
 {
 	XMVECTOR lights = {};
 
@@ -563,7 +560,8 @@ void BERenderProgrammablePipeline::PixelShaderPointOnly(BEPipelinePSData* pPSDat
 	{
 		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
 	}
-	*pOutput = XMVectorSaturate(pPSData->color * lights);
+
+	return XMVectorSaturate(pPSData->color * lights);
 }
 
 void BERenderProgrammablePipeline::DrawPoint(BEPipelineVSConstants& constants, BEPipelineVSData* pVS)
