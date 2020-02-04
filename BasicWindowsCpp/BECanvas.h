@@ -3,6 +3,7 @@
 #include <wincodec.h>
 #include <wrl.h>
 #include <DirectXMath.h>
+#include <memory>
 
 // Wrapper of a surface with a pixel struct to make it easy to manage the target output
 class BECanvas
@@ -21,21 +22,15 @@ public:
 		}
 	};
 
-	BESurface2D<Pixel>* bmpSurface = nullptr;
-
-	~BECanvas() { if (bmpSurface) delete bmpSurface; };
+	std::unique_ptr<BESurface2D<Pixel>> bmpSurface;
 
 	inline void Clear() { bmpSurface->Clear(); };
 
-	inline unsigned int Width() { return bmpSurface->GetWidth(); };
+	inline unsigned int Width()  { return bmpSurface->GetWidth(); };
 	inline unsigned int Height() { return bmpSurface->GetHeight(); };
 
 	void Initialise(unsigned int width, unsigned int height) {
-
-		if (bmpSurface) delete bmpSurface;
-
-		bmpSurface = new BESurface2D<Pixel>(width, height);
-
+		bmpSurface = std::make_unique<BESurface2D<Pixel>>(width, height);
 		Clear();
 	};
 
