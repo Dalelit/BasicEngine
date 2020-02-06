@@ -2,12 +2,24 @@
 #include <d3dcompiler.h>
 
 
-BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename, InputLayout layout)
+BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::wstring filename)
+	:
+	filename(filename)
+{
+}
+
+void BEDXVertexShader::Bind(BEDirectXDevice& device)
+{
+	device.pImmediateContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+	device.pImmediateContext->IASetInputLayout(pInputLayout.Get());
+}
+
+void BEDXVertexShader::Initialise(BEDirectXDevice& device)
 {
 	HRESULT hr;
 
 	wrl::ComPtr<ID3DBlob> pBlob = nullptr;
-	hr = D3DReadFileToBlob(filename, &pBlob);
+	hr = D3DReadFileToBlob(filename.c_str(), &pBlob);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
@@ -19,27 +31,10 @@ BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, LPCWSTR filename, In
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
-	switch (layout)
-	{
-	case BEDXVertexShader::InputLayout::POSITION4_NORMAL4_COLOR4:
-		SetInputLayoutPos4Nor4Col4(device, *pBlob.Get());
-		break;
-	case BEDXVertexShader::InputLayout::POSITION3_TEXCOORD2:
-		SetInputLayoutPos3Tex2(device, *pBlob.Get());
-		break;
-	default:
-		throw("Invalid vertex buffer layout enum"); // to do : better error checking
-		break;
-	}
+	SetLayout(device, *pBlob.Get());
 }
 
-void BEDXVertexShader::Bind(BEDirectXDevice& device)
-{
-	device.pImmediateContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
-	device.pImmediateContext->IASetInputLayout(pInputLayout.Get());
-}
-
-void BEDXVertexShader::SetInputLayoutPos4Nor4Col4(BEDirectXDevice& device, ID3DBlob& shaderBlob)
+void BEDXVertexShaderPosNorColTex::SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob)
 {
 	HRESULT hr;
 
@@ -87,7 +82,7 @@ void BEDXVertexShader::SetInputLayoutPos4Nor4Col4(BEDirectXDevice& device, ID3DB
 	BEDXRESOURCE_ERRORCHECK(hr)
 }
 
-void BEDXVertexShader::SetInputLayoutPos3Tex2(BEDirectXDevice& device, ID3DBlob& shaderBlob)
+void BEDXVertexShaderPosTex::SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob)
 {
 	HRESULT hr;
 

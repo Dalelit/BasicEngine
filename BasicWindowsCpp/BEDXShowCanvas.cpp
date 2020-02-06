@@ -26,7 +26,7 @@ BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<XMVECTOR>& s
 	drawables.push_back(pVB);
 
 	// create the vertex shader
-	BEDXVertexShader* pVS = new BEDXVertexShader(device, L"VSPassthrough.cso", BEDXVertexShader::InputLayout::POSITION3_TEXCOORD2);
+	BEDXVertexShader* pVS = new BEDXVertexShaderPosTex(device, L"VSPassthrough.cso");
 	pVS->Bind(device);
 	resources.push_back(pVS);
 

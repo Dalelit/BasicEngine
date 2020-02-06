@@ -1,5 +1,6 @@
 #pragma once
 #include "BEDirectXResource.h"
+#include "BEDirectXResourceManager.h"
 #include "BEDirectXDrawable.h"
 #include "BEDXOverlay.h"
 #include "BEDXVSConstantBuffer.h"
@@ -41,7 +42,7 @@ public:
 	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
 
 private:
-	std::vector<BEDirectXResource*> resources;
+	BEDirectXResourceManager resources;
 	std::vector<BEDirectXDrawable*> drawables;
 	std::vector<BEDirectXConstantBuffer*> constantbuffers;
 

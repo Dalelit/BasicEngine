@@ -178,6 +178,7 @@
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
     <ClInclude Include="BEDirectXDrawable.h" />
+    <ClInclude Include="BEDirectXResourceManager.h" />
     <ClInclude Include="BEDXEntityPSConstantBuffer.h" />
     <ClInclude Include="BEDXEntityVSConstantBuffer.h" />
     <ClInclude Include="BEDXOverlay.h" />

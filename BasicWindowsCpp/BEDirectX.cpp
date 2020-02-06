@@ -17,7 +17,6 @@ BEDirectX::BEDirectX()
 
 BEDirectX::~BEDirectX()
 {
-	for (auto r : resources) delete r;
 	for (auto d : drawables) delete d;
 	for (auto c : constantbuffers) delete c;
 }
@@ -40,16 +39,14 @@ int BEDirectX::InitialiseBase(HWND hwnd, unsigned int width, unsigned int height
 void BEDirectX::Initialise3D(BEScene* pScene, BECamera* pCamera)
 {
 	/////////////////// Vertex Shader stage
-	BEDXVertexShader* pVS = new BEDXVertexShader(device, L"VertexShader.cso", BEDXVertexShader::InputLayout::POSITION4_NORMAL4_COLOR4);
+	BEDXVertexShader* pVS = resources.AccessResource<BEDXVertexShaderPosNorColTex>(device, L"VertexShader.cso");
 	pVS->Bind(device);
-	resources.push_back(pVS);
 
 	constantbuffers.push_back(new BEDXVSConstantBuffer(device, pScene, pCamera));
 
 	/////////////////// Pixel Shader stage
-	BEDXPixelShader* pPS = new BEDXPixelShader(device, L"PixelShader.cso");
+	BEDXPixelShader* pPS = resources.AccessResource<BEDXPixelShader>(device, L"PixelShader.cso");
 	pPS->Bind(device);
-	resources.push_back(pPS);
 
 	constantbuffers.push_back(new BEDXPSConstantBuffer(device, pScene, pCamera));
 }
@@ -85,7 +82,7 @@ int BEDirectX::LoadScene(BEScene* pScene)
 	{
 		BEDXTexture* pTex = new BEDXTexture(device, *t);
 		pTex->Bind(device);
-		resources.push_back(pTex);
+		resources.AddResource(L"tex1", pTex);
 	}
 
 	return 0;
