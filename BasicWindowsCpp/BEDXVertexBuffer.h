@@ -1,20 +1,19 @@
 #pragma once
-
-#include "BEDirectXDrawable.h"
 #include "BEMesh.h"
+#include "BEDirectXResource.h"
 #include <DirectXMath.h>
 
-class BEDXVertexBuffer : public BEDirectXDrawableResource
+class BEDXVertexBuffer : BEDirectXResource
 {
 public:
 
 	BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize = (unsigned int)sizeof(BEVertex));
 	BEDXVertexBuffer(BEDirectXDevice& device, void* pVerticies, unsigned int numberVerticies, unsigned int vertexSize = (unsigned int)sizeof(BEVertex));
-	void Bind(BEDirectXDevice& device);
-	void Draw(BEDirectXDevice& device);
+
+	virtual void Bind(BEDirectXDevice& device);
+	virtual void Draw(BEDirectXDevice& device);
 
 protected:
-	BEDXVertexBuffer() = default;
 
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer = nullptr;
 

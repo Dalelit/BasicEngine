@@ -59,29 +59,6 @@ int BEDirectX::DoFrame()
 	return 0;
 }
 
-// to do: it is a cut/paste of the draw... is there a better way?
-int BEDirectX::DoFrameWithExtra(BEDirectXDrawable& toDraw)
-{
-	clock_t startTime = clock();
-
-	device.BeginFrame();
-
-	toDraw.Draw(device); // draw an extra object.
-
-	drawTime += clock() - startTime;
-	frameCount++;
-
-	if (showStats)
-	{
-		overlay.message << GetStats();
-		overlay.Draw();
-	}
-
-	device.PresentFrame();
-
-	return 0;
-}
-
 void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
 	overlay.ShowBitmap(canvas);

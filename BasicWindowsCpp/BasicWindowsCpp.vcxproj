@@ -177,7 +177,6 @@
     <ClInclude Include="BEDirectX.h" />
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
-    <ClInclude Include="BEDirectXDrawable.h" />
     <ClInclude Include="BEDirectXResourceManager.h" />
     <ClInclude Include="BEDXScene.h" />
     <ClInclude Include="BEDXEntityPSConstantBuffer.h" />

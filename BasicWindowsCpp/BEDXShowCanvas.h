@@ -2,7 +2,6 @@
 
 #include "BEVertex.h"
 #include "BEDirectX.h"
-#include "BEDirectXDrawable.h"
 #include "BEDXTextureUpdateable.h"
 #include "BEDXVertexBuffer.h"
 #include "BEDXVertexShader.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include "BEDirectXDrawable.h"
 #include "BEDirectXResourceManager.h"
 #include "BEDirectXConstantBuffer.h"
 #include "BEDXVertexBuffer.h"

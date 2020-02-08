@@ -218,9 +218,6 @@
     <ClInclude Include="BEDirectXDevice.h">
       <Filter>BEDirectX Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BEDirectXDrawable.h">
-      <Filter>BEDirectX Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BEDirectXResource.h">
       <Filter>BEDirectX Header Files</Filter>
     </ClInclude>

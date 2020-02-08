@@ -1,7 +1,6 @@
 #pragma once
 #include "BEDirectXResource.h"
 #include "BEDirectXResourceManager.h"
-#include "BEDirectXDrawable.h"
 #include "BEDXOverlay.h"
 #include "BEDXVSConstantBuffer.h"
 #include "BEDXPSConstantBuffer.h"
@@ -33,7 +32,6 @@ public:
 	int LoadScene(BEScene* pScene, BECamera* pCamera);
 
 	int DoFrame();
-	int DoFrameWithExtra(BEDirectXDrawable& toDraw);
 
 	// show the bitmap version of the canvas. Assumes it's already stored.
 	void ShowBitmap(BECanvas& canvas);
