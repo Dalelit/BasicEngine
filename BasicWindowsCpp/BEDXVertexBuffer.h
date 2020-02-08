@@ -7,8 +7,8 @@ class BEDXVertexBuffer : BEDirectXResource
 {
 public:
 
-	BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize = (unsigned int)sizeof(BEVertex));
-	BEDXVertexBuffer(BEDirectXDevice& device, void* pVerticies, unsigned int numberVerticies, unsigned int vertexSize = (unsigned int)sizeof(BEVertex));
+	BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh);
+	BEDXVertexBuffer(BEDirectXDevice& device, void* pVerticies, unsigned int numberVerticies, unsigned int vertexSize);
 
 	virtual void Bind(BEDirectXDevice& device);
 	virtual void Draw(BEDirectXDevice& device);
@@ -30,7 +30,7 @@ class BEDXVertexBufferIndexed : public BEDXVertexBuffer
 {
 public:
 
-	BEDXVertexBufferIndexed(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize = (unsigned int)sizeof(BEVertex));
+	BEDXVertexBufferIndexed(BEDirectXDevice& device, BEMesh* pMesh);
 	
 	void Bind(BEDirectXDevice& device);
 	void Draw(BEDirectXDevice& device);

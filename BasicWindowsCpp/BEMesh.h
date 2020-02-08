@@ -26,6 +26,7 @@ public:
 
 	BEVertex* verticies = nullptr;
 	unsigned int vertCount = 0;
+	unsigned int GetVertexSize() { return (unsigned int)sizeof(BEVertex); }
 
 	unsigned int* indicies = nullptr;
 	unsigned int indxCount = 0;

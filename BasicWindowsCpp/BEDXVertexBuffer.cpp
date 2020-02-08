@@ -3,11 +3,11 @@
 // To do: template this?
 
 
-BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize)
+BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh)
 {
 	HRESULT hr;
 
-	bufferStrides[0] = vertexSize;
+	bufferStrides[0] = pMesh->GetVertexSize();
 
 	vertCount = pMesh->vertCount;
 
@@ -19,12 +19,12 @@ BEDXVertexBuffer::BEDXVertexBuffer(BEDirectXDevice& device, BEMesh* pMesh, unsig
 
 	// create the triangle buffer
 	D3D11_BUFFER_DESC bufferDesc = {};
-	bufferDesc.ByteWidth = vertexSize * vertCount;
+	bufferDesc.ByteWidth = pMesh->GetVertexSize() * vertCount;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = vertexSize;
+	bufferDesc.StructureByteStride = pMesh->GetVertexSize();
 
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
 
@@ -70,8 +70,8 @@ void BEDXVertexBuffer::Draw(BEDirectXDevice& device)
 	device.pImmediateContext->Draw(vertCount, 0u);
 }
 
-BEDXVertexBufferIndexed::BEDXVertexBufferIndexed(BEDirectXDevice& device, BEMesh* pMesh, unsigned int vertexSize) :
-	BEDXVertexBuffer::BEDXVertexBuffer(device, pMesh, vertexSize)
+BEDXVertexBufferIndexed::BEDXVertexBufferIndexed(BEDirectXDevice& device, BEMesh* pMesh) :
+	BEDXVertexBuffer::BEDXVertexBuffer(device, pMesh)
 {
 	HRESULT hr;
 
