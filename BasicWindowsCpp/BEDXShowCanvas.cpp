@@ -1,16 +1,13 @@
 #include "BEDXShowCanvas.h"
-#include "BEDXVertexBuffer.h"
-#include "BEDXVertexShader.h"
-#include "BEDXPixelShader.h"
 
 using namespace DirectX;
 
 BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<XMVECTOR>& surface, bool updateable)
 {
 	if (updateable)
-		pTexUpdt = new BEDXTextureUpdateable(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
+		pTexUpdt = std::make_unique<BEDXTextureUpdateable>(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	else
-		pTex = new BEDXTexture(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
+		pTex = std::make_unique<BEDXTexture>(device, surface, DXGI_FORMAT_R32G32B32A32_FLOAT);
 
 	// set the verticies
 	verticies[0] = { { -1,-1,0 }, {0,0} };
@@ -22,24 +19,16 @@ BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<XMVECTOR>& s
 	verticies[5] = { {  1,-1,0 }, {1,0} };
 
 	// create the vertex buffer
-	BEDXVertexBuffer* pVB = new BEDXVertexBuffer(device, &verticies, ARRAYSIZE(verticies), sizeof(BETexVertex));
-	drawables.push_back(pVB);
+	vertexBuffer = std::make_unique<BEDXVertexBuffer>(device, &verticies, (unsigned int)ARRAYSIZE(verticies), (unsigned int)sizeof(BETexVertex));
+	vertexBuffer->Bind(device);
 
 	// create the vertex shader
-	BEDXVertexShader* pVS = new BEDXVertexShaderPosTex(device, L"VSPassthrough.cso");
-	pVS->Bind(device);
-	resources.push_back(pVS);
+	vertexShader = std::make_unique<BEDXVertexShaderPosTex>(device, L"VSPassthrough.cso");
+	vertexShader->Bind(device);
 
 	// create the pixel shader
-	BEDXPixelShader* pPS = new BEDXPixelShader(device, L"PSPassthrough.cso");
-	pPS->Bind(device);
-	resources.push_back(pPS);
-}
-
-BEDXShowCanvas::~BEDXShowCanvas()
-{
-	if (pTex) delete pTex;
-	if (pTexUpdt) delete pTexUpdt;
+	pixelShader = std::make_unique<BEDXPixelShader>(device, L"PSPassthrough.cso");
+	pixelShader->Bind(device);
 }
 
 void BEDXShowCanvas::Draw(BEDirectXDevice& device)
@@ -54,5 +43,5 @@ void BEDXShowCanvas::Draw(BEDirectXDevice& device)
 		pTex->Bind(device);
 	}
 
-	for (auto d : drawables) d->Draw(device);
+	vertexBuffer->Draw(device);
 }

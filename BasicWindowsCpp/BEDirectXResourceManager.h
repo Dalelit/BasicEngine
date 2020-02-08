@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BEDirectXResource.h"
+#include "BEDXTexture.h"
 #include <string>
 #include <memory>
 #include <map>
@@ -9,6 +10,10 @@
 class BEDirectXResourceManager
 {
 public:
+	BEDirectXDevice& device;
+
+	BEDirectXResourceManager(BEDirectXDevice& device) : device(device) {};
+
 	~BEDirectXResourceManager()
 	{
 		for (auto r : resources) delete r.second;
@@ -20,6 +25,21 @@ public:
 		if (!ResourceExists(id))
 		{
 			T* ptr = new T(device, filename);
+			AddResource(id, ptr);
+			return ptr;
+		}
+		else
+		{
+			return (T*)GetResource(id);
+		}
+	}
+
+	template <class T>
+	T* AccessResource(BEDirectXDevice& device, BETexture& texture) {
+		std::wstring id = T::UniqueId(texture.name);
+		if (!ResourceExists(id))
+		{
+			T* ptr = new T(device, texture);
 			AddResource(id, ptr);
 			return ptr;
 		}

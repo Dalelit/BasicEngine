@@ -5,21 +5,16 @@
 #include <vector>
 #include <wrl.h>
 
-class BEDirectXDrawable
+class BEDirectXDrawableResource : BEDirectXResource
 {
 public:
 	virtual void Draw(BEDirectXDevice& device) = 0;
-	virtual ~BEDirectXDrawable();
 
 	std::vector<BEDirectXResource*> resources;
 };
 
-
-class BEDirectXDrawableNested : public BEDirectXDrawable
+class BEDirectXDrawable
 {
 public:
-	virtual ~BEDirectXDrawableNested();
-
-protected:
-	std::vector<BEDirectXDrawable*> drawables;
+	virtual void Draw(BEDirectXDevice& device) = 0;
 };

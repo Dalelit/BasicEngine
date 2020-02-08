@@ -6,7 +6,8 @@ using namespace DirectX;
 
 #define BE_HR_CHECK(hr) if (FAILED(hr)) throw hr; // to do: proper error checking
 
-BETexture::BETexture(std::wstring filename)
+BETexture::BETexture(std::wstring filename) :
+	name(filename)
 {
 	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;
 

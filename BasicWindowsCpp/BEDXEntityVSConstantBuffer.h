@@ -1,7 +1,7 @@
 #pragma once
 #include "BEDirectXConstantBuffer.h"
 
-class BEDXEntityVSConstantBuffer : public BEDirectXConstantBuffer
+class BEDXEntityVSConstantBuffer : public BEDirectXEntityConstantBuffer
 {
 public:
 
@@ -10,12 +10,11 @@ public:
 		DirectX::XMMATRIX transformRotation;
 	};
 
-	BEDXEntityVSConstantBuffer(BEDirectXDevice& device, BEEntity& entity);
-	void Update(BEDirectXDevice& device);
+	BEDXEntityVSConstantBuffer(BEDirectXDevice& device);
+	void Update(BEDirectXDevice& device, BEEntity& entity);
 	void Bind(BEDirectXDevice& device);
 
 private:
 	Buffer buffer = {};
-	BEEntity& entity;
 };
 

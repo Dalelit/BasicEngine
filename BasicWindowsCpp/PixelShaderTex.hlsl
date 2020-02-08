@@ -4,13 +4,16 @@ cbuffer entityConstObj {
 	float4 entityColor; // placeholder value for layout... and maybe future use
 };
 
-float4 main(float4 col : Color, float3 nor : Normal, float3 posWS : PositionWS) : SV_TARGET
+Texture2D tex;
+SamplerState smplr;
+
+float4 main(float4 col : Color, float3 nor : Normal, float2 tc : Texcoord, float3 posWS: PositionWS) : SV_TARGET
 {
 	float4 surfaceColor;
 
 	nor = normalize(nor);
 
-	surfaceColor = col;
+	surfaceColor = float4(tex.Sample(smplr, tc).rgb, 1.0f);
 
 	// ambient light
 	float4 light = ambientColor;

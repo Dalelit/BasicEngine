@@ -4,21 +4,27 @@
 #include "BEDirectX.h"
 #include "BEDirectXDrawable.h"
 #include "BEDXTextureUpdateable.h"
+#include "BEDXVertexBuffer.h"
+#include "BEDXVertexShader.h"
+#include "BEDXPixelShader.h"
 
-// To do
-// - updateable bool and 2 pointers is a hack for now
-//
 
-class BEDXShowCanvas : public BEDirectXDrawableNested
+class BEDXShowCanvas
 {
 public:
 	BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<DirectX::XMVECTOR>& surface, bool updateable = false);
-	~BEDXShowCanvas();
+
 	void Draw(BEDirectXDevice& device);
 
 private:
-	BEDXTexture* pTex = nullptr;
-	BEDXTextureUpdateable* pTexUpdt = nullptr;
 	BETexVertex verticies[6];
+
+	// To do: updateable bool and 2 pointers is a hack for now
+	std::unique_ptr<BEDXTexture> pTex;
+	std::unique_ptr<BEDXTextureUpdateable> pTexUpdt;
+
+	std::unique_ptr<BEDXVertexBuffer> vertexBuffer;
+	std::unique_ptr<BEDXVertexShader> vertexShader;
+	std::unique_ptr<BEDXPixelShader>  pixelShader;
 };
 

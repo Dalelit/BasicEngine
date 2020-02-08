@@ -1,0 +1,3 @@
+cbuffer sceneConstObj {
+	matrix cameraTransform;
+};

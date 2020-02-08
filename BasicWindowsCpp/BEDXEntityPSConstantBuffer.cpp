@@ -1,10 +1,7 @@
 #include "BEDXEntityPSConstantBuffer.h"
 
-BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEMesh& mesh, BEEntity& entity) :
-	pEntity(pEntity)
+BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device)
 {
-	buffer.textured = mesh.material.IsTextured();
-
 	constBufferData.SysMemPitch = 0;
 	constBufferData.SysMemSlicePitch = 0;
 	constBufferData.pSysMem = &buffer;
@@ -17,7 +14,7 @@ BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device, 
 	bufferDesc.StructureByteStride = sizeof(Buffer);
 }
 
-void BEDXEntityPSConstantBuffer::Update(BEDirectXDevice& device)
+void BEDXEntityPSConstantBuffer::Update(BEDirectXDevice& device, BEEntity& entity)
 {
 	HRESULT hr;
 
@@ -28,6 +25,5 @@ void BEDXEntityPSConstantBuffer::Update(BEDirectXDevice& device)
 
 void BEDXEntityPSConstantBuffer::Bind(BEDirectXDevice& device)
 {
-	Update(device);
 	device.pImmediateContext->PSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());
 }

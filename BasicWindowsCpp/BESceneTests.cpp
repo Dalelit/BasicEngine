@@ -21,12 +21,6 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	pLight->position = { 4,4,4,1 };
 	pLight->color = { 0.5f,0.5f,0.5f,1.0f };
 
-	// to do: temp inclusion to stop dx warnings... will fix when multi scene.textures handled
-	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
-	scene.textures.push_back(t);
-	BESampler* s = new BESampler(*t);
-	scene.samplers.push_back(s);
-
 	//pModel = new BEModel();
 	//scene.models.push_back(pModel);
 	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
@@ -40,8 +34,8 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pEntity = pModel->CreateInstance();
 
 	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
-	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
-	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\simpleScene1.obj");
+	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
+	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\simpleScene1.obj");
 	for (auto m : meshes)
 	{
 		pModel = new BEModel();
@@ -113,12 +107,6 @@ void BESceneTests::CreateSceneTest2(BEScene& scene)
 	pLight->position = { 4,4,4,1 };
 	pLight->color = { 0.8f,0,0,1 };
 
-	// to do: temp inclusion to stop dx warnings... will fix when multi scene.textures handled
-	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
-	scene.textures.push_back(t);
-	BESampler* s = new BESampler(*t);
-	scene.samplers.push_back(s);
-
 	pModel = new BEModel();
 	scene.models.push_back(pModel);
 	//pModel->pMesh = BEMeshPrimatives::CubeMesh();
@@ -155,12 +143,6 @@ void BESceneTests::CreateSceneTest3(BEScene& scene)
 	pLight->position = { 2,4,2,1 };
 	pLight->color = { 1.0f,0.1f,0.1f,1.0f };
 
-	// to do: temp inclusion to stop dx warnings... will fix when multi scene.textures handled
-	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
-	scene.textures.push_back(t);
-	BESampler* s = new BESampler(*t);
-	scene.samplers.push_back(s);
-
 	pModel = new BEModel();
 	scene.models.push_back(pModel);
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
@@ -193,12 +175,6 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	scene.lights.push_back(pLight);
 	pLight->position = { 4,4,4,1 };
 	pLight->color = { 0.5f,0.5f,0.5f,1.0f };
-
-	// to do: temp inclusion to stop dx warnings... will fix when multi scene.textures handled
-	BETexture* t = new BETexture(L"Textures\\4-sunset-over-water-focusstock.jpg");
-	scene.textures.push_back(t);
-	BESampler* s = new BESampler(*t);
-	scene.samplers.push_back(s);
 
 	pModel = new BEModel();
 	scene.models.push_back(pModel);

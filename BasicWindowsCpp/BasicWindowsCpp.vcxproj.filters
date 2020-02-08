@@ -93,9 +93,6 @@
     <ClCompile Include="BEDirectXDevice.cpp">
       <Filter>BEDirectX Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BEDirectXDrawable.cpp">
-      <Filter>BEDirectX Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BEDXEntityPSConstantBuffer.cpp">
       <Filter>BEDirectX Source Files</Filter>
     </ClCompile>
@@ -143,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="BEMeshLoaderOBJ.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXScene.cpp">
+      <Filter>BEDirectX Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,11 +278,11 @@
     <ClInclude Include="BEDirectXResourceManager.h">
       <Filter>BEDirectX Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEDXScene.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="PSPassthrough.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
@@ -290,6 +290,21 @@
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="VSPassthrough.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShaderTex.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShaderSceneConst.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderTex.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderSceneConst.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

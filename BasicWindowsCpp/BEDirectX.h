@@ -11,6 +11,7 @@
 #include <vector>
 #include <wrl.h>
 #include <sstream>
+#include "BEDXScene.h"
 
 namespace wrl = Microsoft::WRL;
 
@@ -24,13 +25,12 @@ public:
 	bool showStats = true;
 
 	BEDirectX();
-	~BEDirectX();
 
-	// To do: sort out the input parameters nicely
-	int InitialiseBase(HWND hwnd, unsigned int width, unsigned int height);
-	void Initialise3D(BEScene* pScene, BECamera* pCamera);
+	BEDirectXResourceManager resources;
 
-	int LoadScene(BEScene* pScene);
+	int Initialise(HWND hwnd, unsigned int width, unsigned int height);
+
+	int LoadScene(BEScene* pScene, BECamera* pCamera);
 
 	int DoFrame();
 	int DoFrameWithExtra(BEDirectXDrawable& toDraw);
@@ -42,9 +42,7 @@ public:
 	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
 
 private:
-	BEDirectXResourceManager resources;
-	std::vector<BEDirectXDrawable*> drawables;
-	std::vector<BEDirectXConstantBuffer*> constantbuffers;
+	BEDXScene scene;
 
 	long drawTime = 0;
 	long frameCount = 0;

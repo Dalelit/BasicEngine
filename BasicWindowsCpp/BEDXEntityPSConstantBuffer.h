@@ -1,21 +1,20 @@
 #pragma once
 #include "BEDirectXConstantBuffer.h"
 
-class BEDXEntityPSConstantBuffer : public BEDirectXConstantBuffer
+class BEDXEntityPSConstantBuffer : public BEDirectXEntityConstantBuffer
 {
 public:
 
 	struct Buffer {
-		DirectX::XMVECTOR color; // temp for now to ensure packing, rather than __declspec(align(32))
-		bool textured;
+		DirectX::XMVECTOR color;
 	};
 
-	BEDXEntityPSConstantBuffer(BEDirectXDevice& device, BEMesh& mesh, BEEntity& entity);
-	void Update(BEDirectXDevice& device);
+	BEDXEntityPSConstantBuffer(BEDirectXDevice& device);
+	void Update(BEDirectXDevice& device, BEEntity& entity);
 	void Bind(BEDirectXDevice& device);
 
 private:
 	Buffer buffer = {};
-	BEEntity* pEntity;
+	BEEntity* pEnt;
 };
 

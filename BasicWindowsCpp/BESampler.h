@@ -23,8 +23,9 @@ public:
 
 	DirectX::XMVECTOR blankColor = {0,0,0,1};
 
-private:
 	BETexture& texture;
+
+private:
 	float height;
 	float width;
 };

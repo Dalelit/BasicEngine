@@ -475,9 +475,8 @@ int WINAPI WinMain(
 
 	// for DirectX rendering
 	BEDirectX dx;
-	dx.InitialiseBase(hwnd[5], bufferWidth, bufferHeight);
-	dx.Initialise3D(&scene, &camera);
-	dx.LoadScene(&scene);
+	dx.Initialise(hwnd[5], bufferWidth, bufferHeight);
+	dx.LoadScene(&scene, &camera);
 
 	// ready to go...
 
