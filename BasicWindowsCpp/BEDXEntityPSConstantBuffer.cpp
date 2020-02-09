@@ -18,6 +18,16 @@ void BEDXEntityPSConstantBuffer::Update(BEDirectXDevice& device, BEEntity& entit
 {
 	HRESULT hr;
 
+	BEMaterial* pMaterial = entity.pMaterial;
+
+	assert(pMaterial);
+
+	buffer.ambientColor = pMaterial->ambientColor;
+	buffer.diffuseColor = pMaterial->diffuseColor;
+	buffer.specularColor = pMaterial->specularColor;
+	//buffer.emmissionColor
+	buffer.specularExponent = pMaterial->specularExponent;
+
 	hr = device.pDevice->CreateBuffer(&bufferDesc, &constBufferData, &pConstantBuffer);
 
 	BEDXRESOURCE_ERRORCHECK(hr)

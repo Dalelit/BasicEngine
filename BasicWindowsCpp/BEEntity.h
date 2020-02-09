@@ -20,6 +20,7 @@ public:
 	bool active = true;
 	BEEntity* parent = nullptr;
 	std::vector<BEEntity*> children;
+	BEMaterial* pMaterial = nullptr;
 
 	DirectX::XMVECTOR scale = { 1,1,1,1 };
 	DirectX::XMVECTOR position = { 0,0,0,1 };

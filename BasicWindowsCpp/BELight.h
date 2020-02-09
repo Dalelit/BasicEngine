@@ -1,6 +1,10 @@
 #pragma once
 #include "BEEntity.h"
 
+////////////////////
+// to do
+// - have different functions for texture sampled vs not.
+
 class BEPointLight : public BEEntity
 {
 public:
@@ -11,18 +15,18 @@ public:
 	float linear = 0.045f;
 	float quadratic = 0.0075f;
 
-	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal);
-
-	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition);
+	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor = DirectX::g_XMZero);
 };
 
 class BELightAmbient
 {
 public:
-	DirectX::XMVECTOR color = { 0.1f,0.1f,0.1f,1.0f };
+	DirectX::XMVECTOR color = { 0.2f, 0.2f, 0.2f, 1.0f };
 
 	BELightAmbient() = default;
 	BELightAmbient(DirectX::XMVECTOR color) : color(color) {};
+
+	DirectX::XMVECTOR CalculateColor(BEMaterial* pMaterial);
 };
 
 class BELightDirectional
@@ -33,14 +37,10 @@ public:
 	BELightDirectional() = default;
 	BELightDirectional(DirectX::XMVECTOR color) : color(color) {};
 
-	inline DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal) {
-		return Calculate(direction, normal);
-	}
+	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor = DirectX::g_XMZero);
 
 	inline void SetDirection(DirectX::XMVECTOR _direction) { direction = DirectX::XMVector3Normalize(_direction); };
 	inline DirectX::XMVECTOR GetDireciton() { return direction; };
-
-	DirectX::XMVECTOR Calculate(DirectX::XMVECTOR dir, DirectX::XMVECTOR nor);
 
 private:
 	DirectX::XMVECTOR direction = { 1,1,1,1 };

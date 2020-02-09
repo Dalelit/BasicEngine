@@ -11,7 +11,7 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	BEModel* pModel = nullptr;
 	BEEntity* pEntity;
 
-	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.75f,0.75f,0.75f,1.0f };
 	scene.directionalLight.SetDirection({ 4, -2, -3, 1 });
 
@@ -41,6 +41,7 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 		pModel = new BEModel();
 		pModel->pMesh = m;
 		scene.models.push_back(pModel);
+		pModel->pMesh->material.Randomise();
 		pEntity = pModel->CreateInstance();
 	}
 	pModel->AddPhysics();
@@ -56,7 +57,7 @@ void BESceneTests::CreateSceneTest1(BEScene& scene)
 	BEModel* pModel;
 	BEEntity* pEntity;
 
-	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.5f,0.5f,0.5f,1 };
 	scene.directionalLight.SetDirection({ -4, -2, -3, 1 });
 
@@ -98,7 +99,7 @@ void BESceneTests::CreateSceneTest2(BEScene& scene)
 	BEEntity* pEntity;
 	BEPointLight* pLight;
 
-	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 1,1,1,1 };
 	scene.directionalLight.SetDirection({ -4, -2, -3, 1 });
 
@@ -134,7 +135,7 @@ void BESceneTests::CreateSceneTest3(BEScene& scene)
 	BEEntity* pEntity;
 	BEPointLight* pLight;
 
-	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.1f,0.1f,1.0f,1.0f };
 	scene.directionalLight.SetDirection({ 4, -2, -3, 1 });
 
@@ -166,7 +167,7 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	camera.SetPosition(0, 4, 5);
 	camera.LookAt(0, 0, 0);
 
-	scene.ambientLight = { 0.1f,0.1f,0.1f,1.0f };
+	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.75f,0.75f,0.75f,1.0f };
 	scene.directionalLight.SetDirection({ 4, -2, -3, 1 });
 

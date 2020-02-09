@@ -2,37 +2,22 @@
 
 using namespace DirectX;
 
-XMVECTOR BELightDirectional::Calculate(XMVECTOR dir, XMVECTOR nor)
+// to do: work out a better way
+inline XMVECTOR GetDiffuse(BEMaterial* pMaterial, XMVECTOR textureColor)
 {
-	XMVECTOR dot = XMVector3Dot(nor, dir);
+	if (XMVector3Equal(textureColor, g_XMZero)) return pMaterial->diffuseColor;
+	else return textureColor;
+}
+
+
+XMVECTOR BELightDirectional::CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor)
+{
+	XMVECTOR dot = XMVector3Dot(normal, direction);
 	if (dot.m128_f32[0] >= 0.0f) return g_XMZero;
-	return XMVectorNegate(dot) * color;
+	return XMVectorNegate(dot) * color * GetDiffuse(pMaterial, textureColor);
 }
 
-XMVECTOR BEPointLight::CalculateColorInWorldSpace(XMVECTOR targetPoint, XMVECTOR normal)
-{
-	XMVECTOR dirToLight = position - targetPoint;
-
-	// get the angle with the normal. Zero if not in the same general direction
-	XMVECTOR dot = XMVector3Dot(normal, XMVector3Normalize(dirToLight));
-
-	if (dot.m128_f32[0] <= 0.0f) return g_XMZero;
-
-	// get the distance. Zero if out of range
-	float distance = XMVector3Length(dirToLight).m128_f32[0];
-
-	if (distance > maxDistance) return g_XMZero;
-
-	// get the light strength
-	float attenuation = 1.0f + linear * distance + quadratic * distance * distance;
-	float luminosity = 1.0f / attenuation;
-
-	XMVECTOR light = luminosity * dot * color;
-
-	return light;
-}
-
-DirectX::XMVECTOR BEPointLight::CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition)
+DirectX::XMVECTOR BEPointLight::CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor)
 {
 	XMVECTOR toLight = position - targetPoint;
 
@@ -50,7 +35,7 @@ DirectX::XMVECTOR BEPointLight::CalculateColorSpecInWorldSpace(DirectX::XMVECTOR
 			// get the light strength
 			float attenuation = 1.0f + linear * distance + quadratic * distance * distance;
 			float luminosity = 1.0f / attenuation;
-			light = luminosity * dot * color;
+			light = luminosity * dot * color * GetDiffuse(pMaterial, textureColor);
 		}
 	}
 
@@ -58,15 +43,20 @@ DirectX::XMVECTOR BEPointLight::CalculateColorSpecInWorldSpace(DirectX::XMVECTOR
 	XMVECTOR toCamera = XMVector3Normalize(cameraPosition - targetPoint);
 	XMVECTOR reflectedLight = XMVector3Normalize(2.0f * XMVector3Dot(normal, toLight) * normal - toLight);
 
-	float specPower = 40.0f; // to do: temp values... use material values later
-	float specIntensity = 3.0f;
+	float specPower = pMaterial->specularExponent;
+	//float specIntensity = 1.0f;
 
 	float spec = XMVectorSaturate(XMVector3Dot(reflectedLight, toCamera)).m128_f32[0];
 	
 	if (spec > 0.0f) // skip the below calcs if zero
 	{
-		spec = powf(spec, specPower) * specIntensity;
+		spec = powf(spec, specPower); // *specIntensity;
 	}
 
-	return spec * color + light;
+	return spec * color * pMaterial->specularColor + light;
+}
+
+DirectX::XMVECTOR BELightAmbient::CalculateColor(BEMaterial* pMaterial)
+{
+	return color * pMaterial->ambientColor;
 }

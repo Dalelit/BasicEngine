@@ -39,7 +39,8 @@ public:
 	BEMesh(std::vector<BEVertex> srcVerticies);
 	~BEMesh();
 
-	inline void SetColor(DirectX::XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }
+	inline void SetVertexColor(DirectX::XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }
+	inline void SetColor(DirectX::XMVECTOR color) { material.diffuseColor = color; material.ambientColor = color; SetVertexColor(color); }
 
 	inline void Translate(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorAdd(verticies[i].position, v); }
 	inline void Scale(float f) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorScale(verticies[i].position, f); }

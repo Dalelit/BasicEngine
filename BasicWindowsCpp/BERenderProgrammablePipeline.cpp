@@ -514,37 +514,34 @@ void BERenderProgrammablePipeline::PixelShading()
 
 DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData)
 {
-	XMVECTOR color;
+	BEMaterial* pMat = pPSData->pEntity->pMaterial;
 
-	auto pMat = &pPSData->pModel->pMesh->material;
+	XMVECTOR texColor = g_XMZero;
+
 	if (pMat->IsTextured())
 	{
-		color = pMat->pTextureSampler->SampleClosest(pPSData->texcoord);
-	}
-	else
-	{
-		color = pPSData->color;
+		texColor = pMat->pTextureSampler->SampleClosest(pPSData->texcoord);
 	}
 
-	XMVECTOR lights = pScene->ambientLight;
-	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
+	XMVECTOR lights = pScene->ambientLight.CalculateColor(pMat);
+	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS, pMat, texColor);
 
 	for (auto l : pScene->lights)
 	{
-		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
+		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position, pMat, texColor);
 	}
 
-	return XMVectorSaturate(color * lights);
+	return XMVectorSaturate(lights);
 }
 
 DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderColorLight(BEPipelinePSData* pPSData)
 {
-	XMVECTOR color = pPSData->color;
+	BEMaterial* pMat = pPSData->pEntity->pMaterial;
 
-	XMVECTOR lights = pScene->ambientLight;
-	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS);
+	XMVECTOR lights = pScene->ambientLight.CalculateColor(pMat);
+	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS, pMat);
 
-	return XMVectorSaturate(color * lights);
+	return XMVectorSaturate(lights);
 }
 
 DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSData* pPSData)
@@ -554,11 +551,13 @@ DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderColor(BEPipelinePSDat
 
 DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderPointOnly(BEPipelinePSData* pPSData)
 {
+	BEMaterial* pMat = pPSData->pEntity->pMaterial;
+
 	XMVECTOR lights = {};
 
 	for (auto l : pScene->lights)
 	{
-		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position);
+		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position, pMat);
 	}
 
 	return XMVectorSaturate(pPSData->color * lights);

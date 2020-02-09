@@ -21,8 +21,8 @@ void BEDXPSConstantBuffer::Update(BEDirectXDevice& device)
 	HRESULT hr;
 
 	// To do : hack just to get the first light... maybe make a scene light
-	buffer.ambientColor = pScene->ambientLight;
-	buffer.lightColor = pScene->directionalLight.color;
+	buffer.ambientColor = pScene->ambientLight.color;
+	buffer.lightDirecitonColor = pScene->directionalLight.color;
 	buffer.lightDirection = pScene->directionalLight.GetDireciton();
 	buffer.cameraPosition = pCamera->position;
 

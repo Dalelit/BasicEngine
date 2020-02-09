@@ -1,22 +1,16 @@
 #include "PixelShaderSceneConst.hlsl"
+#include "PixelShaderEntityConst.hlsl"
 
-cbuffer entityConstObj {
-	float4 entityColor; // placeholder value for layout... and maybe future use
-};
 
 float4 main(float4 col : Color, float3 nor : Normal, float3 posWS : PositionWS) : SV_TARGET
 {
-	float4 surfaceColor;
-
 	nor = normalize(nor);
 
-	surfaceColor = col;
-
 	// ambient light
-	float4 light = ambientColor;
+	float4 light = ambientSceneColor * ambientColor;
 
 	// direcitonal light
-	light += max(0, -dot(nor, lightDirection.xyz)) * lightColor;
+	light += max(0, -dot(nor, lightDirection.xyz)) * lightDirecitonColor * diffuseColor;
 
 	// point light
 	float3 toPL = pointLightPosition.xyz - posWS;
@@ -28,7 +22,7 @@ float4 main(float4 col : Color, float3 nor : Normal, float3 posWS : PositionWS) 
 		float len = length(toPL);
 		float att = 1.0 + 0.045 * len + 0.0075 * len * len;
 
-		light += (1.0 / att) * plNorDot * pointLightColor;
+		light += (1.0 / att) * plNorDot * pointLightColor * diffuseColor;
 	}
 
 	// point light spec
@@ -37,10 +31,9 @@ float4 main(float4 col : Color, float3 nor : Normal, float3 posWS : PositionWS) 
 	float3 reflected = normalize(2.0 * dot(nor, toPL) * nor - toPL);
 
 	float spec = saturate(dot(reflected, toCam));
-	const float specPower = 40.0;
-	const float specIntensity = 3.0;
-	spec = pow(spec, specPower) * specIntensity;
-	light += spec * pointLightColor;
+	//const float specIntensity = 1.0;
+	spec = pow(spec, specularExponent); // *specIntensity;
+	light += spec * pointLightColor * specularColor;
 
-	return saturate(light * surfaceColor);
+	return saturate(light);
 }

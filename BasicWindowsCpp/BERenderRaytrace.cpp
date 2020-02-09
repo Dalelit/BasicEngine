@@ -36,24 +36,16 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	// if we hit, work out the color.
 	if (BERaytrace::RayHit(pScene, pCamera, rayWorldSpace.origin, rayWorldSpace.direction, hitDistance, hitInfo))
 	{
-		XMVECTOR color;
+		BEMaterial* pMat = hitInfo.pEntity->pMaterial;
 
-		auto pMat = &hitInfo.pModel->pMesh->material;
-
+		XMVECTOR texColor = g_XMZero;
 		if (pMat->IsTextured())
 		{
 			// texture sampler
 			XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
 				hitInfo.pV0->texcoord, hitInfo.pV1->texcoord, hitInfo.pV2->texcoord,
 				hitInfo.u, hitInfo.v);
-			color = pMat->pTextureSampler->SampleClosest(texcoord);
-		}
-		else
-		{
-			// color
-			color = XMVectorBaryCentric(
-				hitInfo.pV0->color, hitInfo.pV1->color, hitInfo.pV2->color,
-				hitInfo.u, hitInfo.v);
+			texColor = pMat->pTextureSampler->SampleClosest(texcoord);
 		}
 
 		XMVECTOR positionMS = XMVectorBaryCentric(
@@ -68,22 +60,21 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 		XMVECTOR normalWS = hitInfo.pEntity->ModelToWorldDirection(normalMS);
 		hitInfo.pEntity->ModelToWorldDirection(normalWS);
 
-		XMVECTOR lights = pScene->ambientLight;
-		lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS);
+		XMVECTOR lights = pScene->ambientLight.CalculateColor(pMat);
+		lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS, pMat, texColor);
 
 		for (BEPointLight* pLight : pScene->lights)
 		{
 			// note: move the point a fraction off the surface when testing for occlusion as it could block itself. To do: what small number should it be?
 			if (!BERaytrace::TargetOccluded(pScene, positionWS + normalWS * 0.00001f, pLight->position))
 			{
-				lights += pLight->CalculateColorSpecInWorldSpace(positionWS, normalWS, pCamera->position);
+				lights += pLight->CalculateColorSpecInWorldSpace(positionWS, normalWS, pCamera->position, pMat, texColor);
 			}
 		}
 
 		// to do: reflections?
 
-		color = XMVectorSaturate(lights * color) * 255.0f;
-		pCanvas->bmpSurface->GetDataByRef(x, y) = color;
+		pCanvas->bmpSurface->GetDataByRef(x, y) = XMVectorSaturate(lights) * 255.0f;
 	}
 }
 

@@ -304,6 +304,9 @@
     <FxCompile Include="VertexShaderSceneConst.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PixelShaderEntityConst.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BasicEngine.rc">

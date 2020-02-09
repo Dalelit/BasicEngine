@@ -10,7 +10,7 @@ public:
 	BEScene();
 	~BEScene();
 
-	DirectX::XMVECTOR ambientLight = { 0.2f, 0.2f, 0.2f, 1.0f };
+	BELightAmbient ambientLight;
 
 	BELightDirectional directionalLight;
 

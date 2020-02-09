@@ -11,7 +11,7 @@ public:
 	struct Buffer {
 		DirectX::XMVECTOR ambientColor;
 		DirectX::XMVECTOR lightDirection;
-		DirectX::XMVECTOR lightColor;
+		DirectX::XMVECTOR lightDirecitonColor;
 		DirectX::XMVECTOR pointLightPosition;
 		DirectX::XMVECTOR pointLightColor = {};
 		DirectX::XMVECTOR cameraPosition;

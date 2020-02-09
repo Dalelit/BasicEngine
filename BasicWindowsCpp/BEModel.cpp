@@ -25,6 +25,7 @@ BEEntity* BEModel::CreateInstance(DirectX::XMFLOAT3A position)
 	entities.emplace_back(BEEntity(position));
 
 	BEEntity* e = &entities.back();
+	e->pMaterial = &this->pMesh->material;
 
 	return e;
 }
@@ -38,6 +39,7 @@ void BEModel::CreateBulkInstances(unsigned int amount)
 	for (unsigned int i = 0; i < amount; i++)
 	{
 		entities.emplace_back(BEEntity());
+		entities.back().pMaterial = &this->pMesh->material;
 	}
 }
 
