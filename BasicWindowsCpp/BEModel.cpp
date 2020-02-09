@@ -2,6 +2,7 @@
 
 BEModel::~BEModel()
 {
+	delete pMesh;
 }
 
 void BEModel::Update(float deltaTime)

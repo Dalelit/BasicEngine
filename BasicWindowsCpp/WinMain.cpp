@@ -299,7 +299,7 @@ DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
 {
 	int argIndx = BEThreadFunctionGetNextRayTraceSubsection();
 
-	while (argIndx >= 0)
+	while (argIndx >= 0 && raytraceIsRunning)
 	{
 		BERayTraceSubsection* args = &rayTraceArgs[argIndx];
 		pRayTracer->Draw(args->xStart, args->width, args->yStart, args->height);
@@ -329,31 +329,29 @@ DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
 	BEWriteOverlayToWindow(resultIndx, L"Starting...");
 	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
 
-	// create the subsections if not already created
-	if (rayTraceArgs.size() == 0)
+	rayTraceArgs.clear();
+
+	unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
+	unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
+
+	BERayTraceSubsection arg;
+	arg.indx = indx;
+	arg.available = true;
+	arg.height = sectionHeight;
+	arg.width = sectionWidth;
+
+	for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
 	{
-		unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
-		unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
-
-		BERayTraceSubsection arg;
-		arg.indx = indx;
-		arg.available = true;
-		arg.height = sectionHeight;
-		arg.width = sectionWidth;
-
-		for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
+		arg.yStart = y * sectionHeight;
+		for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
 		{
-			arg.yStart = y * sectionHeight;
-			for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
-			{
-				arg.xStart = x * sectionWidth;
-				rayTraceArgs.emplace_back(arg);
-			}
+			arg.xStart = x * sectionWidth;
+			rayTraceArgs.emplace_back(arg);
 		}
-		std::random_device rd;
-		std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
-		// To do: check the end cases for the args width and height
 	}
+	std::random_device rd;
+	std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
+	// To do: check the end cases for the args width and height
 
 	clock_t lastTime = clock();
 
@@ -442,11 +440,11 @@ int WINAPI WinMain(
 	camera.SetPosition(0, 1, 4);
 	camera.LookAt(0, 0, 0);
 
-	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
-	BESceneTests::CreateBoxWorld(scene, camera);
+	//BESceneTests::CreateBoxWorld(scene, camera);
 
 	scene.Update(0);
 
@@ -500,6 +498,46 @@ int WINAPI WinMain(
 		// update loop
 		float dt = deltaTime.DeltaTime();
 		clock_t updateStartTime = clock();
+
+		if (!input.keyEvents.empty())
+		{
+			// to do: hack! really need to tidy up the threading
+			raytracing.exitLoop = true;
+			raytraceIsRunning = false;
+			if (thread != NULL)
+			{
+				WaitForSingleObject(thread, 3000);
+				CloseHandle(thread);
+				thread = NULL;
+			}
+			raytracing.exitLoop = false;
+
+			auto e = input.keyEvents.front();
+			input.keyEvents.pop();
+
+			scene.Clear();
+			switch (e.key - '0')
+			{
+			case 0:
+				BESceneTests::CreateSceneTest0(scene);
+				break;
+			case 1:
+				BESceneTests::CreateSceneTest1(scene);
+				break;
+			case 2:
+				BESceneTests::CreateSceneTest2(scene);
+				break;
+			case 3:
+				BESceneTests::CreateSceneTest3(scene);
+				break;
+			case 4:
+			default:
+				BESceneTests::CreateBoxWorld(scene, camera);
+				break;
+			}
+			scene.Update(0);
+			dx.LoadScene(&scene, &camera);
+		}
 
 		input.Update(dt, camera);
 		if (!input.paused) scene.Update(dt);

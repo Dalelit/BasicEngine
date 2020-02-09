@@ -8,6 +8,12 @@ void BEInput::KeyDownInput(char key)
 
 	if (key == PAUSEMOUSE) mouseInputEnabled = !mouseInputEnabled;
 	if (key == PAUSEUPDATES) paused = !paused;
+
+	// to do: only catching load scene events for the moment
+	if (key >= '0' && key <= '4')
+	{
+		keyEvents.push(Event({ key, Event::Type::KEY_DOWN }));
+	}
 }
 
 void BEInput::KeyUpInput(char key)

@@ -32,6 +32,7 @@ int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
 
 int BEDirectX::LoadScene(BEScene* pScene, BECamera* pCamera)
 {
+	scene.Clear();
 	scene.LoadScene(resources, pScene, pCamera);
 
 	return 0;

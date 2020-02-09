@@ -1,12 +1,24 @@
 #pragma once
 #include <bitset>
 #include "BECamera.h"
+#include <queue>
 
 // to do: queue events up for later?
 
 class BEInput
 {
 public:
+
+	class Event
+	{
+	public:
+		enum class Type { KEY_DOWN, KEY_UP };
+
+		char key;
+		Type type;
+	};
+
+	std::queue<Event> keyEvents;
 
 	inline void RawMouseInput(long x, long y) { mouseX += x; mouseY += y; }; // used by windows message to be udpated
 	inline void RawMouseClear() { mouseX = 0; mouseY = 0; }; // called at the end of Update

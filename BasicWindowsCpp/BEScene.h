@@ -20,4 +20,6 @@ public:
 	std::vector<BESampler*> samplers;
 
 	void Update(float deltaTime);
+
+	void Clear();
 };

@@ -40,6 +40,13 @@ void BEDXScene::Draw(BEDirectXDevice& device)
 	for (auto& model : models) model.Draw(device);
 }
 
+void BEDXScene::Clear()
+{
+	sceneVSCB = nullptr;
+	scenePSCB = nullptr;
+	models.clear();
+}
+
 BEDXModel::BEDXModel(BEDirectXResourceManager& resourceMgr, BEModel* pModel) :
 	pModel(pModel),
 	entityCB(resourceMgr)

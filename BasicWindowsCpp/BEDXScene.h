@@ -59,6 +59,7 @@ public:
 	void LoadScene(BEDirectXResourceManager& resourceMgr, BEScene* pScene, BECamera* pCamera);
 	void Bind(BEDirectXDevice& device);
 	void Draw(BEDirectXDevice& device);
+	void Clear();
 
 	std::unique_ptr<BEDirectXConstantBuffer> sceneVSCB;
 	std::unique_ptr<BEDirectXConstantBuffer> scenePSCB;

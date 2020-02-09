@@ -9,10 +9,7 @@ BEScene::BEScene()
 
 BEScene::~BEScene()
 {
-	for (auto m : models) delete m;
-	for (auto t : textures) delete t;
-	for (auto s : samplers) delete s;
-	for (auto l : lights) delete l;
+	Clear();
 }
 
 void BEScene::Update(float deltaTime)
@@ -26,5 +23,17 @@ void BEScene::Update(float deltaTime)
 	{
 		light->Update(deltaTime);
 	}
+}
+
+void BEScene::Clear()
+{
+	for (auto m : models) delete m;
+	models.clear();
+	for (auto t : textures) delete t;
+	textures.clear();
+	for (auto s : samplers) delete s;
+	samplers.clear();
+	for (auto l : lights) delete l;
+	lights.clear();
 }
 
