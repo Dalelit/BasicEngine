@@ -19,7 +19,9 @@ public:
 
 	inline bool IsTextured() { return pTextureSampler != nullptr; }
 
-	void Randomise();
+	BEMaterial& Randomise();
+
+	static BEMaterial CreateRandom() { return BEMaterial().Randomise(); };
 
 protected:
 	static inline long instanceCounter = 0;

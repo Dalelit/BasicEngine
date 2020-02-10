@@ -13,7 +13,7 @@ BEMaterial::BEMaterial(std::wstring name)
 	id = L"BEMaterial" + name + std::to_wstring(++instanceCounter);
 }
 
-void BEMaterial::Randomise()
+BEMaterial& BEMaterial::Randomise()
 {
 	std::random_device dev;
 	std::default_random_engine gen(dev());
@@ -33,4 +33,5 @@ void BEMaterial::Randomise()
 	emmissionColor = randomVector(rng);
 	specularExponent = rng() * 100.0f;
 
+	return *this;
 }

@@ -9,6 +9,7 @@ class BEModel
 public:
 	BEMesh* pMesh = nullptr;
 
+	std::vector<BEMaterial> materials;
 	std::vector<BEEntity> entities;
 
 	inline unsigned int GetEntityCout() { return (unsigned int)entities.size(); };

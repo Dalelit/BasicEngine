@@ -164,8 +164,8 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	BEModel* pModel;
 	//BEEntity* pEntity;
 
-	camera.SetPosition(0, 4, 5);
-	camera.LookAt(0, 0, 0);
+	//camera.SetPosition(0, 4, 5);
+	//camera.LookAt(0, 0, 0);
 
 	scene.ambientLight.color = { 0.1f,0.1f,0.1f,1.0f };
 	scene.directionalLight.color = { 0.75f,0.75f,0.75f,1.0f };
@@ -187,6 +187,23 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	pModel->CreateBulkInstances(w * d);
 
 	BEEntitySystem::SetPositionInGrid(pModel, 2.0f, w, d);
+
+	// Create random materials and use them.
+	// To do: must be a cleaner way to do.
+	pModel->materials.reserve(w * d);
+	for (int i = w * d; i > 0; i--)
+	{
+		pModel->materials.emplace_back();
+		pModel->materials.back().Randomise();
+	}
+	auto mbeg = pModel->materials.begin();
+	auto mend = pModel->materials.end();
+	for (auto& e : pModel->entities)
+	{
+		e.pMaterial = mbeg._Ptr;
+		mbeg++;
+	}
+
 
 	pModel->AddPhysics();
 	pModel->updateFunctions.push_back(&BEPhysicsSystem::BasicUpdate);
