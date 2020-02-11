@@ -38,16 +38,6 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 	{
 		BEMaterial* pMat = hitInfo.pEntity->pMaterial;
 
-		XMVECTOR texColor = g_XMZero;
-		if (pMat->IsTextured())
-		{
-			// texture sampler
-			XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
-				hitInfo.pV0->texcoord, hitInfo.pV1->texcoord, hitInfo.pV2->texcoord,
-				hitInfo.u, hitInfo.v);
-			texColor = pMat->pTextureSampler->SampleClosest(texcoord);
-		}
-
 		XMVECTOR positionMS = XMVectorBaryCentric(
 				hitInfo.pV0->position, hitInfo.pV1->position, hitInfo.pV2->position,
 				hitInfo.u, hitInfo.v);
@@ -61,14 +51,29 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 		hitInfo.pEntity->ModelToWorldDirection(normalWS);
 
 		XMVECTOR lights = pScene->ambientLight.CalculateColor(pMat);
-		lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS, pMat, texColor);
+
+		XMVECTOR diffuseColor;
+		if (pMat->IsTextured())
+		{
+			// texture sampler
+			XMFLOAT2 texcoord = BEXMFloat2BaryCentric(
+				hitInfo.pV0->texcoord, hitInfo.pV1->texcoord, hitInfo.pV2->texcoord,
+				hitInfo.u, hitInfo.v);
+			diffuseColor = pMat->pTextureSampler->SampleClosest(texcoord);
+		}
+		else
+		{
+			diffuseColor = pMat->diffuseColor;
+		}
+
+		lights += pScene->directionalLight.CalculateColorInWorldSpace(normalWS, pMat, diffuseColor);
 
 		for (BEPointLight* pLight : pScene->lights)
 		{
 			// note: move the point a fraction off the surface when testing for occlusion as it could block itself. To do: what small number should it be?
 			if (!BERaytrace::TargetOccluded(pScene, positionWS + normalWS * 0.00001f, pLight->position))
 			{
-				lights += pLight->CalculateColorSpecInWorldSpace(positionWS, normalWS, pCamera->position, pMat, texColor);
+				lights += pLight->CalculateColorSpecInWorldSpace(positionWS, normalWS, pCamera->position, pMat, diffuseColor);
 			}
 		}
 

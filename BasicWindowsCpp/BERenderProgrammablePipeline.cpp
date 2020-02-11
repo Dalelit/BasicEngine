@@ -515,20 +515,24 @@ void BERenderProgrammablePipeline::PixelShading()
 DirectX::XMVECTOR BERenderProgrammablePipeline::PixelShaderFull(BEPipelinePSData* pPSData)
 {
 	BEMaterial* pMat = pPSData->pEntity->pMaterial;
-
-	XMVECTOR texColor = g_XMZero;
+	
+	XMVECTOR diffuseColor;
 
 	if (pMat->IsTextured())
 	{
-		texColor = pMat->pTextureSampler->SampleClosest(pPSData->texcoord);
+		diffuseColor = pMat->pTextureSampler->SampleClosest(pPSData->texcoord);
+	}
+	else
+	{
+		diffuseColor = pMat->diffuseColor;
 	}
 
 	XMVECTOR lights = pScene->ambientLight.CalculateColor(pMat);
-	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS, pMat, texColor);
+	lights += pScene->directionalLight.CalculateColorInWorldSpace(pPSData->normalWS, pMat, diffuseColor);
 
 	for (auto l : pScene->lights)
 	{
-		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position, pMat, texColor);
+		lights += l->CalculateColorSpecInWorldSpace(pPSData->positionWS, pPSData->normalWS, pCamera->position, pMat, diffuseColor);
 	}
 
 	return XMVectorSaturate(lights);

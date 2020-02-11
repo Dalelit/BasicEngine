@@ -15,7 +15,11 @@ public:
 	float linear = 0.045f;
 	float quadratic = 0.0075f;
 
-	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor = DirectX::g_XMZero);
+	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial, DirectX::XMVECTOR diffColor);
+
+	inline DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial) {
+		CalculateColorSpecInWorldSpace(targetPoint, normal, cameraPosition, pMaterial, pMaterial->diffuseColor);
+	};
 };
 
 class BELightAmbient
@@ -37,7 +41,11 @@ public:
 	BELightDirectional() = default;
 	BELightDirectional(DirectX::XMVECTOR color) : color(color) {};
 
-	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial, DirectX::XMVECTOR textureColor = DirectX::g_XMZero);
+	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial, DirectX::XMVECTOR diffColor);
+	
+	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial) {
+		CalculateColorInWorldSpace(normal, pMaterial, pMaterial->diffuseColor);
+	};
 
 	inline void SetDirection(DirectX::XMVECTOR _direction) { direction = DirectX::XMVector3Normalize(_direction); };
 	inline DirectX::XMVECTOR GetDireciton() { return direction; };
