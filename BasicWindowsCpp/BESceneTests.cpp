@@ -189,19 +189,16 @@ void BESceneTests::CreateBoxWorld(BEScene& scene, BECamera& camera)
 	BEEntitySystem::SetPositionInGrid(pModel, 2.0f, w, d);
 
 	// Create random materials and use them.
+	pModel->materials.reserve(w*d);
+	for (size_t i = pModel->materials.capacity(); i > 0; i--) pModel->materials.push_back(std::move(BEMaterial::CreateRandom()));
+
 	// To do: must be a cleaner way to do.
-	pModel->materials.reserve(w * d);
-	for (int i = w * d; i > 0; i--)
-	{
-		pModel->materials.emplace_back();
-		pModel->materials.back().Randomise();
-	}
 	auto mbeg = pModel->materials.begin();
-	auto mend = pModel->materials.end();
 	for (auto& e : pModel->entities)
 	{
 		e.pMaterial = mbeg._Ptr;
 		mbeg++;
+		if (mbeg == pModel->materials.end()) mbeg = pModel->materials.begin(); // loop if less materials
 	}
 
 

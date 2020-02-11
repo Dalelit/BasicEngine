@@ -441,10 +441,10 @@ int WINAPI WinMain(
 	camera.LookAt(0, 0, 0);
 
 	//BESceneTests::CreateSceneTest0(scene);
-	BESceneTests::CreateSceneTest1(scene);
+	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
-	//BESceneTests::CreateBoxWorld(scene, camera);
+	BESceneTests::CreateBoxWorld(scene, camera);
 
 	scene.Update(0);
 

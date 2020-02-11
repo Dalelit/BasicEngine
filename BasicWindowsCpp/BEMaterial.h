@@ -14,14 +14,15 @@ public:
 	BESampler* pTextureSampler = nullptr;
 	std::wstring id;
 
-	BEMaterial();
 	BEMaterial(std::wstring name);
+	BEMaterial() : BEMaterial(L"") {};
+	// to do: copy constructor should technically increment instance counter.
 
 	inline bool IsTextured() { return pTextureSampler != nullptr; }
 
-	BEMaterial& Randomise();
+	BEMaterial& Randomise(bool normalizeColor = false);
 
-	static BEMaterial CreateRandom() { return BEMaterial().Randomise(); };
+	static BEMaterial CreateRandom(bool normalizeColor = false) { return BEMaterial().Randomise(normalizeColor); };
 
 protected:
 	static inline long instanceCounter = 0;
