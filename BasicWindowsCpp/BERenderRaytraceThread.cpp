@@ -1,14 +1,11 @@
 #include "BERenderRaytraceThread.h"
 #include <time.h>
+#include <future>
 
 
 void BERenderRaytraceThread::Start()
 {
-	raytracer.exitLoop = false;
-	running = true;
-
-	if (thread.joinable()) thread.detach(); // to do: does this leak?
-	thread = std::thread([this]() { this->JobMain(); });
+	future = std::async([this]() { this->JobMain(); });
 }
 
 void BERenderRaytraceThread::Stop()
@@ -22,35 +19,35 @@ void BERenderRaytraceThread::StopAndWait()
 	if (running)
 	{
 		Stop();
-		if (thread.joinable()) thread.join();
+		future.wait();
 	}
 }
 
 void BERenderRaytraceThread::JobMain()
 {
-	threadCount++;
+	raytracer.exitLoop = false;
+	running = true;
 
 	CreateSubSections();
 
+	std::vector<std::future<void>> futures;
+
 	while (running && continuosLoop)
 	{
-		clock_t startTime = clock();
 
 		// reset things
 		raytracer.ClearCanvas();
 		raytracer.ResetStats();
 		ResetSubSections(); 
-		threads.clear(); // just making sure nothing is lingering around if stop/start happens quickly
+		futures.clear();
 
-		// kick off the threads
-		for (unsigned int i = 0; i < numberOfThreads; i++)
-		{
-			threads.emplace_back([this]() { this->JobSubsection(); });
-		}
+		clock_t startTime = clock();
 
-		// wait till they finish
-		for (auto& t : threads) if (t.joinable()) t.join();
-		threads.clear();
+		auto subSectionFunc = [this](Subsection section) { this->raytracer.Draw(section.xStart, section.width, section.yStart, section.height); };
+
+		for (auto& subsec : subsections) futures.emplace_back(std::async(subSectionFunc, subsec));
+
+		for (auto& f : futures) f.wait();
 
 		float durationSeconds = (float)(clock() - startTime) / (float)CLOCKS_PER_SEC;
 
@@ -59,23 +56,6 @@ void BERenderRaytraceThread::JobMain()
 	}
 
 	running = false;
-
-	threadCount--;
-}
-
-void BERenderRaytraceThread::JobSubsection()
-{
-	threadCount++;
-
-	Subsection* s = TakeSubSection();
-
-	while (running && s)
-	{
-		raytracer.Draw(s->xStart, s->width, s->yStart, s->height);
-		s = TakeSubSection();
-	}
-
-	threadCount--;
 }
 
 void BERenderRaytraceThread::CreateSubSections()
@@ -105,23 +85,4 @@ void BERenderRaytraceThread::CreateSubSections()
 void BERenderRaytraceThread::ResetSubSections()
 {
 	for (auto& s : subsections) s.available = true; // make all available
-}
-
-BERenderRaytraceThread::Subsection* BERenderRaytraceThread::TakeSubSection()
-{
-	Subsection* section = nullptr;
-
-	std::lock_guard lock(mutex);
-
-	auto s = subsections.begin();
-
-	while (s != subsections.end() && !s->available) s++; // find an available one
-
-	if (s != subsections.end()) // found one
-	{
-		section = s._Ptr;
-		section->available = false; // claim it
-	}
-
-	return section;
 }

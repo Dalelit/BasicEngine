@@ -1,7 +1,6 @@
 #pragma once
 #include "BERenderRaytrace.h"
-#include <thread>
-#include <mutex>
+#include <future>
 #include <vector>
 
 class BERenderRaytraceThread
@@ -18,7 +17,6 @@ public:
 
 	BERenderRaytraceThread(BERenderRaytrace& raytracer) : raytracer(raytracer) {}
 
-	unsigned int numberOfThreads = 4;
 	unsigned int subsectionsWide = 8;
 	unsigned int subsectionsHigh = 6;
 
@@ -38,18 +36,12 @@ private:
 	BERenderRaytrace& raytracer;
 	bool running = false;
 	bool continuosLoop = true;
+	std::future<void> future;
+	std::vector<Subsection> subsections;
 
 	void JobMain();
-	void JobSubsection();
 	void CreateSubSections();
 	void ResetSubSections();
-	Subsection* TakeSubSection();
 
-	std::thread thread;
-	std::mutex mutex;
-	std::vector<Subsection> subsections;
-	std::vector<std::thread> threads;
-
-	int threadCount = 0;
 };
 
