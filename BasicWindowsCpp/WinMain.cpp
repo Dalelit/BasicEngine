@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <random>
 #include "BERenderRaytrace.h"
+#include "BERenderRaytraceThread.h"
 #include "BERenderProgrammablePipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
@@ -42,7 +43,6 @@ BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer proper
 // global control variables
 bool running = true;
 bool doUpdate = true;
-bool raytraceIsRunning = false;
 bool raytraceKeepRunning = true;
 
 // global back buffer variables
@@ -57,7 +57,6 @@ BEScene scene;
 BEInput input;
 BETimer loopTimer;
 BETimer timers[BENUMBER_WINDOWS];
-BERenderRaytrace* pRayTracer = nullptr;
 
 /////////////////////////////////
 // back buffer functions
@@ -144,9 +143,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case VK_ESCAPE:
 			running = false;
-			break;
-		case 'R':
-			pRayTracer->restartLoop = true;
 			break;
 		case 'P':
 			raytraceKeepRunning = !raytraceKeepRunning;
@@ -260,146 +256,6 @@ void BESetupRawMouseIntput()
 	}
 }
 
-/////////////////////////////////
-// Ray tracing threading functions
-
-struct BERayTraceSubsection
-{
-	int indx;
-	unsigned int xStart;
-	unsigned int width;
-	unsigned int yStart;
-	unsigned int height;
-	bool available;
-};
-
-HANDLE rayTraceMutex;
-std::vector<BERayTraceSubsection> rayTraceArgs;
-
-int BEThreadFunctionGetNextRayTraceSubsection()
-{
-	DWORD result = WaitForSingleObject(rayTraceMutex, INFINITE);
-	// to do: result error checking
-
-	for (int i = 0; i < rayTraceArgs.size(); i++)
-	{
-		if (rayTraceArgs[i].available)
-		{
-			rayTraceArgs[i].available = false;
-			ReleaseMutex(rayTraceMutex);
-			return i;
-		}
-	}
-
-	ReleaseMutex(rayTraceMutex);
-	return -1;
-}
-
-DWORD WINAPI BEThreadFunctionRayTraceSubsection(LPVOID lpParam)
-{
-	int argIndx = BEThreadFunctionGetNextRayTraceSubsection();
-
-	while (argIndx >= 0 && raytraceIsRunning)
-	{
-		BERayTraceSubsection* args = &rayTraceArgs[argIndx];
-		pRayTracer->Draw(args->xStart, args->width, args->yStart, args->height);
-		argIndx = BEThreadFunctionGetNextRayTraceSubsection();
-	}
-	return 0;
-}
-
-// note: for now, ensure these are nice division of the buffer size
-#define BE_RAYTRACE_SUBSCETIONS_WIDE 8
-#define BE_RAYTRACE_SUBSCETIONS_HIGH 6
-#define BE_RAYTRACE_THREADS 4
-
-DWORD WINAPI BEThreadFunctionRayTrace(LPVOID lpParam)
-{
-	raytraceIsRunning = true;
-
-	DWORD threadIds[BE_RAYTRACE_THREADS] = {};
-	HANDLE threadHandles[BE_RAYTRACE_THREADS] = {};
-
-	WCHAR swbuffer[BE_SWBUFFERSIZE];
-
-	//int indx = *((int*)lpParam);
-	int indx = 3; // to do: hard coded the working window indx
-	int resultIndx = 4; // to do: hard coded the result window indx
-
-	BEWriteOverlayToWindow(resultIndx, L"Starting...");
-	BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
-
-	rayTraceArgs.clear();
-
-	unsigned int sectionWidth = bufferWidth / BE_RAYTRACE_SUBSCETIONS_WIDE;
-	unsigned int sectionHeight = bufferHeight / BE_RAYTRACE_SUBSCETIONS_HIGH;
-
-	BERayTraceSubsection arg;
-	arg.indx = indx;
-	arg.available = true;
-	arg.height = sectionHeight;
-	arg.width = sectionWidth;
-
-	for (unsigned int y = 0; y < BE_RAYTRACE_SUBSCETIONS_HIGH; y++)
-	{
-		arg.yStart = y * sectionHeight;
-		for (unsigned int x = 0; x < BE_RAYTRACE_SUBSCETIONS_WIDE; x++)
-		{
-			arg.xStart = x * sectionWidth;
-			rayTraceArgs.emplace_back(arg);
-		}
-	}
-	std::random_device rd;
-	std::shuffle(rayTraceArgs.begin(), rayTraceArgs.end(), rd);
-	// To do: check the end cases for the args width and height
-
-	clock_t lastTime = clock();
-
-	rayTraceMutex = CreateMutex(NULL, FALSE, NULL);
-	if (rayTraceMutex == NULL) throw "Error creating raytrace mutex"; // to do: better error checking
-
-	while (running && raytraceKeepRunning)
-	{
-		pRayTracer->restartLoop = false;
-		pRayTracer->ResetStats();
-		backBuffer[indx].Clear();
-		for (int i = 0; i < rayTraceArgs.size(); i++) rayTraceArgs[i].available = true;
-
-		timers[indx].Start();
-		
-		//pipeline[indx]->Draw(); // single thread version
-
-		// start the threads
-		// to do: thread pooling?
-		for (int i = 0; i < BE_RAYTRACE_THREADS; i++)
-		{
-			threadHandles[i] = CreateThread(NULL, 0, BEThreadFunctionRayTraceSubsection, NULL, 0, &(threadIds[i]));
-			if (threadHandles[i] == NULL) return -1; /// to do: proper error handling
-		}
-
-		WaitForMultipleObjects(BE_RAYTRACE_THREADS, threadHandles, TRUE, INFINITE);
-
-		for (int i = 0; i < BE_RAYTRACE_THREADS; i++)
-		{
-			CloseHandle(threadHandles[i]);
-		}
-
-		timers[indx].Tick();
-
-		// add an extra window, and show the completed image
-		BEDrawBackBuffer(indx, resultIndx);
-
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Render time: %.2fs", timers[indx].ElapsedSec());
-		BEWriteOverlayToWindow(resultIndx, swbuffer);
-		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
-	}
-
-	CloseHandle(rayTraceMutex);
-
-	raytraceIsRunning = false;
-
-	return 0;
-}
 
 /////////////////////////////////
 // Main funciton
@@ -440,11 +296,11 @@ int WINAPI WinMain(
 	camera.SetPosition(0, 1, 4);
 	camera.LookAt(0, 0, 0);
 
-	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
-	BESceneTests::CreateBoxWorld(scene, camera);
+	//BESceneTests::CreateBoxWorld(scene, camera);
 
 	scene.Update(0);
 
@@ -467,9 +323,13 @@ int WINAPI WinMain(
 
 	// Raytrace rendering
 	BERenderRaytrace raytracing(&scene, &camera, &backBuffer[3]);
-	pRayTracer = &raytracing;
-	DWORD threadId;
-	HANDLE thread = nullptr;
+	BERenderRaytraceThread raytracingThread(raytracing);
+	raytracingThread.callback = [](std::wstring msg) {
+		constexpr int resultIndx = 4;
+		BEDrawBackBuffer(3, resultIndx);
+		BEWriteOverlayToWindow(resultIndx, msg.c_str());
+		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
+	};
 
 	// for DirectX rendering
 	BEDirectX dx;
@@ -501,16 +361,7 @@ int WINAPI WinMain(
 
 		if (!input.keyEvents.empty())
 		{
-			// to do: hack! really need to tidy up the threading
-			raytracing.exitLoop = true;
-			raytraceIsRunning = false;
-			if (thread != NULL)
-			{
-				WaitForSingleObject(thread, 3000);
-				CloseHandle(thread);
-				thread = NULL;
-			}
-			raytracing.exitLoop = false;
+			raytracingThread.StopAndWait();
 
 			auto e = input.keyEvents.front();
 			input.keyEvents.pop();
@@ -572,13 +423,14 @@ int WINAPI WinMain(
 		//
 		// raytrace..........
 		//
-		if (raytraceKeepRunning && !raytraceIsRunning)
+		if (raytraceKeepRunning && !raytracingThread.IsRunning())
 		{
-			if (thread != NULL) CloseHandle(thread);
-			
-			// put ray tracer in a separate thread
-			int arg = 0;
-			thread = CreateThread(NULL, 0, BEThreadFunctionRayTrace, &arg, 0, &threadId);
+			raytracingThread.SetContinousLoop();
+			raytracingThread.Start();
+		}
+		else if (!raytraceKeepRunning && raytracingThread.IsRunning())
+		{
+			raytracingThread.StopContinousLoop();
 		}
 
 		BEDrawBackBuffer(3);
@@ -603,12 +455,7 @@ int WINAPI WinMain(
 		loopstarttime = currenttime;
 	}
 
-	raytracing.exitLoop = true; // tell it to stop!
-	if (thread != NULL)
-	{
-		WaitForSingleObject(thread, 3000);
-		CloseHandle(thread);
-	}
+	raytracingThread.StopAndWait();
 
 	BECleanupWindow(0);
 	BECleanupWindow(1);

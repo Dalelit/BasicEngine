@@ -162,6 +162,7 @@
     <ClCompile Include="BERaytrace.cpp" />
     <ClCompile Include="BERenderProgrammablePipeline.cpp" />
     <ClCompile Include="BERenderRaytrace.cpp" />
+    <ClCompile Include="BERenderRaytraceThread.cpp" />
     <ClCompile Include="BESampler.cpp" />
     <ClCompile Include="BEScene.cpp" />
     <ClCompile Include="BEDXVertexBuffer.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="BERaytrace.h" />
     <ClInclude Include="BERenderProgrammablePipeline.h" />
     <ClInclude Include="BERenderRaytrace.h" />
+    <ClInclude Include="BERenderRaytraceThread.h" />
     <ClInclude Include="BESampler.h" />
     <ClInclude Include="BEScene.h" />
     <ClInclude Include="BEDXVertexBuffer.h" />

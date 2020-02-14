@@ -18,7 +18,7 @@ public:
 	DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial, DirectX::XMVECTOR diffColor);
 
 	inline DirectX::XMVECTOR CalculateColorSpecInWorldSpace(DirectX::XMVECTOR targetPoint, DirectX::XMVECTOR normal, DirectX::XMVECTOR cameraPosition, BEMaterial* pMaterial) {
-		CalculateColorSpecInWorldSpace(targetPoint, normal, cameraPosition, pMaterial, pMaterial->diffuseColor);
+		return CalculateColorSpecInWorldSpace(targetPoint, normal, cameraPosition, pMaterial, pMaterial->diffuseColor);
 	};
 };
 
@@ -44,7 +44,7 @@ public:
 	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial, DirectX::XMVECTOR diffColor);
 	
 	DirectX::XMVECTOR CalculateColorInWorldSpace(DirectX::XMVECTOR normal, BEMaterial* pMaterial) {
-		CalculateColorInWorldSpace(normal, pMaterial, pMaterial->diffuseColor);
+		return CalculateColorInWorldSpace(normal, pMaterial, pMaterial->diffuseColor);
 	};
 
 	inline void SetDirection(DirectX::XMVECTOR _direction) { direction = DirectX::XMVector3Normalize(_direction); };

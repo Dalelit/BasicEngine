@@ -7,7 +7,6 @@ class BERenderRaytrace
 {
 public:
 	bool exitLoop = false;    // used to exit the rendering loops early
-	bool restartLoop = false; // used to force the loop to exit and restart
 	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 
 	unsigned int raysToProcess;
@@ -23,7 +22,11 @@ public:
 	void DrawByLine();
 	void DrawBySampling(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height);
 
-	void ResetStats() { raysProcessed = 0; };
+	void ResetStats() { raysProcessed = 0; }
+	void ClearCanvas() { pCanvas->Clear(); }
+
+	inline unsigned int GetWidth() { return pCanvas->Width(); }
+	inline unsigned int GetHeight() { return pCanvas->Height(); }
 
 private:
 	BEScene* pScene = nullptr;

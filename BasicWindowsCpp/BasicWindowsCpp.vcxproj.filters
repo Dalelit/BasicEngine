@@ -144,6 +144,9 @@
     <ClCompile Include="BEDXScene.cpp">
       <Filter>BEDirectX Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BERenderRaytraceThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -277,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="BEDXScene.h">
       <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BERenderRaytraceThread.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

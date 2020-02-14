@@ -86,7 +86,7 @@ void BERenderRaytrace::InnerLoop(unsigned int x, unsigned int y)
 void BERenderRaytrace::Draw()
 {
 	//DrawByLine();
-	DrawBySampling(0, pCanvas->Width(), 0, pCanvas->Height());
+	DrawBySampling(0, GetWidth(), 0, GetHeight());
 }
 
 void BERenderRaytrace::Draw(unsigned int xFrom, unsigned int width, unsigned int yFrom, unsigned int height)
@@ -106,7 +106,7 @@ void BERenderRaytrace::DrawByLine()
 
 			raysProcessed++;
 
-			if (exitLoop || restartLoop) return;
+			if (exitLoop) return;
 		}
 	}
 }
@@ -137,7 +137,7 @@ void BERenderRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, un
 			if (counter % 10 == 0)
 			{
 				showBuffer = true;
-				if (exitLoop || restartLoop) return;
+				if (exitLoop) return;
 			}
 
 			indx += offset;
