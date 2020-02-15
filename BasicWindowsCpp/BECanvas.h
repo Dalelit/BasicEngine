@@ -1,9 +1,6 @@
 #pragma once
+#include "pch.h"
 #include "BESurface2D.h"
-#include <wincodec.h>
-#include <wrl.h>
-#include <DirectXMath.h>
-#include <memory>
 
 // Wrapper of a surface with a pixel struct to make it easy to manage the target output
 class BECanvas

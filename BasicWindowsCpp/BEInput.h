@@ -1,7 +1,6 @@
 #pragma once
-#include <bitset>
+#include "pch.h"
 #include "BECamera.h"
-#include <queue>
 
 // to do: queue events up for later?
 

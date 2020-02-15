@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "BERenderProgrammablePipeline.h"
 #include "BERaytrace.h"
-#include <time.h>
-#include <execution>
 
 // To Do:
 // - check if the normalising of normals is being done too much.

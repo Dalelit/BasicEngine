@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXOverlay.h"
 
 #pragma comment(lib,"d2d1.lib")

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXEntityPSConstantBuffer.h"
 
 BEDXEntityPSConstantBuffer::BEDXEntityPSConstantBuffer(BEDirectXDevice& device)

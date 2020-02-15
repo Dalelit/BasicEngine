@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BEDXVertexShader.h"
-#include <d3dcompiler.h>
 
 
 BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::wstring filename)

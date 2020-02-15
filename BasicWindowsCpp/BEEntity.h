@@ -1,7 +1,6 @@
 #pragma once
+#include "pch.h"
 #include "BEMaterial.h"
-#include <vector>
-#include <math.h>
 
 class BEEntity;
 

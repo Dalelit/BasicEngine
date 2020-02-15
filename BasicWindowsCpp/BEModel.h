@@ -1,8 +1,8 @@
 #pragma once
+#include "pch.h"
 #include "BEEntity.h"
 #include "BEEntityComponents.h"
 #include "BEMesh.h"
-#include <vector>
 
 class BEModel
 {

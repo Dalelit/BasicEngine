@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BEBounds.h"
-#include <vector>
 
 using namespace DirectX;
 

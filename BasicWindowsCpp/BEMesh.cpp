@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "BEMesh.h"
-#include <string>
-#include <iostream>
 
 using namespace DirectX;
 

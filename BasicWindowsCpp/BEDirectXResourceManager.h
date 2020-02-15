@@ -1,11 +1,8 @@
 #pragma once
 
+#include "pch.h"
 #include "BEDirectXResource.h"
 #include "BEDXTexture.h"
-#include <string>
-#include <memory>
-#include <map>
-#include <cassert>
 
 class BEDirectXResourceManager
 {

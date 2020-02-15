@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEInput.h"
 
 void BEInput::KeyDownInput(char key)

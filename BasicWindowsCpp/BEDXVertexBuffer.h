@@ -1,7 +1,7 @@
 #pragma once
+#include "pch.h"
 #include "BEMesh.h"
 #include "BEDirectXResource.h"
-#include <DirectXMath.h>
 
 class BEDXVertexBuffer : BEDirectXResource
 {

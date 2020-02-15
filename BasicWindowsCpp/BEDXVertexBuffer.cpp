@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXVertexBuffer.h"
 
 // To do: template this?

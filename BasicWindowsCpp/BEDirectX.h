@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "BEDirectXResource.h"
 #include "BEDirectXResourceManager.h"
 #include "BEDXOverlay.h"
@@ -7,9 +8,6 @@
 #include "BEScene.h"
 #include "BECamera.h"
 #include "BECanvas.h"
-#include <vector>
-#include <wrl.h>
-#include <sstream>
 #include "BEDXScene.h"
 
 namespace wrl = Microsoft::WRL;

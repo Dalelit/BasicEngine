@@ -1,9 +1,7 @@
 #pragma once
 
+#include "pch.h"
 #include "BEDirectXDevice.h"
-#include <wrl.h>
-#include <string>
-#include <typeinfo>
 
 class BEDirectXResource
 {

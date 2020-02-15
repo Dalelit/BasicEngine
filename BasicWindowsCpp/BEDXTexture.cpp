@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXTexture.h"
 
 using namespace DirectX;

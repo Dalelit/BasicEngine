@@ -1,7 +1,7 @@
+#include "pch.h"
 #include "BERenderRaytrace.h"
 #include "BERaytrace.h"
 #include "BEMath.h"
-#include <DirectXCollision.h>
 
 using namespace DirectX;
 

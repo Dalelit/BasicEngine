@@ -1,10 +1,7 @@
 #pragma once
-#include <d2d1_3.h>
-#include <wrl.h>
-#include <dwrite.h>
+#include "pch.h"
 #include "BEDirectXDevice.h"
 #include "BECanvas.h"
-#include <sstream>
 
 class BEDXOverlay
 {

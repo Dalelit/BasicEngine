@@ -1,7 +1,6 @@
 #pragma once
+#include "pch.h"
 #include "BERenderRaytrace.h"
-#include <future>
-#include <vector>
 
 class BERenderRaytraceThread
 {

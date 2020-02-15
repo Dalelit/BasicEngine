@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
 #include "BESurface2D.h"
-#include <DirectXMath.h>
 
 class BETexture
 {

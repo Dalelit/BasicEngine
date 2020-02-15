@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXShowCanvas.h"
 
 using namespace DirectX;

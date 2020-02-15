@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BELight.h"
 
 using namespace DirectX;

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BESampler.h"
 
 using namespace DirectX;

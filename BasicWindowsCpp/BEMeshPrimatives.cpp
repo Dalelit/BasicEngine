@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BEMeshPrimatives.h"
-#include <random>
 
 using namespace DirectX;
 

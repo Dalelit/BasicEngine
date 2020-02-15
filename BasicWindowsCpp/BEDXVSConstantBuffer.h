@@ -1,9 +1,9 @@
 #pragma once
 
+#include "pch.h"
 #include "BEDirectXConstantBuffer.h"
 #include "BECamera.h"
 #include "BEScene.h"
-#include <DirectXMath.h>
 
 class BEDXVSConstantBuffer : public BEDirectXConstantBuffer
 {

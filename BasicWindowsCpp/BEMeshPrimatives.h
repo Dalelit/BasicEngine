@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "BEEntity.h"
 #include "BEMesh.h"
 

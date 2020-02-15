@@ -1,7 +1,5 @@
+#include "pch.h"
 #include "BEMeshLoaderSTL.h"
-#include <fstream>
-#include <sstream>
-#include <vector>
 
 using namespace DirectX;
 

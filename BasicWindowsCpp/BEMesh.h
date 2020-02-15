@@ -1,9 +1,8 @@
 #pragma once
+#include "pch.h"
 #include "BEBounds.h"
 #include "BESampler.h"
 #include "BEMaterial.h"
-#include <vector>
-#include <string>
 
 // Notes/Reminders/To check
 // - RH coord system... sticking with this? DX is LH

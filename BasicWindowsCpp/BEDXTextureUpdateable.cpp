@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXTextureUpdateable.h"
 
 using namespace DirectX;

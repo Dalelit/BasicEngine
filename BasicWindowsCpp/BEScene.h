@@ -2,7 +2,6 @@
 #include "BEModel.h"
 #include "BELight.h"
 #include "BESampler.h"
-#include <vector>
 
 class BEScene
 {

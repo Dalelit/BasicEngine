@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "BECamera.h"
 #include "BEMath.h"
-#include <algorithm>
 
 using namespace DirectX;
 

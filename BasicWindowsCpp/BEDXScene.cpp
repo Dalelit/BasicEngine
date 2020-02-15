@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXScene.h"
 #include "BEDXVSConstantBuffer.h"
 #include "BEDXPSConstantBuffer.h"

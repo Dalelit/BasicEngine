@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "BEMaterial.h"
-#include <random>
-#include <functional>
 
 using namespace DirectX;
 

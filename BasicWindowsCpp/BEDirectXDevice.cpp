@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDirectXDevice.h"
 
 int BEDirectXDevice::Initialise(HWND hwnd, unsigned int width, unsigned int height)

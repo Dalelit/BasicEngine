@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BERaytrace.h"
-#include <DirectXCollision.h>
 
 using namespace DirectX;
 

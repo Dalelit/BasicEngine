@@ -1,9 +1,9 @@
 #pragma once
+#include "pch.h"
 #include "BEDirectXResourceManager.h"
 #include "BEDirectXConstantBuffer.h"
 #include "BEDXVertexBuffer.h"
 #include "BEModel.h"
-#include <memory>
 
 //////
 // Scene

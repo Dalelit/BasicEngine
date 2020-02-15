@@ -1,12 +1,11 @@
+#include "pch.h"
 #include "BEDirectX.h"
-#include <d3dcompiler.h>
 #include "BEDXVertexShader.h"
 #include "BEDXPixelShader.h"
 #include "BEDXVertexBuffer.h"
 #include "BEDXTexture.h"
 #include "BEDXEntityPSConstantBuffer.h"
 #include "BEDXEntityVSConstantBuffer.h"
-#include <time.h>
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")

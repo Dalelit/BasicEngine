@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "BERenderRaytraceThread.h"
-#include <time.h>
-#include <future>
 
 
 void BERenderRaytraceThread::Start()

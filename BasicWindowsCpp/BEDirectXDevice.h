@@ -1,7 +1,6 @@
 #pragma once
 
-#include <d3d11_3.h>
-#include <wrl.h>
+#include "pch.h"
 
 // To do: Proper exceptions
 #define BEDXRESOURCE_ERRORCHECK(hr) if (FAILED(hr)) throw hr;

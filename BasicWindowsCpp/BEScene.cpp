@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEScene.h"
 #include "BEMeshPrimatives.h"
 #include "BEMeshLoaderSTL.h"

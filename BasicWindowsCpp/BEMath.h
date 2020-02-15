@@ -1,8 +1,5 @@
 #pragma once
 
-// To do : check the why to do these includes
-#include <DirectXMath.h>
-
 // taken from the directXMath library for XMVECTOR
 inline DirectX::XMFLOAT2 BEXMFloat2BaryCentric(DirectX::XMFLOAT2 Position0, DirectX::XMFLOAT2 Position1, DirectX::XMFLOAT2 Position2, float f, float g)
 {

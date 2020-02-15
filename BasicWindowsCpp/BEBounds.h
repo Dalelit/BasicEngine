@@ -1,6 +1,6 @@
 #pragma once
+#include "pch.h"
 #include "BEVertex.h"
-#include <DirectXCollision.h>
 
 // Class for bounds, and also one to use if you don't want any processing time.
 // To do: may need to change this to inheritence at some point rather than just the same signature.

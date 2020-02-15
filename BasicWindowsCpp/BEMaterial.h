@@ -1,6 +1,6 @@
 #pragma once
+#include "pch.h"
 #include "BESampler.h"
-#include <string>
 
 class BEMaterial
 {

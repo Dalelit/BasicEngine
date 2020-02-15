@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BEEntitySystems.h"
-#include <random>
 
 using namespace DirectX;
 

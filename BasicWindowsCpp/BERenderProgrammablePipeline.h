@@ -1,8 +1,8 @@
 #pragma once
+#include "pch.h"
 #include "BEScene.h"
 #include "BECamera.h"
 #include "BECanvas.h"
-#include <sstream>
 
 
 struct BEPipelineVSData

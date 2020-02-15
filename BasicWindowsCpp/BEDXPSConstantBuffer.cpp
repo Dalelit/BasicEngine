@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BEDXPSConstantBuffer.h"
 
 BEDXPSConstantBuffer::BEDXPSConstantBuffer(BEDirectXDevice& device, BEScene* pScene, BECamera* pCamera) :

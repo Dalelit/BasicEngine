@@ -1,7 +1,5 @@
+#include "pch.h"
 #include "BEMeshLoaderPLY.h"
-#include <fstream>
-#include <sstream>
-#include <vector>
 
 // To Do: proper error handling
 

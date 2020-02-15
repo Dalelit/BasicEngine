@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "BEDXPixelShader.h"
-#include <d3dcompiler.h>
 
 BEDXPixelShader::BEDXPixelShader(BEDirectXDevice& device, std::wstring filename)
 	:
