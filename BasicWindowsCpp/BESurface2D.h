@@ -53,6 +53,15 @@ public:
 		return data[y * width + x];
 	}
 
+	inline void Copy(BESurface2D<T>* src) {
+		assert(width == src->width && height == src->height && elementSize == src->elementSize);
+		memcpy(data, src->data, totalBytes);
+	}
+
+	inline void Copy(BESurface2D<T>& src) {
+		Copy(&src);
+	}
+
 	inline T* Begin() { return data; }
 	inline T* End() { return data + size; }
 

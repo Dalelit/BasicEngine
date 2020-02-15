@@ -27,6 +27,7 @@ public:
 
 	inline unsigned int GetWidth() { return pCanvas->Width(); }
 	inline unsigned int GetHeight() { return pCanvas->Height(); }
+	BECanvas& GetCanvas() { return *pCanvas; }
 
 private:
 	BEScene* pScene = nullptr;

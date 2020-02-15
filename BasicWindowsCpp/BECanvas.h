@@ -26,6 +26,8 @@ public:
 	inline unsigned int Width()  { return bmpSurface->GetWidth(); };
 	inline unsigned int Height() { return bmpSurface->GetHeight(); };
 
+	inline void Copy(BECanvas& src) { bmpSurface->Copy(src.bmpSurface.get()); }
+
 	void Initialise(unsigned int width, unsigned int height) {
 		bmpSurface = std::make_unique<BESurface2D<Pixel>>(width, height);
 		Clear();

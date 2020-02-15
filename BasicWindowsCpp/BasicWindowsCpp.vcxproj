@@ -172,6 +172,7 @@
     <ClCompile Include="BEDXVertexBuffer.cpp" />
     <ClCompile Include="BESceneTests.cpp" />
     <ClCompile Include="BETexture.cpp" />
+    <ClCompile Include="BEWindow.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -223,6 +224,7 @@
     <ClInclude Include="BETexture.h" />
     <ClInclude Include="BETimer.h" />
     <ClInclude Include="BEVertex.h" />
+    <ClInclude Include="BEWindow.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

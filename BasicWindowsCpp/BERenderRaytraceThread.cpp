@@ -50,7 +50,8 @@ void BERenderRaytraceThread::JobMain()
 
 		float durationSeconds = (float)(clock() - startTime) / (float)CLOCKS_PER_SEC;
 
-		// call the function for when it's finished
+		// copy the result to the target and call the function for when it's finished
+		if (pResultCanvas) pResultCanvas->Copy(raytracer.GetCanvas());
 		if (callback) callback(L"Render time: " + std::to_wstring(durationSeconds) + L"s");
 	}
 

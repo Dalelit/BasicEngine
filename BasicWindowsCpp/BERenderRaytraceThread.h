@@ -30,6 +30,7 @@ public:
 	bool IsRunning() { return running; }
 
 	void(*callback)(std::wstring msg);
+	BECanvas* pResultCanvas = nullptr;
 
 private:
 	BERenderRaytrace& raytracer;

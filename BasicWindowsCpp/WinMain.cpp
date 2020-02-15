@@ -15,10 +15,7 @@
 
 #include "pch.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <stdio.h>
-
+#include "BEWindow.h"
 #include "BERenderRaytrace.h"
 #include "BERenderRaytraceThread.h"
 #include "BERenderProgrammablePipeline.h"
@@ -29,13 +26,6 @@
 #include "BEInput.h"
 
 // global windows variables and macros
-#define BENUMBER_WINDOWS 6
-#define BE_SWBUFFERSIZE 1000
-#define BE_WINDOWSTYLE WS_VISIBLE | WS_CAPTION
-HWND hwnd[BENUMBER_WINDOWS];
-HDC hdc[BENUMBER_WINDOWS];
-int windowPosX = 0;
-int windowPosY = 0;
 int displaySizeW = 800;
 int displaySizeH = 600;
 RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is called in main to set this
@@ -43,83 +33,21 @@ BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer proper
 
 // global control variables
 bool running = true;
-bool doUpdate = true;
 bool raytraceKeepRunning = true;
+bool raytraceDrawResult = false;
+std::wstring raytraceDrawMessage;
 
-// global back buffer variables
-int bufferWidth = 0;
-int bufferHeight = 0;
-BECanvas backBuffer[BENUMBER_WINDOWS];
-BITMAPINFO bmpInfo[BENUMBER_WINDOWS] = { 0 };
+void RaytraceShowResult(std::wstring message)
+{
+	raytraceDrawResult = true;
+	raytraceDrawMessage = message;
+}
 
 // global engine variables
 BECamera camera;
 BEScene scene;
 BEInput input;
 BETimer loopTimer;
-BETimer timers[BENUMBER_WINDOWS];
-
-/////////////////////////////////
-// back buffer functions
-
-void BECreateBackBuffer(int indx)
-{
-	if (bufferWidth == 0 || bufferHeight == 0) return;
-
-	backBuffer[indx].Initialise(bufferWidth, bufferHeight);
-
-	bmpInfo[indx].bmiHeader.biSize = sizeof(bmpInfo[indx].bmiHeader);
-	bmpInfo[indx].bmiHeader.biWidth = bufferWidth;
-	bmpInfo[indx].bmiHeader.biHeight = bufferHeight; // use - for top-down DIB and its origin is the upper-left corner
-	bmpInfo[indx].bmiHeader.biPlanes = 1;
-	bmpInfo[indx].bmiHeader.biBitCount = 32;
-	bmpInfo[indx].bmiHeader.biCompression = BI_RGB;
-}
-
-long drawBackBufferTime = 0;
-long drawBackBufferCount = 0;
-void BEDrawBackBuffer(int bufferindx, int windowIndx)
-{
-	drawBackBufferCount++;
-	clock_t startTime = clock();
-
-	StretchDIBits(
-		hdc[windowIndx],
-		0,
-		0,
-		bufferWidth,
-		bufferHeight,
-		0,
-		0,
-		bufferWidth,
-		bufferHeight,
-		backBuffer[bufferindx].bmpSurface->GetData(),
-		&(bmpInfo[bufferindx]),
-		DIB_RGB_COLORS,
-		SRCCOPY
-	);
-
-	drawBackBufferTime += clock() - startTime;
-}
-
-void BEDrawBackBuffer(int indx)
-{
-	BEDrawBackBuffer(indx, indx);
-}
-
-//HFONT hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
-void BEWriteOverlayToWindow(int indx, LPCWSTR lpwString)
-{
-	RECT rect;
-	GetClientRect(hwnd[indx], &rect);
-
-	//SetBkColor(hdc[indx], RGB(0, 0, 0));
-	//SelectObject(hdc[indx], hFont);
-	SetTextColor(hdc[indx], RGB(255, 255, 255));
-	SetBkMode(hdc[indx], TRANSPARENT);
-	//	DrawText(hdc[indx], lpwString, wcslen(lpwString), &rect, DT_LEFT);
-	DrawText(hdc[indx], lpwString, -1, &rect, DT_LEFT);
-}
 
 /////////////////////////////////
 // windows code
@@ -180,70 +108,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-WNDCLASS wc = { 0 };
-
-int BERegisterWindowClass(HINSTANCE hInstance)
-{
-	wc.style = CS_OWNDC; //CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WndProc;
-	wc.hInstance = hInstance;
-	wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
-	wc.lpszClassName = L"BasicEngingWindow";
-
-	if (!RegisterClass(&wc))
-		return 1;
-
-	return 0;
-}
-
-bool BEUnregisterWindowClass()
-{
-	return UnregisterClass(wc.lpszClassName, wc.hInstance);
-}
-
-int BECreateWindow(int indx, HINSTANCE hInstance, LPCWSTR name)
-{
-	hwnd[indx] = CreateWindow(wc.lpszClassName,
-		name,
-		BE_WINDOWSTYLE,
-		windowPosX, windowPosY,
-		windowRect.right, windowRect.bottom,
-		(indx == 0 ? 0 : hwnd[0]), // parent window
-		0, hInstance, NULL);
-
-	windowPosX += windowRect.right;
-
-	if (!hwnd[indx])
-		return 2;
-
-	RECT rect;
-	GetWindowRect(GetDesktopWindow(), &rect);
-	if (windowPosX + windowRect.right > rect.right)
-	{
-		// next window would be off screen so shuffle down.
-		// To Do: tidy up this hack?
-		windowPosX = 0;
-		windowPosY += windowRect.bottom;
-	}
-
-
-	hdc[indx] = GetDC(hwnd[indx]);
-
-	GetClientRect(hwnd[indx], &rect);
-	bufferWidth = rect.right;
-	bufferHeight = rect.bottom;
-
-	BECreateBackBuffer(indx);
-	backBuffer[indx].Clear();
-
-	return 0;
-}
-
-void BECleanupWindow(int indx)
-{
-	ReleaseDC(hwnd[indx], hdc[indx]);
-}
-
 void BESetupRawMouseIntput()
 {
 	RAWINPUTDEVICE rid;
@@ -272,24 +136,46 @@ int WINAPI WinMain(
 	//GetCurrentDirectoryA(256, buffer);
 
 	MSG msg = { 0 };
-	WCHAR swbuffer[BE_SWBUFFERSIZE];
 
-	BERegisterWindowClass(hInstance);
+	BEWindow::GetAdjustedWindowRect(&windowRect); // get the window size to ensure the client rect is the size we want.
 
-	// get the window size to ensure the client rect is the size we want.
-	BOOL awr = AdjustWindowRectEx(&windowRect, BE_WINDOWSTYLE, false, 0);
-	// adjust for the negative offset that results.
-	windowRect.right -= windowRect.left;
-	windowRect.left = 0;
-	windowRect.bottom -= windowRect.top;
-	windowRect.top = 0;
+	BEWindow::RegsiterWindowClass(hInstance, WndProc);
+	
+	BEWindow::WindowDesc wndDesc;
+	wndDesc.name = L"Points";
+	wndDesc.hInstance = hInstance;
+	wndDesc.left = 0;
+	wndDesc.top = 0;
+	wndDesc.width = windowRect.right;
+	wndDesc.height = windowRect.bottom;
 
-	BECreateWindow(0, hInstance, L"Points");
-	BECreateWindow(1, hInstance, L"Wireframe");
-	BECreateWindow(2, hInstance, L"Full");
-	BECreateWindow(3, hInstance, L"Raytrace working");
-	BECreateWindow(4, hInstance, L"Raytrace final");
-	BECreateWindow(5, hInstance, L"Direct3D");
+	BEWindow wndPoints(wndDesc);
+
+	wndDesc.name = L"Wireframe";
+	wndDesc.left += wndDesc.width;
+
+	BEWindow wndWireframe(wndDesc);
+
+	wndDesc.name = L"Full render";
+	wndDesc.left += wndDesc.width;
+
+	BEWindow wndFullrender(wndDesc);
+
+	wndDesc.name = L"Raytrace working";
+	wndDesc.left = 0;
+	wndDesc.top += wndDesc.height;
+
+	BEWindow wndRaytraceWorking(wndDesc);
+
+	wndDesc.name = L"Raytrace final";
+	wndDesc.left += wndDesc.width;
+
+	BEWindow wndRaytraceFinal(wndDesc);
+
+	wndDesc.name = L"DirectX";
+	wndDesc.left += wndDesc.width;
+
+	BEWindow wndDirectX(wndDesc);
 
 	BESetupRawMouseIntput();
 
@@ -306,35 +192,31 @@ int WINAPI WinMain(
 	scene.Update(0);
 
 	// points
-	BERenderProgrammablePipeline pointsPL(&scene, &camera, &backBuffer[0]);
+	BERenderProgrammablePipeline pointsPL(&scene, &camera, wndPoints.GetBackBuffer());
 	pointsPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireFrameAndNormals;
 	pointsPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
 	pointsPL.backFaceCull = false;
 
 	// wireframe
-	BERenderProgrammablePipeline wireframePL(&scene, &camera, &backBuffer[1]);
+	BERenderProgrammablePipeline wireframePL(&scene, &camera, wndWireframe.GetBackBuffer());
 	wireframePL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerWireframe;
 	wireframePL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderColor;
 	wireframePL.backFaceCull = false;
 
 	// Full output
-	BERenderProgrammablePipeline mainPL(&scene, &camera, &backBuffer[2]);
+	BERenderProgrammablePipeline mainPL(&scene, &camera, wndFullrender.GetBackBuffer());
 	//mainPL.pRasterizerFunc = &BERenderProgrammablePipeline::RasterizerTriangle;
 	//mainPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderPointOnly;
 
 	// Raytrace rendering
-	BERenderRaytrace raytracing(&scene, &camera, &backBuffer[3]);
+	BERenderRaytrace raytracing(&scene, &camera, wndRaytraceWorking.GetBackBuffer());
 	BERenderRaytraceThread raytracingThread(raytracing);
-	raytracingThread.callback = [](std::wstring msg) {
-		constexpr int resultIndx = 4;
-		BEDrawBackBuffer(3, resultIndx);
-		BEWriteOverlayToWindow(resultIndx, msg.c_str());
-		BEWriteOverlayToWindow(resultIndx, L""); // To Do: something strange when this is in the thread... need a second 1 for it to show?!
-	};
+	raytracingThread.callback = RaytraceShowResult;
+	raytracingThread.pResultCanvas = wndRaytraceFinal.GetBackBuffer();
 
 	// for DirectX rendering
 	BEDirectX dx;
-	dx.Initialise(hwnd[5], bufferWidth, bufferHeight);
+	dx.Initialise(wndDirectX.GetHandle(), wndDirectX.GetBackBuffer()->Width(), wndDirectX.GetBackBuffer()->Height());
 	dx.LoadScene(&scene, &camera);
 
 	// ready to go...
@@ -401,25 +283,24 @@ int WINAPI WinMain(
 		// points..........
 		//
 		pointsPL.Draw();
-		BEDrawBackBuffer(0);
+		wndPoints.DrawBackBuffer();
 		std::wstring msg = pointsPL.GetStats();
 		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms\n";
-		msg += L"Draw back buffer avg time: " + std::to_wstring((float)drawBackBufferTime / (float)drawBackBufferCount) + L"ms\n";
-		BEWriteOverlayToWindow(0, msg.c_str());
+		wndPoints.WriteText(msg);
 
 		//
 		// wireframe..........
 		//
 		wireframePL.Draw();
-		BEDrawBackBuffer(1);
-		BEWriteOverlayToWindow(1, wireframePL.GetStats().c_str());
+		wndWireframe.DrawBackBuffer();
+		wndWireframe.WriteText(wireframePL.GetStats());
 
 		//
 		// main pipeline..........
 		//
 		mainPL.Draw();
-		BEDrawBackBuffer(2);
-		BEWriteOverlayToWindow(2, mainPL.GetStats().c_str());
+		wndFullrender.DrawBackBuffer();
+		wndFullrender.WriteText(mainPL.GetStats());
 
 		//
 		// raytrace..........
@@ -434,14 +315,22 @@ int WINAPI WinMain(
 			raytracingThread.StopContinousLoop();
 		}
 
-		BEDrawBackBuffer(3);
-		raytracing.showBuffer = false;
+		wndRaytraceWorking.DrawBackBuffer();
+		//raytracing.showBuffer = false;
+
+		if (raytraceDrawResult)
+		{
+			wndRaytraceFinal.DrawBackBuffer();
+			wndRaytraceFinal.WriteText(raytraceDrawMessage);
+			raytraceDrawResult = false;
+		}
 
 		int todo = raytracing.raysToProcess;
 		int done = raytracing.raysProcessed;
-		float pcnt = (float)done / (float)todo * 100.0f;
-		swprintf(swbuffer, BE_SWBUFFERSIZE, L"Rays to process %i\nRays processed %i(%3.2f%%)", todo, done, pcnt);
-		BEWriteOverlayToWindow(3, swbuffer);
+		std::wstringstream rtss;
+		rtss << L"Rays to process " << todo << std::endl;
+		rtss << L"Rays processed " << done << L"(" << ((float)done / (float)todo * 100.0f) << L")" << std::endl;
+		wndRaytraceWorking.WriteText(rtss.str());
 
 		//
 		// directx.............
@@ -457,13 +346,6 @@ int WINAPI WinMain(
 	}
 
 	raytracingThread.StopAndWait();
-
-	BECleanupWindow(0);
-	BECleanupWindow(1);
-	BECleanupWindow(2);
-	BECleanupWindow(3);
-	BECleanupWindow(4);
-	BEUnregisterWindowClass();
 
 	return 0;
 }
