@@ -21,14 +21,11 @@
 #include "BERenderProgrammablePipeline.h"
 #include "BEDirectX.h"
 #include "BETimer.h"
-#include "BEDXShowCanvas.h"
 #include "BESceneTests.h"
 #include "BEInput.h"
 
 // global windows variables and macros
-int displaySizeW = 800;
-int displaySizeH = 600;
-RECT windowRect = {0,0, displaySizeW, displaySizeH }; // AdjustWindowRect is called in main to set this
+RECT windowRect = {0,0, 800, 600 }; // AdjustWindowRect is called in main to set this
 BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer properly. Using for the mouse input.
 
 // global control variables
@@ -283,24 +280,19 @@ int WINAPI WinMain(
 		// points..........
 		//
 		pointsPL.Draw();
-		wndPoints.DrawBackBuffer();
-		std::wstring msg = pointsPL.GetStats();
-		msg += L"Avg update time: " + std::to_wstring( (float)totalUpdateTime / (float)frameCount ) + L"ms\n";
-		wndPoints.WriteText(msg);
+		wndPoints.Present(pointsPL.GetStats());
 
 		//
 		// wireframe..........
 		//
 		wireframePL.Draw();
-		wndWireframe.DrawBackBuffer();
-		wndWireframe.WriteText(wireframePL.GetStats());
+		wndWireframe.Present(wireframePL.GetStats());
 
 		//
 		// main pipeline..........
 		//
 		mainPL.Draw();
-		wndFullrender.DrawBackBuffer();
-		wndFullrender.WriteText(mainPL.GetStats());
+		wndFullrender.Present(mainPL.GetStats());
 
 		//
 		// raytrace..........
@@ -315,22 +307,13 @@ int WINAPI WinMain(
 			raytracingThread.StopContinousLoop();
 		}
 
-		wndRaytraceWorking.DrawBackBuffer();
-		//raytracing.showBuffer = false;
+		wndRaytraceWorking.Present(raytracing.GetWorkingStats());
 
 		if (raytraceDrawResult)
 		{
-			wndRaytraceFinal.DrawBackBuffer();
-			wndRaytraceFinal.WriteText(raytraceDrawMessage);
+			wndRaytraceFinal.Present(raytraceDrawMessage);
 			raytraceDrawResult = false;
 		}
-
-		int todo = raytracing.raysToProcess;
-		int done = raytracing.raysProcessed;
-		std::wstringstream rtss;
-		rtss << L"Rays to process " << todo << std::endl;
-		rtss << L"Rays processed " << done << L"(" << ((float)done / (float)todo * 100.0f) << L")" << std::endl;
-		wndRaytraceWorking.WriteText(rtss.str());
 
 		//
 		// directx.............

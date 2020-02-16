@@ -34,6 +34,17 @@ BEWindow::~BEWindow()
 	UnregsiterWindowClass();
 }
 
+void BEWindow::Present()
+{
+	DrawBackBuffer(&backBuffer);
+}
+
+void BEWindow::Present(std::wstring message)
+{
+	DrawBackBuffer(&backBuffer);
+	WriteText(message);
+}
+
 void BEWindow::WriteText(std::wstring message)
 {
 	RECT rect;
@@ -71,11 +82,6 @@ void BEWindow::CreateBackBuffer()
 	bmpInfo.bmiHeader.biPlanes = 1;
 	bmpInfo.bmiHeader.biBitCount = 32;
 	bmpInfo.bmiHeader.biCompression = BI_RGB;
-}
-
-void BEWindow::DrawBackBuffer()
-{
-	DrawBackBuffer(&backBuffer);
 }
 
 void BEWindow::DrawBackBuffer(BECanvas* pCanvas)

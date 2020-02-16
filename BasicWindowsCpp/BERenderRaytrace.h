@@ -9,9 +9,6 @@ public:
 	bool exitLoop = false;    // used to exit the rendering loops early
 	bool showBuffer = false;  // used to tell the main thread to show the back buffer for progressive results
 
-	unsigned int raysToProcess;
-	unsigned int raysProcessed;
-
 	bool backfaceCull = true;
 
 	BERenderRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanvas* _pCanvas);
@@ -29,6 +26,8 @@ public:
 	inline unsigned int GetHeight() { return pCanvas->Height(); }
 	BECanvas& GetCanvas() { return *pCanvas; }
 
+	std::wstring GetWorkingStats();
+
 private:
 	BEScene* pScene = nullptr;
 	BECamera* pCamera = nullptr;
@@ -37,6 +36,9 @@ private:
 	unsigned int stride;
 	float invWidthx2;
 	float invHeightx2;
+
+	unsigned int raysToProcess;
+	unsigned int raysProcessed;
 
 	void InnerLoop(unsigned int x, unsigned int y);
 };

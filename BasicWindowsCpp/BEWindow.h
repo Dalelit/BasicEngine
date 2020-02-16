@@ -29,9 +29,8 @@ public:
 	BECanvas* GetBackBuffer() { return &backBuffer; }
 	HWND GetHandle() { return handle; }
 
-	void DrawBackBuffer();
-	void DrawBackBuffer(BECanvas* pCanvas);
-	void WriteText(std::wstring message); // to do: a version that works with reference rather than copy
+	void Present();
+	void Present(std::wstring message);
 
 	static void GetAdjustedWindowRect(RECT* rect);
 
@@ -43,6 +42,9 @@ protected:
 	BECanvas backBuffer;
 
 	void CreateBackBuffer();
+
+	void DrawBackBuffer(BECanvas* pCanvas);
+	void WriteText(std::wstring message); // to do: a version that works with reference rather than copy
 
 	static WNDCLASS windowClass;
 	static unsigned int windowClassCount;

@@ -813,6 +813,7 @@ inline bool BERenderProgrammablePipeline::CheckAndSetDepthBuffer(unsigned int x,
 std::wstring BERenderProgrammablePipeline::GetStats()
 {
 	std::wstringstream msg;
+	msg.precision(4);
 
 	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
 	msg << "Clear time: " << GetAvgClearMS() << "ms" << std::endl;

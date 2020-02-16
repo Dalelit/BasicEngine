@@ -147,3 +147,12 @@ void BERenderRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, un
 		startingOffset--;
 	}
 }
+
+std::wstring BERenderRaytrace::GetWorkingStats()
+{
+	int done = raysProcessed;
+	std::wstringstream ss;
+	ss.precision(3);
+	ss << L"Rays processed " << done << L" (" << ((float)done / (float)raysToProcess * 100.0f) << L"%) of " << raysToProcess << std::endl;
+	return ss.str();
+}
