@@ -1,8 +1,14 @@
 #include "pch.h"
 #include "BEInput.h"
+#include "BELogger.h"
 
-void BEInput::KeyDownInput(char key)
+void BEInput::KeyDownInput(char key, unsigned int repeatCount)
 {
+	// skip if already set and created the event
+	if (keyState.test(key)) return; // to do: do want to to manage this differently?
+
+	//BELOG_DEBUG("Key down " + KeyToString(key));
+
 	keyState.set(key, true);
 
 	// handle key down events
@@ -22,6 +28,18 @@ void BEInput::KeyUpInput(char key)
 	keyState.set(key, false);
 
 	// handle key up events
+}
+
+std::string BEInput::KeyToString(char key)
+{
+	std::string result("");
+
+	if (key >= 'A' && key <= 'Z') return result + key;
+	if (key >= '0' && key <= '9') return result + key;
+	if (key == ' ') return "Space";
+	if (key >= VK_F1 && key <= VK_F24) return result + "F" + std::to_string( key - VK_F1 + 1 );
+
+	return "Other";
 }
 
 void BEInput::Update(float deltaTime, BECamera& camera)

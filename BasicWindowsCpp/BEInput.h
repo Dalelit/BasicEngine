@@ -2,7 +2,9 @@
 #include "pch.h"
 #include "BECamera.h"
 
-// to do: queue events up for later?
+// To do:
+//   queue events up for later?
+//   proper class for events and different event types?
 
 class BEInput
 {
@@ -22,8 +24,11 @@ public:
 	inline void RawMouseInput(long x, long y) { mouseX += x; mouseY += y; }; // used by windows message to be udpated
 	inline void RawMouseClear() { mouseX = 0; mouseY = 0; }; // called at the end of Update
 
-	void KeyDownInput(char key); // used by windows message to be udpated, and has any key event logic
-	void KeyUpInput(char key);   // used by windows message to be udpated, and has any key event logic
+	// used by windows message to be udpated, and has any key event logic
+	void KeyDownInput(char key, unsigned int repeatCount);
+	void KeyUpInput(char key);
+
+	std::string KeyToString(char key); // helper function to turn key into a string
 
 	inline bool IsKeyPressed(char key) { return keyState.test(key); };
 	inline int MouseX() { return mouseX; };

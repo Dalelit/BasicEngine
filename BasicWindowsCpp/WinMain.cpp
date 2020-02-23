@@ -59,7 +59,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_KEYDOWN:
 	{
-		input.KeyDownInput((char)wParam);
+		input.KeyDownInput((char)wParam, (lParam & 0xffff));
 
 		// keeping these for basic controls for the moment
 		switch (wParam)
