@@ -23,7 +23,7 @@ public:
 
 	BEWindow() = delete;
 	BEWindow(BEWindow&) = delete;
-	BEWindow(WindowDesc desc);
+	BEWindow(WindowDesc descriptor);
 	~BEWindow();
 
 	BECanvas* GetBackBuffer() { return &backBuffer; }

@@ -3,7 +3,7 @@
 
 #define WINDOWSTYLE WS_VISIBLE | WS_CAPTION
 
-BEWindow::BEWindow(WindowDesc desc) : desc(desc)
+BEWindow::BEWindow(WindowDesc descriptor) : desc(descriptor)
 {
 	handle = CreateWindow(windowClass.lpszClassName,
 		desc.name.c_str(),

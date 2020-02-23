@@ -16,6 +16,7 @@
 #include "pch.h"
 
 #include "BEWindow.h"
+#include "BELogger.h"
 #include "BERenderRaytrace.h"
 #include "BERenderRaytraceThread.h"
 #include "BERenderProgrammablePipeline.h"
@@ -23,10 +24,6 @@
 #include "BETimer.h"
 #include "BESceneTests.h"
 #include "BEInput.h"
-
-// global windows variables and macros
-RECT windowRect = {0,0, 800, 600 }; // AdjustWindowRect is called in main to set this
-BYTE rawBuffer[1024]; // to do: stop with the hacking and do a raw buffer properly. Using for the mouse input.
 
 // global control variables
 bool running = true;
@@ -79,7 +76,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	/////// Raw mouse
 	case WM_INPUT:
 	{
+		BYTE rawBuffer[1024]; // to do: hacking away... best way to set this up?
 		UINT size;
+
 		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1) break;
 
 		if (size == 0) break;
@@ -129,10 +128,17 @@ int WINAPI WinMain(
 	_In_ int nShowCmd
 )
 {
-	//char buffer[256];
-	//GetCurrentDirectoryA(256, buffer);
+	BELoggerConsole::Init();
+
+	BELOG_DEBUG("Starting...");
+
+	char buffer[256];
+	GetCurrentDirectoryA(256, buffer);
+	BELOG_DEBUG("Directory " + std::string(buffer));
 
 	MSG msg = { 0 };
+
+	RECT windowRect = { 0,0, 800, 600 }; // AdjustWindowRect is called in main to set this
 
 	BEWindow::GetAdjustedWindowRect(&windowRect); // get the window size to ensure the client rect is the size we want.
 
@@ -329,6 +335,8 @@ int WINAPI WinMain(
 	}
 
 	raytracingThread.StopAndWait();
+
+	BELOG_DEBUG("Done.");
 
 	return 0;
 }
