@@ -27,15 +27,11 @@
 
 // global control variables
 bool running = true;
-bool raytraceKeepRunning = true;
-bool raytraceDrawResult = false;
-std::wstring raytraceDrawMessage;
+bool raytraceRun = true;
+bool raytraceStarted = false;
 
-void RaytraceShowResult(std::wstring message)
-{
-	raytraceDrawResult = true;
-	raytraceDrawMessage = message;
-}
+bool showAllWindows = true;
+bool toggleRaytraceWindow = false;
 
 // global engine variables
 BECamera camera;
@@ -68,7 +64,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			running = false;
 			break;
 		case 'P':
-			raytraceKeepRunning = !raytraceKeepRunning;
+			raytraceRun = true;
+			break;
+		case VK_F1:
+			toggleRaytraceWindow = true;
 			break;
 		}
 		break;
@@ -164,16 +163,16 @@ int WINAPI WinMain(
 
 	BEWindow wndFullrender(wndDesc);
 
-	wndDesc.name = L"Raytrace working";
+	wndDesc.name = L"Gap";
 	wndDesc.left = 0;
 	wndDesc.top += wndDesc.height;
 
-	BEWindow wndRaytraceWorking(wndDesc);
+	//BEWindow wndXXX(wndDesc);
 
-	wndDesc.name = L"Raytrace final";
+	wndDesc.name = L"Raytrace";
 	wndDesc.left += wndDesc.width;
 
-	BEWindow wndRaytraceFinal(wndDesc);
+	BEWindow wndRaytraceWorking(wndDesc);
 
 	wndDesc.name = L"DirectX";
 	wndDesc.left += wndDesc.width;
@@ -214,8 +213,6 @@ int WINAPI WinMain(
 	// Raytrace rendering
 	BERenderRaytrace raytracing(&scene, &camera, wndRaytraceWorking.GetBackBuffer());
 	BERenderRaytraceThread raytracingThread(raytracing);
-	raytracingThread.callback = RaytraceShowResult;
-	raytracingThread.pResultCanvas = wndRaytraceFinal.GetBackBuffer();
 
 	// for DirectX rendering
 	BEDirectX dx;
@@ -282,49 +279,96 @@ int WINAPI WinMain(
 		totalUpdateTime += updateStartTime - clock();
 		frameCount++;
 
+		if (toggleRaytraceWindow)
+		{
+			showAllWindows = !showAllWindows;
+			toggleRaytraceWindow = false;
+
+			if (showAllWindows)
+			{
+				wndPoints.Show();
+				wndWireframe.Show();
+				wndFullrender.Show();
+				wndDirectX.Show();
+
+				wndRaytraceWorking.Restore();
+				raytracingThread.GetRaytracer().CanvasResized();
+			}
+			else
+			{
+				wndPoints.Hide();
+				wndWireframe.Hide();
+				wndFullrender.Hide();
+				wndDirectX.Hide();
+
+				raytracingThread.StopAndWait();
+				wndRaytraceWorking.ShowMaximised();
+				raytracingThread.GetRaytracer().CanvasResized();
+				raytraceRun = true;
+			}
+		}
+
 		//
 		// points..........
 		//
-		pointsPL.Draw();
-		wndPoints.Present(pointsPL.GetStats());
+		if (wndPoints.IsVisible())
+		{
+			pointsPL.Draw();
+			wndPoints.Present(pointsPL.GetStats());
+		}
 
 		//
 		// wireframe..........
 		//
-		wireframePL.Draw();
-		wndWireframe.Present(wireframePL.GetStats());
+		if (wndWireframe.IsVisible())
+		{
+			wireframePL.Draw();
+			wndWireframe.Present(wireframePL.GetStats());
+		}
 
 		//
 		// main pipeline..........
 		//
-		mainPL.Draw();
-		wndFullrender.Present(mainPL.GetStats());
+		if (wndFullrender.IsVisible())
+		{
+			mainPL.Draw();
+			wndFullrender.Present(mainPL.GetStats());
+		}
 
 		//
 		// raytrace..........
 		//
-		if (raytraceKeepRunning && !raytracingThread.IsRunning())
+		if (wndRaytraceWorking.IsVisible())
 		{
-			raytracingThread.SetContinousLoop();
-			raytracingThread.Start();
-		}
-		else if (!raytraceKeepRunning && raytracingThread.IsRunning())
-		{
-			raytracingThread.StopContinousLoop();
-		}
+			if (raytraceRun)
+			{
+				if (!raytracingThread.IsRunning())
+				{
+					if (!raytraceStarted) // it's not running so started so start it
+					{
+						raytracingThread.Start();
+						raytraceStarted = true;
+					}
+					else if (raytraceStarted) // we started it and now it's finished
+					{
+						// final present will happen below
+						raytraceRun = false;
+						raytraceStarted = false;
+					}
+				}
+				// else it's running so keep presenting progress
 
-		wndRaytraceWorking.Present(raytracing.GetWorkingStats());
-
-		if (raytraceDrawResult)
-		{
-			wndRaytraceFinal.Present(raytraceDrawMessage);
-			raytraceDrawResult = false;
+				wndRaytraceWorking.Present(raytracingThread.GetStats());
+			}
 		}
 
 		//
 		// directx.............
 		//
-		dx.DoFrame();
+		if (wndDirectX.IsVisible())
+		{
+			dx.DoFrame();
+		}
 
 
 		// lock the framerate

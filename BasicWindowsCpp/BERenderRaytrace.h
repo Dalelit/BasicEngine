@@ -21,6 +21,7 @@ public:
 
 	void ResetStats() { raysProcessed = 0; }
 	void ClearCanvas() { pCanvas->Clear(); }
+	void CanvasResized();
 
 	inline unsigned int GetWidth() { return pCanvas->Width(); }
 	inline unsigned int GetHeight() { return pCanvas->Height(); }

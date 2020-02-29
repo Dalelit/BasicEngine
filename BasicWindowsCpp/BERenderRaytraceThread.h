@@ -24,18 +24,18 @@ public:
 	void Stop();
 	void StopAndWait();
 
-	void SetContinousLoop() { continuosLoop = true; }
-	void StopContinousLoop() { continuosLoop = false; }
-
 	bool IsRunning() { return running; }
 
-	void(*callback)(std::wstring msg);
-	BECanvas* pResultCanvas = nullptr;
+	BERenderRaytrace& GetRaytracer() { return raytracer; }
+
+	std::wstring GetStats();
 
 private:
 	BERenderRaytrace& raytracer;
+
 	bool running = false;
-	bool continuosLoop = true;
+	float durationSeconds = 0;
+
 	std::future<void> future;
 	std::vector<Subsection> subsections;
 

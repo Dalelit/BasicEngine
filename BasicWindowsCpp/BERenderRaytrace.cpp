@@ -10,10 +10,7 @@ BERenderRaytrace::BERenderRaytrace(BEScene* _pScene, BECamera* _pCamera, BECanva
 	pScene = _pScene;
 	pCamera = _pCamera;
 	pCanvas = _pCanvas;
-	stride = pCanvas->Width();
-	invWidthx2 = 2.0f / (float)pCanvas->Width();
-	invHeightx2 = 2.0f / (float)pCanvas->Height();
-	raysToProcess = pCanvas->Width() * pCanvas->Height();
+	CanvasResized();
 	raysProcessed = 0;
 }
 
@@ -146,6 +143,15 @@ void BERenderRaytrace::DrawBySampling(unsigned int xFrom, unsigned int width, un
 
 		startingOffset--;
 	}
+}
+
+void BERenderRaytrace::CanvasResized()
+{
+	// to do: sort out aspect ration when camera and canvas are different
+	stride = pCanvas->Width();
+	invWidthx2 = 2.0f / (float)pCanvas->Width();
+	invHeightx2 = 2.0f / (float)pCanvas->Height();
+	raysToProcess = pCanvas->Width() * pCanvas->Height();
 }
 
 std::wstring BERenderRaytrace::GetWorkingStats()

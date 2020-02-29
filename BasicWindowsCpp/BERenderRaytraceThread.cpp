@@ -4,6 +4,7 @@
 
 void BERenderRaytraceThread::Start()
 {
+	running = true;
 	future = std::async([this]() { this->JobMain(); });
 }
 
@@ -22,38 +23,43 @@ void BERenderRaytraceThread::StopAndWait()
 	}
 }
 
+std::wstring BERenderRaytraceThread::GetStats()
+{
+	std::wstring msg;
+
+	if (running)
+	{
+		msg = raytracer.GetWorkingStats();
+	}
+	else
+	{
+		msg = L"Render time: " + std::to_wstring(durationSeconds) + L"s";
+	}
+
+	return msg;
+}
+
 void BERenderRaytraceThread::JobMain()
 {
 	raytracer.exitLoop = false;
-	running = true;
 
 	CreateSubSections();
 
 	std::vector<std::future<void>> futures;
 
-	while (running && continuosLoop)
-	{
+	// reset things
+	raytracer.ClearCanvas();
+	raytracer.ResetStats();
 
-		// reset things
-		raytracer.ClearCanvas();
-		raytracer.ResetStats();
-		ResetSubSections(); 
-		futures.clear();
+	clock_t startTime = clock();
 
-		clock_t startTime = clock();
+	auto subSectionFunc = [this](Subsection section) { this->raytracer.Draw(section.xStart, section.width, section.yStart, section.height); };
 
-		auto subSectionFunc = [this](Subsection section) { this->raytracer.Draw(section.xStart, section.width, section.yStart, section.height); };
+	for (auto& subsec : subsections) futures.emplace_back(std::async(subSectionFunc, subsec));
 
-		for (auto& subsec : subsections) futures.emplace_back(std::async(subSectionFunc, subsec));
+	for (auto& f : futures) f.wait();
 
-		for (auto& f : futures) f.wait();
-
-		float durationSeconds = (float)(clock() - startTime) / (float)CLOCKS_PER_SEC;
-
-		// copy the result to the target and call the function for when it's finished
-		if (pResultCanvas) pResultCanvas->Copy(raytracer.GetCanvas());
-		if (callback) callback(L"Render time: " + std::to_wstring(durationSeconds) + L"s");
-	}
+	durationSeconds = (float)(clock() - startTime) / (float)CLOCKS_PER_SEC;
 
 	running = false;
 }

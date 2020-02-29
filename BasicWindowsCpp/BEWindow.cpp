@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "BEWindow.h"
+#include "BELogger.h"
 
 #define WINDOWSTYLE WS_VISIBLE | WS_CAPTION
 
@@ -15,13 +16,12 @@ BEWindow::BEWindow(WindowDesc descriptor) : desc(descriptor)
 
 	deviceContext = GetDC(handle);
 
-	RECT rect;
-	GetClientRect(handle, &rect);
-	desc.width = rect.right;
-	desc.height = rect.bottom;
+	UpdateRectSize();
 
 	CreateBackBuffer();
 	backBuffer.Clear();
+
+	visible = true;
 
 	windowClassCount++;
 }
@@ -45,11 +45,34 @@ void BEWindow::Present(std::wstring message)
 	WriteText(message);
 }
 
+void BEWindow::Hide()
+{
+	ShowWindow(handle, SW_HIDE);
+	visible = false;
+}
+
+void BEWindow::Show()
+{
+	ShowWindow(handle, SW_SHOW);
+	visible = true;
+}
+
+void BEWindow::ShowMaximised()
+{
+	ShowWindow(handle, SW_SHOWMAXIMIZED);
+	visible = true;
+	UpdateRectSize();
+}
+
+void BEWindow::Restore()
+{
+	ShowWindow(handle, SW_RESTORE);
+	visible = true;
+	UpdateRectSize();
+}
+
 void BEWindow::WriteText(std::wstring message)
 {
-	RECT rect;
-	GetClientRect(handle, &rect);
-
 	SetTextColor(deviceContext, RGB(255, 255, 255));
 	SetBkMode(deviceContext, TRANSPARENT);
 	//SetBkColor(deviceContext, RGB(0, 0, 0));
@@ -57,6 +80,18 @@ void BEWindow::WriteText(std::wstring message)
 	//SelectObject(deviceContext, hFont);
 	
 	DrawText(deviceContext, message.c_str(), -1, &rect, DT_LEFT);
+}
+
+void BEWindow::UpdateRectSize()
+{
+	GetClientRect(handle, &rect);
+	desc.width = rect.right;
+	desc.height = rect.bottom;
+
+	bmpInfo.bmiHeader.biWidth = desc.width;
+	bmpInfo.bmiHeader.biHeight = desc.height; // use - for top-down DIB and its origin is the upper-left corner
+
+	ResizeBackBuffer();
 }
 
 void BEWindow::GetAdjustedWindowRect(RECT* rect)
@@ -82,6 +117,11 @@ void BEWindow::CreateBackBuffer()
 	bmpInfo.bmiHeader.biPlanes = 1;
 	bmpInfo.bmiHeader.biBitCount = 32;
 	bmpInfo.bmiHeader.biCompression = BI_RGB;
+}
+
+void BEWindow::ResizeBackBuffer()
+{
+	if (backBuffer.bmpSurface) backBuffer.bmpSurface->Resize(desc.width, desc.height);
 }
 
 void BEWindow::DrawBackBuffer(BECanvas* pCanvas)

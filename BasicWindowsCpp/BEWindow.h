@@ -32,6 +32,13 @@ public:
 	void Present();
 	void Present(std::wstring message);
 
+	void Hide();
+	void Show();
+	void ShowMaximised();
+	void Restore();
+
+	inline bool IsVisible() { return visible; }
+
 	static void GetAdjustedWindowRect(RECT* rect);
 
 protected:
@@ -40,11 +47,15 @@ protected:
 	HDC deviceContext;
 	BITMAPINFO bmpInfo;
 	BECanvas backBuffer;
+	bool visible;
+	RECT rect;
 
 	void CreateBackBuffer();
-
+	void ResizeBackBuffer();
 	void DrawBackBuffer(BECanvas* pCanvas);
 	void WriteText(std::wstring message); // to do: a version that works with reference rather than copy
+
+	void UpdateRectSize();
 
 	static WNDCLASS windowClass;
 	static unsigned int windowClassCount;

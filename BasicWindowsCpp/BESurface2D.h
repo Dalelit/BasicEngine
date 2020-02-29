@@ -10,11 +10,12 @@ public:
 		width(width), height(height),
 		elementSize(sizeof(T)),
 		size(width*height),
+		allocatedSize(size),
 		pitchBytes(width * elementSize),
 		totalBytes(size * elementSize)
 	{
 		assert(width > 0 && height > 0);
-		data = new T[size];
+		data = new T[allocatedSize];
 		assert(data != nullptr);
 	}
 
@@ -62,6 +63,26 @@ public:
 		Copy(&src);
 	}
 
+	void Resize(unsigned int newWidth, unsigned int newHeight)
+	{
+		assert(newWidth > 0 && newHeight > 0);
+
+		unsigned int newSize = newWidth * newHeight;
+
+		if (newSize > allocatedSize)
+		{
+			delete data;
+			data = new T[newSize];
+			allocatedSize = newSize;
+		}
+
+		width = newWidth;
+		height = newHeight;
+		size = newSize;
+		pitchBytes = width * elementSize;
+		totalBytes = size * elementSize;
+	}
+
 	inline T* Begin() { return data; }
 	inline T* End() { return data + size; }
 
@@ -72,6 +93,7 @@ protected:
 	unsigned int height = 0;
 	unsigned int elementSize = 0;
 	unsigned int size = 0;
+	unsigned int allocatedSize = 0;
 	unsigned int pitchBytes = 0;
 	unsigned int totalBytes = 0;
 };
