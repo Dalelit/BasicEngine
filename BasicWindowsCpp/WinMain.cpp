@@ -122,7 +122,7 @@ void BESetupRawMouseIntput()
 	rid.hwndTarget = nullptr;
 	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 	{
-		throw "Error with RegisterRawInputDevices"; // to do: really need some error handling... more hacking
+		BELOG_ERROR("Error with RegisterRawInputDevices");
 	}
 }
 
@@ -138,12 +138,12 @@ int WINAPI WinMain(
 )
 {
 	BELoggerConsole::Init();
-
-	BELOG_DEBUG("Starting...");
+	//BELOG_INFO("Info"); BELOG_DEBUG("Debug"); BELOG_ERROR("Error");
+	//BELOG_INFO(L"Info"); BELOG_DEBUG(L"Debug"); BELOG_ERROR(L"Error");
 
 	char buffer[256];
 	GetCurrentDirectoryA(256, buffer);
-	BELOG_DEBUG("Directory " + std::string(buffer));
+	BELOG_INFO("Directory " + std::string(buffer));
 
 	MSG msg = { 0 };
 
@@ -392,7 +392,7 @@ int WINAPI WinMain(
 
 	raytracingThread.StopAndWait();
 
-	BELOG_DEBUG("Done.");
+	BELOG_INFO("Done.");
 
 	return 0;
 }
