@@ -48,6 +48,7 @@ void BERenderRaytraceThread::JobMain()
 	std::vector<std::future<void>> futures;
 
 	// reset things
+	raytracer.CanvasResized(); // assume the window has changed.
 	raytracer.ClearCanvas();
 	raytracer.ResetStats();
 

@@ -2,13 +2,13 @@
 #include "BEWindow.h"
 #include "BELogger.h"
 
-#define WINDOWSTYLE WS_VISIBLE | WS_CAPTION
+DWORD BEWindow::windowStyle = WS_VISIBLE | WS_CAPTION;
 
 BEWindow::BEWindow(WindowDesc descriptor) : desc(descriptor)
 {
 	handle = CreateWindow(windowClass.lpszClassName,
 		desc.name.c_str(),
-		WINDOWSTYLE,
+		windowStyle,
 		desc.left, desc.top,
 		desc.width, desc.height,
 		0, // parent window
@@ -59,14 +59,71 @@ void BEWindow::Show()
 
 void BEWindow::ShowMaximised()
 {
+	if (fullScreen) ToggleFullScreen();
+
 	ShowWindow(handle, SW_SHOWMAXIMIZED);
 	visible = true;
 	UpdateRectSize();
 }
 
+void BEWindow::ShowFullScreen()
+{
+	if (fullScreen)
+	{
+		Show();
+	}
+	else
+	{
+		ToggleFullScreen();
+	}
+}
+
 void BEWindow::Restore()
 {
-	ShowWindow(handle, SW_RESTORE);
+	if (fullScreen)
+	{
+		ToggleFullScreen();
+	}
+	else
+	{
+		ShowWindow(handle, SW_RESTORE);
+		visible = true;
+		UpdateRectSize();
+	}
+}
+
+void BEWindow::ToggleFullScreen()
+{
+	DWORD style = GetWindowLong(handle, GWL_STYLE);
+
+	if (fullScreen)
+	{
+		SetWindowLong(handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
+		SetWindowPlacement(handle, &winPlacement);
+		SetWindowPos(handle, NULL, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+
+		fullScreen = false;
+	}
+	else
+	{
+		GetWindowPlacement(handle, &winPlacement);
+
+		MONITORINFO mi = { sizeof(MONITORINFO) };
+		if (GetMonitorInfo(MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST), &mi))
+		{
+			SetWindowLong(handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+			SetWindowPos(handle, HWND_TOP,
+				mi.rcMonitor.left,
+				mi.rcMonitor.top,
+				mi.rcMonitor.right - mi.rcMonitor.left,
+				mi.rcMonitor.bottom - mi.rcMonitor.top,
+				SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+			
+			fullScreen = true;
+		}
+	}
+
 	visible = true;
 	UpdateRectSize();
 }
@@ -96,7 +153,7 @@ void BEWindow::UpdateRectSize()
 
 void BEWindow::GetAdjustedWindowRect(RECT* rect)
 {
-	BOOL awr = AdjustWindowRectEx(rect, WINDOWSTYLE, false, 0);
+	BOOL awr = AdjustWindowRectEx(rect, windowStyle, false, 0);
 	// adjust for the negative offset that results.
 	rect->right -= rect->left;
 	rect->left = 0;

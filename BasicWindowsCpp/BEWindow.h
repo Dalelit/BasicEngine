@@ -35,9 +35,12 @@ public:
 	void Hide();
 	void Show();
 	void ShowMaximised();
+	void ShowFullScreen();
 	void Restore();
 
 	inline bool IsVisible() { return visible; }
+	inline bool IsFullScreen() { return fullScreen; }
+	inline bool IsFullScreenVisible() { return fullScreen && visible; }
 
 	static void GetAdjustedWindowRect(RECT* rect);
 
@@ -50,6 +53,10 @@ protected:
 	bool visible;
 	RECT rect;
 
+	WINDOWPLACEMENT winPlacement;
+	bool fullScreen = false;
+	void ToggleFullScreen();
+
 	void CreateBackBuffer();
 	void ResizeBackBuffer();
 	void DrawBackBuffer(BECanvas* pCanvas);
@@ -58,6 +65,7 @@ protected:
 	void UpdateRectSize();
 
 	static WNDCLASS windowClass;
+	static DWORD windowStyle;
 	static unsigned int windowClassCount;
 	static void UnregsiterWindowClass();
 };

@@ -30,8 +30,8 @@ bool running = true;
 bool raytraceRun = true;
 bool raytraceStarted = false;
 
-bool showAllWindows = true;
 bool toggleRaytraceWindow = false;
+bool toggleDirectXWindow = false;
 
 // global engine variables
 BECamera camera;
@@ -68,6 +68,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case VK_F1:
 			toggleRaytraceWindow = true;
+			break;
+		case VK_F2:
+			toggleDirectXWindow = true;
 			break;
 		}
 		break;
@@ -184,7 +187,7 @@ int WINAPI WinMain(
 	wndDesc.name = L"Raytrace";
 	wndDesc.left += wndDesc.width;
 
-	BEWindow wndRaytraceWorking(wndDesc);
+	BEWindow wndRaytrace(wndDesc);
 
 	wndDesc.name = L"DirectX";
 	wndDesc.left += wndDesc.width;
@@ -223,7 +226,7 @@ int WINAPI WinMain(
 	//mainPL.pPixelShaderFunc = &BERenderProgrammablePipeline::PixelShaderPointOnly;
 
 	// Raytrace rendering
-	BERenderRaytrace raytracing(&scene, &camera, wndRaytraceWorking.GetBackBuffer());
+	BERenderRaytrace raytracing(&scene, &camera, wndRaytrace.GetBackBuffer());
 	BERenderRaytraceThread raytracingThread(raytracing);
 
 	// for DirectX rendering
@@ -291,33 +294,40 @@ int WINAPI WinMain(
 		totalUpdateTime += updateStartTime - clock();
 		frameCount++;
 
-		if (toggleRaytraceWindow)
+		if (toggleRaytraceWindow || toggleDirectXWindow)
 		{
-			showAllWindows = !showAllWindows;
-			toggleRaytraceWindow = false;
-
-			if (showAllWindows)
+			if ((toggleDirectXWindow && wndDirectX.IsFullScreenVisible()) ||
+				(toggleRaytraceWindow && wndRaytrace.IsFullScreenVisible()))
 			{
-				wndPoints.Show();
-				wndWireframe.Show();
-				wndFullrender.Show();
-				wndDirectX.Show();
-
-				wndRaytraceWorking.Restore();
-				raytracingThread.GetRaytracer().CanvasResized();
+				wndPoints.Restore();
+				wndWireframe.Restore();
+				wndFullrender.Restore();
+				wndDirectX.Restore();
+				wndRaytrace.Restore();
 			}
 			else
 			{
 				wndPoints.Hide();
 				wndWireframe.Hide();
 				wndFullrender.Hide();
-				wndDirectX.Hide();
 
-				raytracingThread.StopAndWait();
-				wndRaytraceWorking.ShowMaximised();
-				raytracingThread.GetRaytracer().CanvasResized();
-				raytraceRun = true;
+				if (toggleDirectXWindow)
+				{
+					wndDirectX.ShowFullScreen();
+					wndRaytrace.Hide();
+				}
+
+				if (toggleRaytraceWindow)
+				{
+					raytracingThread.StopAndWait();
+					wndRaytrace.ShowFullScreen();
+					wndDirectX.Hide();
+					raytraceRun = true;
+				}
 			}
+
+			toggleRaytraceWindow = false;
+			toggleDirectXWindow = false;
 		}
 
 		//
@@ -350,7 +360,7 @@ int WINAPI WinMain(
 		//
 		// raytrace..........
 		//
-		if (wndRaytraceWorking.IsVisible())
+		if (wndRaytrace.IsVisible())
 		{
 			if (raytraceRun)
 			{
@@ -370,7 +380,7 @@ int WINAPI WinMain(
 				}
 				// else it's running so keep presenting progress
 
-				wndRaytraceWorking.Present(raytracingThread.GetStats());
+				wndRaytrace.Present(raytracingThread.GetStats());
 			}
 		}
 
