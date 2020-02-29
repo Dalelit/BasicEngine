@@ -72,7 +72,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-	/////// Raw mouse
+	/////// Mouse buttons
+	case WM_LBUTTONDOWN:
+		BELOG_DEBUG("Mouse left button down");
+		break;
+	case WM_RBUTTONDOWN:
+		BELOG_DEBUG("Mouse right button down");
+		break;
+	case WM_MBUTTONDOWN:
+		BELOG_DEBUG("Mouse middle button down");
+		break;
+		/////// Raw mouse
 	case WM_INPUT:
 	{
 		BYTE rawBuffer[1024]; // to do: hacking away... best way to set this up?
@@ -166,6 +176,8 @@ int WINAPI WinMain(
 	wndDesc.name = L"Gap";
 	wndDesc.left = 0;
 	wndDesc.top += wndDesc.height;
+	BELoggerConsole* consoleLog = dynamic_cast<BELoggerConsole*>(BELogger::GetInstance());
+	if (consoleLog) consoleLog->SetWindowRect(wndDesc.left, wndDesc.top, wndDesc.width, wndDesc.height);
 
 	//BEWindow wndXXX(wndDesc);
 

@@ -46,8 +46,9 @@ BELoggerConsole::BELoggerConsole()
 	if (!AllocConsole()) throw "Could not create console";
 
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	hwnd = GetConsoleWindow();
 
-	if (handle == INVALID_HANDLE_VALUE || handle == NULL) throw "Could not get console handle";
+	if (handle == INVALID_HANDLE_VALUE || handle == NULL || hwnd == NULL) throw "Could not get console handle";
 }
 
 BELoggerConsole::~BELoggerConsole()
@@ -65,4 +66,9 @@ void BELoggerConsole::Debug(const std::wstring& msg)
 {
 	WriteConsoleW(handle, msg.c_str(), (DWORD)msg.length(), NULL, NULL);
 	WriteConsoleW(handle, L"\n", 1, NULL, NULL);
+}
+
+void BELoggerConsole::SetWindowRect(int left, int top, int width, int height)
+{
+	SetWindowPos(hwnd, HWND_BOTTOM, left, top, width, height, NULL);
 }

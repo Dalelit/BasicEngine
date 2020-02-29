@@ -43,6 +43,9 @@ public:
 	virtual void Debug(const std::string& msg);
 	virtual void Debug(const std::wstring& msg);
 
+	void SetWindowRect(int left, int top, int width, int height);
+
 protected:
 	HANDLE handle = NULL;
+	HWND hwnd = NULL;
 };
