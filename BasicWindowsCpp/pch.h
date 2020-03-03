@@ -27,6 +27,7 @@
 #include <d2d1_3.h>
 #include <dwrite.h>
 #include <d3dcompiler.h>
+#include <dxgidebug.h>
 
 #include <time.h>
 #include <assert.h>

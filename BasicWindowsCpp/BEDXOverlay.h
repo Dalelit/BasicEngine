@@ -8,6 +8,7 @@ class BEDXOverlay
 public:
 
 	int Initialise(BEDirectXDevice& dx);
+	void UpdateOnDeviceChange(BEDirectXDevice& dx);
 
 	void Draw();
 

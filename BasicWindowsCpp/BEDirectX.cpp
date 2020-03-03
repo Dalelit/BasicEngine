@@ -14,17 +14,17 @@ BEDirectX::BEDirectX() : resources(device)
 {
 }
 
-int BEDirectX::Initialise(HWND hwnd, unsigned int width, unsigned int height)
+int BEDirectX::Initialise(HWND hwnd)
 {
 	HRESULT hr;
 
 	/////////////////// Initialise device
 
-	hr = device.Initialise(hwnd, width, height);
+	hr = device.Initialise(hwnd);
 
 	if (FAILED(hr)) return hr;
 
-	overlay.Initialise(device);
+	//overlay.Initialise(device);
 
 	return hr;
 }
@@ -48,11 +48,11 @@ int BEDirectX::DoFrame()
 	drawTime += clock() - startTime;
 	frameCount++;
 
-	if (showStats)
-	{
-		overlay.message << GetStats();
-		overlay.Draw();
-	}
+	//if (showStats)
+	//{
+	//	overlay.message << GetStats();
+	//	overlay.Draw();
+	//}
 
 	device.PresentFrame();
 
@@ -61,7 +61,7 @@ int BEDirectX::DoFrame()
 
 void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
-	overlay.ShowBitmap(canvas);
+	//overlay.ShowBitmap(canvas);
 	device.PresentFrame();
 }
 

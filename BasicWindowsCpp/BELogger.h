@@ -11,7 +11,13 @@
 
 #define BELOG_ERROR(MSG) BELogger::GetInstance()->Error(MSG)
 #define BELOG_DEBUG(MSG) BELogger::GetInstance()->Debug(MSG)
-#define BELOG_INFO(MSG) BELogger::GetInstance()->Info(MSG)
+#define BELOG_INFO(MSG)  BELogger::GetInstance()->Info(MSG)
+
+#define BELOG_ERROR_IF(TEST, MSG) if (TEST) BELogger::GetInstance()->Error(MSG)
+#define BELOG_DEBUG_IF(TEST, MSG) if (TEST) BELogger::GetInstance()->Debug(MSG)
+#define BELOG_INFO_IF(TEST, MSG)  if (TEST) BELogger::GetInstance()->Info(MSG)
+
+#define BELOG_FUNC_SCOPE BELogDebugScoped logDebugScoped(__func__)
 
 // Base class logger and outputs to VisStu's debug output.
 class BELogger
@@ -34,6 +40,15 @@ public:
 protected:
 	static std::unique_ptr<BELogger> instance;
 
+};
+
+class BELogDebugScoped
+{
+public:
+	BELogDebugScoped(std::string name) : name(name) { BELOG_DEBUG(name + " started"); };
+	~BELogDebugScoped() { BELOG_DEBUG(name + " done"); };
+protected:
+	std::string name;
 };
 
 

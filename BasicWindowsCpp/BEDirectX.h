@@ -25,7 +25,7 @@ public:
 
 	BEDirectXResourceManager resources;
 
-	int Initialise(HWND hwnd, unsigned int width, unsigned int height);
+	int Initialise(HWND hwnd);
 
 	int LoadScene(BEScene* pScene, BECamera* pCamera);
 

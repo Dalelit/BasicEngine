@@ -33,6 +33,8 @@ bool raytraceStarted = false;
 bool toggleRaytraceWindow = false;
 bool toggleDirectXWindow = false;
 
+bool debugDoSomething = false;
+
 // global engine variables
 BECamera camera;
 BEScene scene;
@@ -71,6 +73,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case VK_F2:
 			toggleDirectXWindow = true;
+			break;
+		case 'Z':
+			debugDoSomething = true;
 			break;
 		}
 		break;
@@ -141,6 +146,7 @@ int WINAPI WinMain(
 )
 {
 	BELoggerConsole::Init();
+	//BELogger::Init();
 	//BELOG_INFO("Info"); BELOG_DEBUG("Debug"); BELOG_ERROR("Error");
 	//BELOG_INFO(L"Info"); BELOG_DEBUG(L"Debug"); BELOG_ERROR(L"Error");
 
@@ -231,7 +237,7 @@ int WINAPI WinMain(
 
 	// for DirectX rendering
 	BEDirectX dx;
-	dx.Initialise(wndDirectX.GetHandle(), wndDirectX.GetBackBuffer()->Width(), wndDirectX.GetBackBuffer()->Height());
+	dx.Initialise(wndDirectX.GetHandle());
 	dx.LoadScene(&scene, &camera);
 
 	// ready to go...
@@ -302,8 +308,10 @@ int WINAPI WinMain(
 				wndPoints.Restore();
 				wndWireframe.Restore();
 				wndFullrender.Restore();
+				dx.device.MakeWindowed();
 				wndDirectX.Restore();
 				wndRaytrace.Restore();
+
 			}
 			else
 			{
@@ -314,6 +322,7 @@ int WINAPI WinMain(
 				if (toggleDirectXWindow)
 				{
 					wndDirectX.ShowFullScreen();
+					dx.device.MakeFullScreen();
 					wndRaytrace.Hide();
 				}
 
@@ -390,6 +399,12 @@ int WINAPI WinMain(
 		if (wndDirectX.IsVisible())
 		{
 			dx.DoFrame();
+		}
+
+		if (debugDoSomething)
+		{
+			dx.device.LogDebugInfo();
+			debugDoSomething = false;
 		}
 
 

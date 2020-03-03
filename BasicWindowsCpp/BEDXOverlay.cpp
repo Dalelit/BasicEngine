@@ -23,7 +23,9 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	BEDXRESOURCE_ERRORCHECK(hr);
 
 	// create the d2d device linked to the d3d device
-	hr = pFactory->CreateDevice(dx.pDxgiDevice.Get(), &pDevice);
+	wrl::ComPtr<IDXGIDevice3> pDxgiDevice = nullptr;
+	hr = dx.pDevice.As(&pDxgiDevice);                 if (FAILED(hr)) return hr;
+	hr = pFactory->CreateDevice(pDxgiDevice.Get(), &pDevice);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
@@ -32,6 +34,27 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	hr = pDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pContext);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
+
+	// create device dependent bmp
+
+	UpdateOnDeviceChange(dx);
+
+	// create some brushes
+
+	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	hr = InitialiseTextWrite();
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	return hr;
+}
+
+void BEDXOverlay::UpdateOnDeviceChange(BEDirectXDevice& dx)
+{
+	HRESULT hr;
 
 	// get the back buffer as a dxgi surface
 
@@ -45,8 +68,8 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	D2D1_BITMAP_PROPERTIES1 bmProp = {};
 	bmProp.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	bmProp.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
-	bmProp.dpiX = dx.dpi;
-	bmProp.dpiY = dx.dpi;
+	bmProp.dpiX = dx.GetDPI();
+	bmProp.dpiY = bmProp.dpiX;
 	bmProp.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
 	//bmProp.colorContext;
 
@@ -61,18 +84,6 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	D2D1_SIZE_F size = pBitmap->GetSize();
 	d2rect.right = size.width;
 	d2rect.top = size.height;
-
-	// create some brushes
-
-	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
-	hr = InitialiseTextWrite();
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
-	return hr;
 }
 
 int BEDXOverlay::InitialiseTextWrite()

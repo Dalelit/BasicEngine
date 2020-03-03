@@ -42,6 +42,9 @@ public:
 	inline bool IsFullScreen() { return fullScreen; }
 	inline bool IsFullScreenVisible() { return fullScreen && visible; }
 
+	inline unsigned int GetClientWidth() { return rect.right; }
+	inline unsigned int GetClientHeight() { return rect.bottom; }
+
 	static void GetAdjustedWindowRect(RECT* rect);
 
 protected:
