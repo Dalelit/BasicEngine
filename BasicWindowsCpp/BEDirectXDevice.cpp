@@ -205,6 +205,19 @@ void BEDirectXDevice::LogDebugInfo()
 	BELOG_DEBUG(" Format " + std::to_string(bufferDesc.Format));
 	BELOG_DEBUG(" Width " + std::to_string(bufferDesc.Width));
 	BELOG_DEBUG(" Height " + std::to_string(bufferDesc.Height));
+	
+	wrl::ComPtr<IDXGIDevice3> pDxgiDevice;
+	pDevice.As(&pDxgiDevice);
+
+	wrl::ComPtr<IDXGIAdapter> pAdapter;
+	pDxgiDevice->GetAdapter(&pAdapter);
+
+	DXGI_ADAPTER_DESC desc;
+	pAdapter->GetDesc(&desc);
+
+	BELOG_DEBUG("DXGI_ADAPTER_DESC");
+	BELOG_DEBUG(L" Description " + std::wstring(desc.Description));
+	BELOG_DEBUG(" Revision " + std::to_string(desc.Revision));
 
 	wrl::ComPtr<ID3D11Debug> pDebug = nullptr;
 	hr = pDevice->QueryInterface(__uuidof(ID3D11Debug), &pDebug);
