@@ -2,7 +2,7 @@
 #include "BEWindow.h"
 #include "BELogger.h"
 
-DWORD BEWindow::windowStyle = WS_VISIBLE | WS_CAPTION;
+DWORD BEWindow::windowStyle = WS_VISIBLE | WS_OVERLAPPED | WS_SYSMENU;
 
 BEWindow::BEWindow(WindowDesc descriptor) : desc(descriptor)
 {
@@ -95,10 +95,11 @@ void BEWindow::Restore()
 void BEWindow::ToggleFullScreen()
 {
 	DWORD style = GetWindowLong(handle, GWL_STYLE);
+	DWORD toggleStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
 
 	if (fullScreen)
 	{
-		SetWindowLong(handle, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
+		SetWindowLong(handle, GWL_STYLE, style | toggleStyle);
 		SetWindowPlacement(handle, &winPlacement);
 		SetWindowPos(handle, NULL, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
@@ -112,7 +113,7 @@ void BEWindow::ToggleFullScreen()
 		MONITORINFO mi = { sizeof(MONITORINFO) };
 		if (GetMonitorInfo(MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST), &mi))
 		{
-			SetWindowLong(handle, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+			SetWindowLong(handle, GWL_STYLE, style & ~toggleStyle);
 			SetWindowPos(handle, HWND_TOP,
 				mi.rcMonitor.left,
 				mi.rcMonitor.top,

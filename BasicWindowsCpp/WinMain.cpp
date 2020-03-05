@@ -48,9 +48,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
 	/////// Keyboard
 	case WM_KEYUP:
 		input.KeyUpInput((char)wParam);
@@ -111,7 +108,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 	{
 		PostQuitMessage(0);
-		running = false;
+		break;
+	}
+	case WM_CLOSE:
+	{
+		PostQuitMessage(0);
 		break;
 	}
 	default:
@@ -257,6 +258,7 @@ int WINAPI WinMain(
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT) running = false;
 		}
 
 		// update loop
