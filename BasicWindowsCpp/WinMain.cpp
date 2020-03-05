@@ -314,6 +314,7 @@ int WINAPI WinMain(
 				wndDirectX.Restore();
 				wndRaytrace.Restore();
 
+				camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio());
 			}
 			else
 			{
@@ -326,6 +327,8 @@ int WINAPI WinMain(
 					wndDirectX.ShowFullScreen();
 					dx.device.MakeFullScreen();
 					wndRaytrace.Hide();
+
+					camera.SetViewPortAspectRatio(dx.device.GetAspectRatio());
 				}
 
 				if (toggleRaytraceWindow)
@@ -334,6 +337,8 @@ int WINAPI WinMain(
 					wndRaytrace.ShowFullScreen();
 					wndDirectX.Hide();
 					raytraceRun = true;
+
+					camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio());
 				}
 			}
 

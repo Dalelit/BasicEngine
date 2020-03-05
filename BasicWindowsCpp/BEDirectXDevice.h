@@ -35,6 +35,10 @@ public:
 
 	inline float GetDPI() { return (float)GetDpiForWindow(hwnd); }
 
+	inline unsigned int GetWidth() { return bufferDesc.Width; }
+	inline unsigned int GetHeight() { return bufferDesc.Height; }
+	inline float GetAspectRatio() { return (float)GetWidth() / (float)GetHeight(); }
+
 	void LogDebugInfo();
 
 protected:

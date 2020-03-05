@@ -12,8 +12,8 @@ public:
 
 	DirectX::XMVECTOR position = { 0,0,0,1 };
 	
-	float viewPortRatioY = 4.0f / 3.0f;
-	float fieldOfViewY = DirectX::XMConvertToRadians(74.0f);
+	float GetViewPortAspectRatio() { return viewPortRatioY; }
+	void SetViewPortAspectRatio(float ratio) { viewPortRatioY = ratio; Recalc(); }
 
 	float viewNear = 1.0f;
 	float viewDistance = 1000.0f;
@@ -53,6 +53,9 @@ public:
 
 
 private:
+	float viewPortRatioY = 4.0f / 3.0f;
+	float fieldOfViewY = DirectX::XMConvertToRadians(74.0f);
+
 	DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 1.0f };
 	DirectX::XMVECTOR direction = { 0.0f, 0.0f, 1.0f ,1.0f};
 	DirectX::XMVECTOR right = { 1.0f, 0.0f, 0.0f ,1.0f };

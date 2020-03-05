@@ -44,6 +44,7 @@ public:
 
 	inline unsigned int GetClientWidth() { return rect.right; }
 	inline unsigned int GetClientHeight() { return rect.bottom; }
+	inline float GetAspectRatio() { return (float)GetClientWidth() / (float)GetClientHeight(); }
 
 	static void GetAdjustedWindowRect(RECT* rect);
 
