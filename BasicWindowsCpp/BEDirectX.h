@@ -10,8 +10,6 @@
 #include "BECanvas.h"
 #include "BEDXScene.h"
 
-namespace wrl = Microsoft::WRL;
-
 class BEDirectX
 {
 public:
@@ -33,6 +31,11 @@ public:
 
 	// show the bitmap version of the canvas. Assumes it's already stored.
 	void ShowBitmap(BECanvas& canvas);
+
+	bool IsFullScreen();
+	void MakeFullScreen();
+	void MakeWindowed();
+	void Resize();
 
 	std::wstring GetStats();
 	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }

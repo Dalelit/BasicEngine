@@ -22,9 +22,32 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 
+	CreateDeviceResources(dx);
+
+	hr = InitialiseTextWrite();
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
+	return hr;
+}
+
+void BEDXOverlay::ReleaseDeviceResources()
+{
+	pDevice.Reset();
+	pContext.Reset();
+	pBitmap.Reset();
+	pwBrush.Reset();
+}
+
+void BEDXOverlay::CreateDeviceResources(BEDirectXDevice& dx)
+{
+	HRESULT hr;
+
 	// create the d2d device linked to the d3d device
 	wrl::ComPtr<IDXGIDevice3> pDxgiDevice = nullptr;
-	hr = dx.pDevice.As(&pDxgiDevice);                 if (FAILED(hr)) return hr;
+	hr = dx.pDevice.As(&pDxgiDevice);
+	BEDXRESOURCE_ERRORCHECK(hr);
+
 	hr = pFactory->CreateDevice(pDxgiDevice.Get(), &pDevice);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
@@ -34,27 +57,6 @@ int BEDXOverlay::Initialise(BEDirectXDevice& dx)
 	hr = pDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pContext);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
-
-	// create device dependent bmp
-
-	UpdateOnDeviceChange(dx);
-
-	// create some brushes
-
-	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
-	hr = InitialiseTextWrite();
-
-	BEDXRESOURCE_ERRORCHECK(hr);
-
-	return hr;
-}
-
-void BEDXOverlay::UpdateOnDeviceChange(BEDirectXDevice& dx)
-{
-	HRESULT hr;
 
 	// get the back buffer as a dxgi surface
 
@@ -84,6 +86,14 @@ void BEDXOverlay::UpdateOnDeviceChange(BEDirectXDevice& dx)
 	D2D1_SIZE_F size = pBitmap->GetSize();
 	d2rect.right = size.width;
 	d2rect.top = size.height;
+	BELOG_DEBUG("BEDXOverlay.d2rect " + std::to_string(d2rect.right) + ", " + std::to_string(d2rect.top));
+
+	// create some brushes
+
+	hr = pContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pwBrush);
+
+	BEDXRESOURCE_ERRORCHECK(hr);
+
 }
 
 int BEDXOverlay::InitialiseTextWrite()

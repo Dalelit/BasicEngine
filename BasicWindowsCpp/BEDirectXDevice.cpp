@@ -78,6 +78,7 @@ int BEDirectXDevice::ConfigurePipeline()
 	if (FAILED(hr)) return hr;
 
 	pBackBuffer->GetDesc(&bufferDesc);
+	//BELOG_DEBUG("BEDirectXDevice.bufferDesc w,h " + std::to_string(bufferDesc.Width) + ", " + std::to_string(bufferDesc.Height));
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
@@ -171,24 +172,21 @@ bool BEDirectXDevice::IsFullScreen()
 
 void BEDirectXDevice::MakeFullScreen()
 {
-	// to do: check if the request is the current state and then do nothing?
-	ChangeScreenSize(true);
+	HRESULT hr = pSwapChain->SetFullscreenState(TRUE, nullptr);
+	BEDX_CHECKHR_THROW(hr, "Error with SetFullscreenState true");
 }
 
 void BEDirectXDevice::MakeWindowed()
 {
-	// to do: check if the request is the current state and then do nothing?
-	ChangeScreenSize(false);
+	HRESULT hr = pSwapChain->SetFullscreenState(FALSE, nullptr);
+	BEDX_CHECKHR_THROW(hr, "Error with SetFullscreenState false");
 }
 
-void BEDirectXDevice::ChangeScreenSize(bool fullscreen)
+void BEDirectXDevice::Resize()
 {
-	HRESULT hr = pSwapChain->SetFullscreenState(fullscreen, nullptr);
-	BEDX_CHECKHR_THROW(hr, "Error with SetFullscreenState");
-
 	ReleasePipeline();
 
-	hr = pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0); // resize, retaining previous settings
+	HRESULT hr = pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0); // resize, retaining previous settings
 	BEDX_CHECKHR_THROW(hr, "ResizeBuffers failed");
 
 	hr = ConfigurePipeline();

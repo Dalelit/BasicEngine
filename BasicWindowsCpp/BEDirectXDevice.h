@@ -21,6 +21,7 @@ public:
 	bool IsFullScreen();
 	void MakeFullScreen();
 	void MakeWindowed();
+	void Resize();
 
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 

@@ -24,7 +24,7 @@ int BEDirectX::Initialise(HWND hwnd)
 
 	if (FAILED(hr)) return hr;
 
-	//overlay.Initialise(device);
+	overlay.Initialise(device);
 
 	return hr;
 }
@@ -48,11 +48,11 @@ int BEDirectX::DoFrame()
 	drawTime += clock() - startTime;
 	frameCount++;
 
-	//if (showStats)
-	//{
-	//	overlay.message << GetStats();
-	//	overlay.Draw();
-	//}
+	if (showStats)
+	{
+		overlay.message << GetStats();
+		overlay.Draw();
+	}
 
 	device.PresentFrame();
 
@@ -61,8 +61,30 @@ int BEDirectX::DoFrame()
 
 void BEDirectX::ShowBitmap(BECanvas& canvas)
 {
-	//overlay.ShowBitmap(canvas);
+	overlay.ShowBitmap(canvas);
 	device.PresentFrame();
+}
+
+bool BEDirectX::IsFullScreen()
+{
+	return device.IsFullScreen();
+}
+
+void BEDirectX::MakeFullScreen()
+{
+	device.MakeFullScreen();
+}
+
+void BEDirectX::MakeWindowed()
+{
+	device.MakeWindowed();
+}
+
+void BEDirectX::Resize()
+{
+	overlay.ReleaseDeviceResources();
+	device.Resize();
+	overlay.CreateDeviceResources(device);
 }
 
 std::wstring BEDirectX::GetStats()

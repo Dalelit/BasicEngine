@@ -310,8 +310,10 @@ int WINAPI WinMain(
 				wndPoints.Restore();
 				wndWireframe.Restore();
 				wndFullrender.Restore();
-				dx.device.MakeWindowed();
+				dx.MakeWindowed();
 				wndDirectX.Restore();
+				dx.Resize();
+
 				wndRaytrace.Restore();
 
 				camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio());
@@ -325,7 +327,8 @@ int WINAPI WinMain(
 				if (toggleDirectXWindow)
 				{
 					wndDirectX.ShowFullScreen();
-					dx.device.MakeFullScreen();
+					dx.MakeFullScreen();
+					dx.Resize();
 					wndRaytrace.Hide();
 
 					camera.SetViewPortAspectRatio(dx.device.GetAspectRatio());
