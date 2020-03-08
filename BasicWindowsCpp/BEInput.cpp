@@ -17,7 +17,7 @@ void BEInput::KeyDownInput(char key, unsigned int repeatCount)
 	if (key == PAUSEUPDATES) paused = !paused;
 
 	// to do: only catching load scene events for the moment
-	if (key >= '0' && key <= '4')
+	if (key >= '0' && key <= '9')
 	{
 		keyEvents.push(Event({ key, Event::Type::KEY_DOWN }));
 	}

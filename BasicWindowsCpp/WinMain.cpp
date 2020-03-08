@@ -24,6 +24,7 @@
 #include "BETimer.h"
 #include "BESceneTests.h"
 #include "BEInput.h"
+#include "MiniPlanet.h"
 
 // global control variables
 bool running = true;
@@ -207,11 +208,12 @@ int WINAPI WinMain(
 	camera.SetPosition(0, 1, 4);
 	camera.LookAt(0, 0, 0);
 
-	BESceneTests::CreateSceneTest0(scene);
+	//BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
 	//BESceneTests::CreateBoxWorld(scene, camera);
+	MiniPlanet::CreateScene(scene);
 
 	scene.Update(0);
 
@@ -288,8 +290,10 @@ int WINAPI WinMain(
 				BESceneTests::CreateSceneTest3(scene);
 				break;
 			case 4:
-			default:
 				BESceneTests::CreateBoxWorld(scene, camera);
+				break;
+			case 5:
+				MiniPlanet::CreateScene(scene);
 				break;
 			}
 			scene.Update(0);

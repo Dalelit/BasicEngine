@@ -116,7 +116,7 @@ protected:
 	static constexpr float depthDefaultValue = FLT_MAX;
 
 	BEPipelineVSData* vsBuffer = nullptr;
-	unsigned int vsBufferSize = 10000; // To do: what size is sensible? Handle resizing?
+	unsigned int vsBufferSize = 100000; // To do: what size is sensible? Handle resizing?
 
 	void VertexShading(BEPipelineVSConstants& constants);
 	void GeometryShader(BEPipelineVSConstants& constants);

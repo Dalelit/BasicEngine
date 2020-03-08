@@ -65,6 +65,45 @@ BEMesh::BEMesh(std::vector<XMFLOAT3> _verticies, std::vector<XMFLOAT3> _normals)
 	SetBounds();
 }
 
+BEMesh::BEMesh(std::vector<DirectX::XMVECTOR> _verticies, std::vector<DirectX::XMVECTOR> _normals, std::vector<unsigned int> _index)
+{
+	topology = BEMeshTopology::TRIANGLE_INDEX;
+	vertCount = (unsigned int)_verticies.size();
+
+	if (vertCount == 0) return;
+
+	verticies = new BEVertex[vertCount];
+	BEVertex* pv = verticies;
+
+	for (auto v : _verticies)
+	{
+		pv->position = v;
+		pv->position.m128_f32[3] = 1.0f;
+		pv->color = defaultColor;
+		pv++;
+	}
+
+	pv = verticies;
+	for (auto n : _normals)
+	{
+		pv->normal = XMVector3Normalize(n);
+		pv->normal.m128_f32[3] = 1.0f;
+		pv++;
+	}
+
+	indxCount = (unsigned int)_index.size();
+	indicies = new unsigned int[indxCount];
+
+	unsigned int* pi = indicies;
+	for (auto n : _index)
+	{
+		*pi = n;
+		pi++;
+	}
+
+	SetBounds();
+}
+
 BEMesh::BEMesh(std::vector<DirectX::XMFLOAT3> _verticies, std::vector<DirectX::XMFLOAT3> _normals, std::vector<DirectX::XMFLOAT2> _texcoord, std::vector<unsigned int> _index)
 {
 	// note: assumes 1 normal per vertex. Like the other constructure... need to tidy up.

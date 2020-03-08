@@ -34,6 +34,7 @@ public:
 
 	BEMesh(unsigned int _vertCount, unsigned int _triCount, BEMeshTopology _topology);
 	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals);
+	BEMesh(std::vector<DirectX::XMVECTOR> verticies, std::vector<DirectX::XMVECTOR> normals, std::vector<unsigned int> index);
 	BEMesh(std::vector<DirectX::XMFLOAT3> verticies, std::vector<DirectX::XMFLOAT3> normals, std::vector<DirectX::XMFLOAT2> texcoord, std::vector<unsigned int> index);
 	BEMesh(std::vector<BEVertex> srcVerticies);
 	~BEMesh();
