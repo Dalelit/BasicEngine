@@ -42,11 +42,13 @@ public:
 	inline void SetVertexColor(DirectX::XMVECTOR color) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].color = color; }
 	inline void SetColor(DirectX::XMVECTOR color) { material.diffuseColor = color; material.ambientColor = color; SetVertexColor(color); }
 
-	inline void Translate(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorAdd(verticies[i].position, v); }
-	inline void Scale(float f) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorScale(verticies[i].position, f); }
-	inline void Scale(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorMultiply(verticies[i].position, v); }
+	inline void Translate(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorAdd(verticies[i].position, v); SetBounds(); }
+	inline void Scale(float f) { Scale({f, f, f, 1.0f}); }
+	inline void Scale(DirectX::XMVECTOR v) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVectorMultiply(verticies[i].position, v);  SetBounds(); }
 
-	inline void Transform(DirectX::XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVector3Transform(verticies[i].position, m); }
+	inline void Transform(DirectX::XMMATRIX m) { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position = DirectX::XMVector3Transform(verticies[i].position, m); SetBounds(); }
+
+	inline void SetWTo1() { for (unsigned int i = 0; i < vertCount; i++) verticies[i].position.m128_f32[3] = 1.0f; }
 
 	BEBoundsBox bounds;
 	//BEBoundsSphere bounds;

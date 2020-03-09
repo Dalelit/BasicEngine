@@ -315,9 +315,17 @@ BEMesh* BEMeshPrimatives::Icosphere(unsigned int iterations)
 	// calc normals
 	for (auto v : verticies)
 	{
-		XMVECTOR n = XMVector3Normalize(v - g_XMZero);
+		XMVECTOR n = XMVector3Normalize(v);
 		normals.push_back(n);
 	}
+
+	// to do: untested
+	// Calc texture uv
+	//for (auto n : normals)
+	//{
+	//	float tu = asinf(n.m128_f32[0]) / XM_PI + 0.5f;
+	//	float tv = asinf(n.m128_f32[1]) / XM_PI + 0.5f;
+	//}
 
 	BEMesh* m = new BEMesh(verticies, normals, indicies);
 
