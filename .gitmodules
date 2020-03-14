@@ -1,0 +1,6 @@
+[submodule "BasicWindowsCpp/Submodules/FastNoise"]
+	path = BasicWindowsCpp/Submodules/FastNoise
+	url = https://github.com/Auburns/FastNoise
+[submodule "BasicWindowsCpp/Submodules/imgui"]
+	path = BasicWindowsCpp/Submodules/imgui
+	url = https://github.com/ocornut/imgui
