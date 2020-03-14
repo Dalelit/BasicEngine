@@ -423,6 +423,7 @@ int WINAPI WinMain(
 				static bool showEnvironment = true;
 				static bool showCamera = true;
 				static bool showEntities = true;
+				static bool showStats = true;
 
 				dx.imgui.NewFrame();
 
@@ -435,6 +436,7 @@ int WINAPI WinMain(
 						ImGui::MenuItem("Environment", NULL, &showEnvironment);
 						ImGui::MenuItem("Camera", NULL, &showCamera);
 						ImGui::MenuItem("Entities", NULL, &showEntities);
+						ImGui::MenuItem("Stats", NULL, &showStats);
 						ImGui::EndMenu();
 					}
 					ImGui::EndMenuBar();
@@ -455,6 +457,7 @@ int WINAPI WinMain(
 				if (showCamera) camera.ShowImgui(&showCamera);
 				if (showEnvironment) scene.ShowImguiEnvironment(&showEnvironment);
 				if (showEntities) scene.ShowImguiEntities(&showEntities);
+				if (showStats) dx.ShowImguiStats(&showStats);
 			}
 
 			dx.DoFrame();

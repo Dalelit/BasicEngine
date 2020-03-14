@@ -6,6 +6,7 @@
 #include "BEDXTexture.h"
 #include "BEDXEntityPSConstantBuffer.h"
 #include "BEDXEntityVSConstantBuffer.h"
+#include "Submodules/imgui/imgui.h"
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -101,4 +102,14 @@ std::wstring BEDirectX::GetStats()
 	msg << "Draw time: " << GetAvgDrawMS() << "ms" << std::endl;
 
 	return msg.str();
+}
+
+void BEDirectX::ShowImguiStats(bool* pOpen)
+{
+	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+	if (ImGui::Begin("Stats", pOpen, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Draw time: %.3f ms", GetAvgDrawMS());
+		ImGui::End();
+	}
 }

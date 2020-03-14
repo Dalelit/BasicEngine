@@ -42,6 +42,8 @@ public:
 	std::wstring GetStats();
 	float GetAvgDrawMS() { return (float)drawTime / (float)frameCount; }
 
+	void ShowImguiStats(bool* pOpen = nullptr);
+
 private:
 	BEDXScene scene;
 
