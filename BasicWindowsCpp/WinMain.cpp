@@ -207,8 +207,13 @@ int WINAPI WinMain(
 	camera.SetPosition(0, 1, 4);
 	camera.LookAt(0, 0, 0);
 
-	BESceneTests::CreateSceneTest0(scene);
-	//BESceneTests::CreateSceneTest1(scene);
+	// temp - default dx maximised and mouse movement off
+	toggleDirectXWindow = true;
+	changeWindows = true;
+	input.mouseInputEnabled = false;
+
+	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
 	//BESceneTests::CreateBoxWorld(scene, camera);

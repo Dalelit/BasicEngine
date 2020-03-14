@@ -99,6 +99,7 @@ BEMesh* BEMeshLoaderPLY::LoadPLY(std::wstring filename)
 		indices.push_back(vindx);
 	}
 	BEMesh* pMesh = new BEMesh(verticies, normals, texcoords, indices);
+	pMesh->name = BEUtil::ToString(filename);
 
 	pMesh->SwapIndexOrder();
 

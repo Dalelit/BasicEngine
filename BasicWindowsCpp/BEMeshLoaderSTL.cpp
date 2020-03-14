@@ -97,6 +97,7 @@ BEMesh* BEMeshLoaderSTL::LoadSTL(std::wstring filename)
 	}
 
 	BEMesh* pMesh = new BEMesh(verticies, normals);
+	pMesh->name = BEUtil::ToString(filename);
 
 	pMesh->SetBounds();
 	

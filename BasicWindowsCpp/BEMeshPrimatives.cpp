@@ -7,6 +7,7 @@ using namespace DirectX;
 BEMesh* BEMeshPrimatives::TriangleMesh()
 {
 	BEMesh* m = new BEMesh(3, 1, BEMesh::BEMeshTopology::TRIANGLE_LIST);
+	m->name = "Triangle";
 
 	m->verticies[0] = { { 0,0,0,1 }, {0,0,1,1}, {1,1,1,1} };
 	m->verticies[1] = { { 0,1,0,1 }, {0,0,1,1}, {1,1,1,1} };
@@ -25,6 +26,7 @@ BEMesh* BEMeshPrimatives::TriangleMesh()
 BEMesh* BEMeshPrimatives::CubeMesh()
 {
 	BEMesh* m = new BEMesh(6 * 4, 6 * 2, BEMesh::BEMeshTopology::TRIANGLE_INDEX);
+	m->name = "Cube";
 	int i = 0;
 
 	// top
@@ -132,6 +134,7 @@ BEMesh* BEMeshPrimatives::Ground(float width, float depth, unsigned int segments
 	float texturedy = 1.0f / segmentsDeep;
 
 	BEMesh* m = new BEMesh(vertCount, triCount, BEMesh::BEMeshTopology::TRIANGLE_INDEX);
+	m->name = "Ground";
 
 	DirectX::XMFLOAT4 position = { xstart, 0.0f, zstart, 1.0f };
 	DirectX::XMFLOAT4 color = { 0.1f, 0.8f, 0.3f, 1.0f };
@@ -328,6 +331,7 @@ BEMesh* BEMeshPrimatives::Icosphere(unsigned int iterations)
 	//}
 
 	BEMesh* m = new BEMesh(verticies, normals, indicies);
+	m->name = "Icosphere" + std::to_string(iterations);
 
 	m->SetBounds();
 

@@ -55,7 +55,7 @@ std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 			if (activeMesh)
 			{
 				BEMesh* pMesh = new BEMesh(meshVerticies);
-				pMesh->name = BEUtil::ToString(name);
+				pMesh->name = BEUtil::ToString(filename + L" " + name);
 				pMesh->material = materials[currentMat];
 				meshes.push_back(pMesh);
 				// do not clear raw file data as file structure appears to continue adding
@@ -147,7 +147,7 @@ std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 	if (activeMesh)
 	{
 		BEMesh* pMesh = new BEMesh(meshVerticies);
-		pMesh->name = BEUtil::ToString(name);
+		pMesh->name = BEUtil::ToString(filename + L" " + name);
 		pMesh->material = materials[currentMat];
 		meshes.push_back(pMesh);
 	}

@@ -34,11 +34,9 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeyFlat.ply");
 	//pEntity = pModel->CreateInstance();
 
-	std::wstring filename = L"Models\\torusSmooth.obj";
+	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
 	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
 	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\simpleScene1.obj");
-
-	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(filename);
 
 	for (auto m : meshes)
 	{
@@ -76,20 +74,20 @@ void BESceneTests::CreateSceneTest1(BEScene& scene)
 	BESampler* s = new BESampler(*t);
 	scene.samplers.push_back(s);
 
-	pModel = new BEModel();
+	pModel = new BEModel("Ground");
 	scene.models.push_back(pModel);
 	pModel->pMesh = BEMeshPrimatives::Ground(10, 10, 10, 10, -1.5f, -0.5f);
 	pModel->pMesh->material.pTextureSampler = s;
 	pEntity = pModel->CreateInstance();
 
-	pModel = new BEModel();
+	pModel = new BEModel("Monkey");
 	scene.models.push_back(pModel);
 	pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeySmooth.ply");
 	pModel->pMesh->SetColor({ 0,0,1,1 });
 	pEntity = pModel->CreateInstance({ -2,0,0 });
 	pEntity->components.emplace_back(new BEEntityComponentSpin(pEntity));
 
-	pModel = new BEModel();
+	pModel = new BEModel("Torus");
 	scene.models.push_back(pModel);
 	pModel->pMesh = BEMeshLoaderSTL::LoadSTL(L"STL\\torus.stl");
 	pModel->pMesh->SetColor({ 252.0f / 255.0f , 194.0f / 255.0f , 0.0f, 1.0f });

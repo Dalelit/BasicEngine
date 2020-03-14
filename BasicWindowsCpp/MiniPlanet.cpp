@@ -20,7 +20,6 @@ void MiniPlanet::CreateScene(BEScene& scene)
 	pModel->pMesh = BEMeshPrimatives::Icosphere(3);
 	pModel->pMesh->material.Randomise();
 	pModel->pMesh->material.specularExponent = 1.0f;
-	pModel->pMesh->name = "Land";
 	scene.models.push_back(pModel);
 
 	// randomise the radius of the vertecies.
@@ -46,7 +45,6 @@ void MiniPlanet::CreateScene(BEScene& scene)
 	pModel->pMesh->material.Randomise();
 	pModel->pMesh->material.ambientColor.m128_f32[2] = 1.0f; // blueish
 	pModel->pMesh->material.diffuseColor.m128_f32[2] = 1.0f; // blueish
-	pModel->pMesh->name = "Ocean";
 	scene.models.push_back(pModel);
 	pModel->CreateInstance();
 }
