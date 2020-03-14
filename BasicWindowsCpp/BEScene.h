@@ -22,6 +22,6 @@ public:
 
 	void Clear();
 
-	void ShowImguiEnvironment();
-	void ShowImguiEntities();
+	void ShowImguiEnvironment(bool* pOpen = nullptr);
+	void ShowImguiEntities(bool* pOpen = nullptr);
 };

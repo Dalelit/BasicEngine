@@ -37,10 +37,9 @@ void BEScene::Clear()
 	lights.clear();
 }
 
-void BEScene::ShowImguiEnvironment()
+void BEScene::ShowImguiEnvironment(bool* pOpen)
 {
-	static bool showLights = true;
-	ImGui::Begin("Lights", &showLights);
+	ImGui::Begin("Lights", pOpen);
 
 	if (ImGui::TreeNode("Ambient light"))
 	{
@@ -74,10 +73,9 @@ void BEScene::ShowImguiEnvironment()
 	ImGui::End();
 }
 
-void BEScene::ShowImguiEntities()
+void BEScene::ShowImguiEntities(bool* pOpen)
 {
-	static bool showEntities = true;
-	ImGui::Begin("Entities", &showEntities);
+	ImGui::Begin("Entities", pOpen);
 
 	for (auto& model : models) model->ShowImguiTreeNode();
 

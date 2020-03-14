@@ -88,10 +88,9 @@ void BECamera::RotatePosition(float yaw, float pitch)
 	Recalc();
 }
 
-void BECamera::ShowImgui()
+void BECamera::ShowImgui(bool* pOpen)
 {
-	static bool show = true;
-	ImGui::Begin("Camera", &show);
+	ImGui::Begin("Camera", pOpen);
 
 	ImGui::DragFloat3("Position", position.m128_f32);
 	ImGui::DragFloat("Yaw", &mYaw);

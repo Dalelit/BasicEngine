@@ -419,11 +419,43 @@ int WINAPI WinMain(
 		if (wndDirectX.IsVisible())
 		{
 			// Imgui is only on the directx window
-			dx.imgui.NewFrame();
-			ImGui::ShowDemoWindow();
-			camera.ShowImgui();
-			scene.ShowImguiEnvironment();
-			scene.ShowImguiEntities();
+			{
+				static bool showEnvironment = true;
+				static bool showCamera = true;
+				static bool showEntities = true;
+
+				dx.imgui.NewFrame();
+
+				ImGui::Begin("Main window", NULL, ImGuiWindowFlags_MenuBar);
+
+				if (ImGui::BeginMenuBar())
+				{
+					if (ImGui::BeginMenu("Menu"))
+					{
+						ImGui::MenuItem("Environment", NULL, &showEnvironment);
+						ImGui::MenuItem("Camera", NULL, &showCamera);
+						ImGui::MenuItem("Entities", NULL, &showEntities);
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenuBar();
+				}
+				if (ImGui::CollapsingHeader("Help"))
+				{
+					ImGui::Text("Press M to toggle mouse look");
+					ImGui::Text("Move the camera with aswd");
+					ImGui::Text("Press F1 to toggle maximise raytracing window");
+					ImGui::Text("Press F2 to toggle maximise directx window");
+					ImGui::Text("Press 0-9 to load scenes");
+					ImGui::Text("Press P to run the ray tracer");
+					ImGui::Text("Press ESC to exit");
+				}
+				ImGui::End();
+
+				ImGui::ShowDemoWindow();
+				if (showCamera) camera.ShowImgui(&showCamera);
+				if (showEnvironment) scene.ShowImguiEnvironment(&showEnvironment);
+				if (showEntities) scene.ShowImguiEntities(&showEntities);
+			}
 
 			dx.DoFrame();
 		}
