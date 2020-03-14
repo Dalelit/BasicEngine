@@ -1,5 +1,17 @@
 #include "pch.h"
 #include "BEModel.h"
+#include "Submodules/imgui/imgui.h"
+
+unsigned int BEModel::modelCount = 0;
+
+BEModel::BEModel() : BEModel("Model" + std::to_string(modelCount))
+{
+}
+
+BEModel::BEModel(std::string name) : name(name)
+{
+	modelCount++;
+}
 
 BEModel::~BEModel()
 {
@@ -58,5 +70,40 @@ void BEModel::AddPhysics()
 	for (unsigned int i = (unsigned int)physicsData.size(); i < entities.size(); i++)
 	{
 		physicsData.emplace_back(BEComponentPhysics());
+	}
+}
+
+void BEModel::ShowImguiTreeNode()
+{
+	if (ImGui::TreeNode(name.c_str()))
+	{
+		if (pMesh)
+		{
+			std::string text = "Mesh: " + pMesh->name;
+			ImGui::Text(text.c_str());
+		}
+
+		if (materials.size() > 0 && ImGui::TreeNode("Materials"))
+		{
+			std::string text = "Number of materials " + std::to_string(materials.size());
+			ImGui::Text(text.c_str());
+
+			for (auto& mat : materials) mat.ShowImguiTreeNode();
+			
+			ImGui::TreePop();
+		}
+
+
+		if (ImGui::TreeNode("Entites"))
+		{
+			std::string text = "Number of entities " + std::to_string(entities.size());
+			ImGui::Text(text.c_str());
+
+			for (auto& ent : entities) ent.ShowImguiTreeNode();
+
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
 	}
 }

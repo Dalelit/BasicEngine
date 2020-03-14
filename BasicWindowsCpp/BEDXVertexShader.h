@@ -6,14 +6,14 @@ class BEDXVertexShader : public BEDirectXResource
 {
 public:
 
-	BEDXVertexShader(BEDirectXDevice& device, std::wstring filename);
+	BEDXVertexShader(BEDirectXDevice& device, std::string filename);
 
 	void Bind(BEDirectXDevice& device);
 
 protected:
 	wrl::ComPtr<ID3D11VertexShader> pVertexShader = NULL;
 	wrl::ComPtr<ID3D11InputLayout> pInputLayout = NULL;
-	std::wstring filename;
+	std::string filename;
 
 	void Initialise(BEDirectXDevice& device);
 	virtual void SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob) = 0;
@@ -24,9 +24,9 @@ protected:
 class BEDXVertexShaderPosNorColTex : public BEDXVertexShader
 {
 public:
-	BEDXVertexShaderPosNorColTex(BEDirectXDevice& device, std::wstring filename) : BEDXVertexShader(device, filename) { Initialise(device); };
+	BEDXVertexShaderPosNorColTex(BEDirectXDevice& device, std::string filename) : BEDXVertexShader(device, filename) { Initialise(device); };
 
-	static std::wstring UniqueId(std::wstring filename) { return GenerateUniqueId<BEDXVertexShaderPosNorColTex>(filename); };
+	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXVertexShaderPosNorColTex>(filename); };
 
 protected:
 	void SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob);
@@ -37,9 +37,9 @@ protected:
 class BEDXVertexShaderPosTex : public BEDXVertexShader
 {
 public:
-	BEDXVertexShaderPosTex(BEDirectXDevice& device, std::wstring filename) : BEDXVertexShader(device, filename) { Initialise(device); };
+	BEDXVertexShaderPosTex(BEDirectXDevice& device, std::string filename) : BEDXVertexShader(device, filename) { Initialise(device); };
 
-	static std::wstring UniqueId(std::wstring filename) { return GenerateUniqueId<BEDXVertexShaderPosTex>(filename); };
+	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXVertexShaderPosTex>(filename); };
 
 protected:
 	void SetLayout(BEDirectXDevice& device, ID3DBlob& pBlob);

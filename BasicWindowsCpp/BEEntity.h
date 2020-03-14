@@ -25,7 +25,7 @@ public:
 	DirectX::XMVECTOR position = { 0,0,0,1 };
 	DirectX::XMVECTOR rotation = { 0,0,0,1 };
 	
-	BEEntity() = default;
+	BEEntity();
 	BEEntity(DirectX::XMFLOAT3A _position);
 
 	~BEEntity();
@@ -65,10 +65,14 @@ public:
 
 	inline float GetDistanceInWorldSpace(DirectX::XMVECTOR worldPosition) { return DirectX::XMVector3Length(DirectX::XMVectorSubtract(worldPosition, GetWorldPosition())).m128_f32[0]; }
 
+	void ShowImguiTreeNode();
+
 protected:
 	DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX transformRotation = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX invTransform = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX invTransformRotation = DirectX::XMMatrixIdentity();
+
+	unsigned int id;
 };
 

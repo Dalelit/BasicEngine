@@ -17,8 +17,8 @@ public:
 	}
 
 	template <class T>
-	T* AccessResource(BEDirectXDevice& device, std::wstring filename) {
-		std::wstring id = T::UniqueId(filename);
+	T* AccessResource(BEDirectXDevice& device, std::string filename) {
+		std::string id = T::UniqueId(filename);
 		if (!ResourceExists(id))
 		{
 			T* ptr = new T(device, filename);
@@ -33,7 +33,7 @@ public:
 
 	template <class T>
 	T* AccessResource(BEDirectXDevice& device, BETexture& texture) {
-		std::wstring id = T::UniqueId(texture.name);
+		std::string id = T::UniqueId(texture.name);
 		if (!ResourceExists(id))
 		{
 			T* ptr = new T(device, texture);
@@ -46,27 +46,27 @@ public:
 		}
 	}
 
-	void AddResource(std::wstring id, BEDirectXResource* pResource)
+	void AddResource(std::string id, BEDirectXResource* pResource)
 	{
 		assert(!ResourceExists(id));
 		resources[id] = pResource;
 	}
 
-	BEDirectXResource* operator[](std::wstring id)
+	BEDirectXResource* operator[](std::string id)
 	{
 		return resources[id];
 	}
 
-	BEDirectXResource* GetResource(std::wstring id)
+	BEDirectXResource* GetResource(std::string id)
 	{
 		return resources[id];
 	}
 
-	bool ResourceExists(std::wstring id)
+	bool ResourceExists(std::string id)
 	{
 		return resources.find(id) != resources.end();
 	}
 
 private:
-	std::map<std::wstring, BEDirectXResource*> resources;
+	std::map<std::string, BEDirectXResource*> resources;
 };

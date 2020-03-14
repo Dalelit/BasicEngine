@@ -37,6 +37,7 @@ class BELightDirectional
 {
 public:
 	DirectX::XMVECTOR color = { 0.5,0.5,0.5,1 };
+	DirectX::XMVECTOR direction = { 1,1,1,1 };
 
 	BELightDirectional() = default;
 	BELightDirectional(DirectX::XMVECTOR color) : color(color) {};
@@ -49,7 +50,4 @@ public:
 
 	inline void SetDirection(DirectX::XMVECTOR _direction) { direction = DirectX::XMVector3Normalize(_direction); };
 	inline DirectX::XMVECTOR GetDireciton() { return direction; };
-
-private:
-	DirectX::XMVECTOR direction = { 1,1,1,1 };
 };

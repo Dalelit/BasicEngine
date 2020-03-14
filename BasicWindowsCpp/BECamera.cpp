@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "BECamera.h"
 #include "BEMath.h"
+#include "Submodules/imgui/imgui.h"
 
 using namespace DirectX;
 
@@ -67,7 +68,6 @@ void BECamera::Pan(float _right, float _up, float _forward)
 
 void BECamera::RotateDirection(float yaw, float pitch, float roll)
 {
-	constexpr float pitchBound = XM_PI / 2.0f - 0.001f;
 	mYaw = WrapAngle(mYaw + yaw);
 	mPitch = std::clamp(mPitch + pitch, -pitchBound, pitchBound);
 
@@ -86,4 +86,18 @@ void BECamera::RotatePosition(float yaw, float pitch)
 	direction = XMVector3Transform(direction, m);
 
 	Recalc();
+}
+
+void BECamera::ShowImgui()
+{
+	static bool show = true;
+	ImGui::Begin("Camera", &show);
+
+	ImGui::DragFloat3("Position", position.m128_f32);
+	ImGui::DragFloat("Yaw", &mYaw);
+	ImGui::DragFloat("Pitch", &mPitch, -pitchBound, pitchBound);
+	ImGui::DragFloat("Near plane ", &viewNear);
+	ImGui::DragFloat("Far plane ", &viewDistance);
+
+	ImGui::End();
 }

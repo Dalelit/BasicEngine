@@ -62,3 +62,9 @@ void BEInput::Update(float deltaTime, BECamera& camera)
 
 	RawMouseClear();
 }
+
+void BEInput::Clear()
+{
+	while (!keyEvents.empty()) keyEvents.pop();
+	keyState.reset();
+}

@@ -11,7 +11,7 @@ public:
 
 	void Bind(BEDirectXDevice& device);
 
-	static std::wstring UniqueId(std::wstring filename) { return GenerateUniqueId<BEDXTexture>(filename); };
+	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXTexture>(filename); };
 
 	unsigned int slot = 0u;
 

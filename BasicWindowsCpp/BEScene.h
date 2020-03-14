@@ -21,4 +21,7 @@ public:
 	void Update(float deltaTime);
 
 	void Clear();
+
+	void ShowImguiEnvironment();
+	void ShowImguiEntities();
 };

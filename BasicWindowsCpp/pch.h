@@ -32,3 +32,4 @@
 #include <time.h>
 #include <assert.h>
 #include <wrl.h>
+#include <wincodec.h>

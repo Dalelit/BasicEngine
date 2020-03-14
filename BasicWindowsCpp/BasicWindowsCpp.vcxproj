@@ -141,6 +141,7 @@
     <ClCompile Include="BECamera.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEDirectXDevice.cpp" />
+    <ClCompile Include="BEDXimgui.cpp" />
     <ClCompile Include="BEDXScene.cpp" />
     <ClCompile Include="BEDXEntityPSConstantBuffer.cpp" />
     <ClCompile Include="BEDXEntityVSConstantBuffer.cpp" />
@@ -173,11 +174,40 @@
     <ClCompile Include="BEDXVertexBuffer.cpp" />
     <ClCompile Include="BESceneTests.cpp" />
     <ClCompile Include="BETexture.cpp" />
+    <ClCompile Include="BEUtil.cpp" />
     <ClCompile Include="BEWindow.cpp" />
     <ClCompile Include="MiniPlanet.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\FastNoise\FastNoise.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\examples\imgui_impl_dx11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\examples\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
@@ -190,6 +220,7 @@
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
     <ClInclude Include="BEDirectXResourceManager.h" />
+    <ClInclude Include="BEDXimgui.h" />
     <ClInclude Include="BEDXScene.h" />
     <ClInclude Include="BEDXEntityPSConstantBuffer.h" />
     <ClInclude Include="BEDXEntityVSConstantBuffer.h" />
@@ -226,11 +257,21 @@
     <ClInclude Include="BESurface2D.h" />
     <ClInclude Include="BETexture.h" />
     <ClInclude Include="BETimer.h" />
+    <ClInclude Include="BEUtil.h" />
     <ClInclude Include="BEVertex.h" />
     <ClInclude Include="BEWindow.h" />
     <ClInclude Include="MiniPlanet.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Submodules\FastNoise\FastNoise.h" />
+    <ClInclude Include="Submodules\imgui\examples\imgui_impl_dx11.h" />
+    <ClInclude Include="Submodules\imgui\examples\imgui_impl_win32.h" />
+    <ClInclude Include="Submodules\imgui\imconfig.h" />
+    <ClInclude Include="Submodules\imgui\imgui.h" />
+    <ClInclude Include="Submodules\imgui\imgui_internal.h" />
+    <ClInclude Include="Submodules\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Submodules\imgui\imstb_textedit.h" />
+    <ClInclude Include="Submodules\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

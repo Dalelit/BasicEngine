@@ -107,14 +107,14 @@ BEDXMesh::BEDXMesh(BEDirectXResourceManager& resourceMgr, BEMesh* pMesh) :
 
 	if (pMesh->material.IsTextured())
 	{
-		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, L"VertexShaderTex.cso"));
-		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, L"PixelShaderTex.cso"));
+		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShaderTex.cso"));
+		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, "PixelShaderTex.cso"));
 		resources.push_back(resourceMgr.AccessResource<BEDXTexture>(resourceMgr.device, pMesh->material.pTextureSampler->texture));
 	}
 	else
 	{
-		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, L"VertexShader.cso"));
-		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, L"PixelShader.cso"));
+		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShader.cso"));
+		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, "PixelShader.cso"));
 	}
 
 	if (pMesh->topology == BEMesh::BEMeshTopology::TRIANGLE_INDEX)

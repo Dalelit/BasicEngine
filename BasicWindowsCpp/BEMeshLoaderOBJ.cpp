@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "BEMeshLoaderOBJ.h"
+#include "BEUtil.h"
 
 // To Do:
 //  proper error handling
@@ -54,7 +55,7 @@ std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 			if (activeMesh)
 			{
 				BEMesh* pMesh = new BEMesh(meshVerticies);
-				pMesh->name = name;
+				pMesh->name = BEUtil::ToString(name);
 				pMesh->material = materials[currentMat];
 				meshes.push_back(pMesh);
 				// do not clear raw file data as file structure appears to continue adding
@@ -146,7 +147,7 @@ std::vector<BEMesh*> BEMeshLoaderOBJ::LoadOBJ(std::wstring filename)
 	if (activeMesh)
 	{
 		BEMesh* pMesh = new BEMesh(meshVerticies);
-		pMesh->name = name;
+		pMesh->name = BEUtil::ToString(name);
 		pMesh->material = materials[currentMat];
 		meshes.push_back(pMesh);
 	}

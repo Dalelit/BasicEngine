@@ -34,9 +34,12 @@ void BESceneTests::CreateSceneTest0(BEScene& scene)
 	//pModel->pMesh = BEMeshLoaderPLY::LoadPLY(L"PLY\\monkeyFlat.ply");
 	//pEntity = pModel->CreateInstance();
 
+	std::wstring filename = L"Models\\torusSmooth.obj";
 	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\coneFlat.obj");
-	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\torusSmooth.obj");
 	//std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(L"Models\\simpleScene1.obj");
+
+	std::vector<BEMesh*> meshes = BEMeshLoaderOBJ::LoadOBJ(filename);
+
 	for (auto m : meshes)
 	{
 		pModel = new BEModel();

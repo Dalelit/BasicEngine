@@ -3,6 +3,7 @@
 #include "BEDirectXResource.h"
 #include "BEDirectXResourceManager.h"
 #include "BEDXOverlay.h"
+#include "BEDXimgui.h"
 #include "BEDXVSConstantBuffer.h"
 #include "BEDXPSConstantBuffer.h"
 #include "BEScene.h"
@@ -16,6 +17,7 @@ public:
 
 	BEDirectXDevice device;
 	BEDXOverlay overlay;
+	BEDXimgui imgui;
 
 	bool showStats = true;
 

@@ -26,6 +26,8 @@ int BEDirectX::Initialise(HWND hwnd)
 
 	overlay.Initialise(device);
 
+	imgui.Initialise(hwnd, device);
+
 	return hr;
 }
 
@@ -52,6 +54,11 @@ int BEDirectX::DoFrame()
 	{
 		overlay.message << GetStats();
 		overlay.Draw();
+	}
+
+	if (imgui.IsEnabled())
+	{
+		imgui.Draw();
 	}
 
 	device.PresentFrame();

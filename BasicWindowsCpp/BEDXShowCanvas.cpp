@@ -24,11 +24,11 @@ BEDXShowCanvas::BEDXShowCanvas(BEDirectXDevice& device, BESurface2D<XMVECTOR>& s
 	vertexBuffer->Bind(device);
 
 	// create the vertex shader
-	vertexShader = std::make_unique<BEDXVertexShaderPosTex>(device, L"VSPassthrough.cso");
+	vertexShader = std::make_unique<BEDXVertexShaderPosTex>(device, "VSPassthrough.cso");
 	vertexShader->Bind(device);
 
 	// create the pixel shader
-	pixelShader = std::make_unique<BEDXPixelShader>(device, L"PSPassthrough.cso");
+	pixelShader = std::make_unique<BEDXPixelShader>(device, "PSPassthrough.cso");
 	pixelShader->Bind(device);
 }
 

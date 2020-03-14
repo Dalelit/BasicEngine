@@ -86,7 +86,6 @@ void BEDXOverlay::CreateDeviceResources(BEDirectXDevice& dx)
 	D2D1_SIZE_F size = pBitmap->GetSize();
 	d2rect.right = size.width;
 	d2rect.top = size.height;
-	BELOG_DEBUG("BEDXOverlay.d2rect " + std::to_string(d2rect.right) + ", " + std::to_string(d2rect.top));
 
 	// create some brushes
 

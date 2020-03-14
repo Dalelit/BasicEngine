@@ -6,14 +6,14 @@ class BEDXPixelShader : public BEDirectXResource
 {
 public:
 
-	BEDXPixelShader(BEDirectXDevice& device, std::wstring filename);
+	BEDXPixelShader(BEDirectXDevice& device, std::string filename);
 
 	void Bind(BEDirectXDevice& device);
 
-	static std::wstring UniqueId(std::wstring filename) { return GenerateUniqueId<BEDXPixelShader>(filename); };
+	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXPixelShader>(filename); };
 
 private:
 	wrl::ComPtr<ID3D11PixelShader> pPixelShader = NULL;
-	std::wstring filename;
+	std::string filename;
 };
 

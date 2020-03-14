@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "BESampler.h"
+#include "BEUtil.h"
 
 class BEMaterial
 {
@@ -12,10 +13,11 @@ public:
 	float specularExponent = 40.0f;
 	//float transparency = 1.0f; // maybe do this one day
 	BESampler* pTextureSampler = nullptr;
-	std::wstring id;
+	std::string name;
 
-	BEMaterial(std::wstring name);
-	BEMaterial() : BEMaterial(L"") {};
+	BEMaterial(std::string name);
+	BEMaterial(std::wstring name) : BEMaterial(BEUtil::ToString(name)) {};
+	BEMaterial();
 	// to do: copy constructor should technically increment instance counter.
 
 	inline bool IsTextured() { return pTextureSampler != nullptr; }
@@ -24,7 +26,9 @@ public:
 
 	static BEMaterial CreateRandom(bool normalizeColor = false) { return BEMaterial().Randomise(normalizeColor); };
 
+	void ShowImguiTreeNode();
+
 protected:
-	static inline long instanceCounter = 0;
+	static unsigned int materialCount;
 };
 

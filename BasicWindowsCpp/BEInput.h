@@ -36,6 +36,8 @@ public:
 
 	void Update(float deltaTime, BECamera& camera);
 
+	void Clear();
+
 	float mouseSensitivity = -2.0f; // speed to rotate the camera * deltatime. Negative to invert it.
 	float moveSpeed = 3.0f;			// move speed * deltatime
 

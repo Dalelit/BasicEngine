@@ -15,7 +15,7 @@ public:
 
 	BESurface2D<DirectX::XMVECTOR>* surface = nullptr; // to do: better storage solution
 
-	std::wstring name;
+	std::string name;
 
 protected:
 	unsigned int width;

@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "BEDXVertexShader.h"
+#include "BEUtil.h"
 
 
-BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::wstring filename)
+BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::string filename)
 	:
 	filename(filename)
 {
@@ -19,7 +20,7 @@ void BEDXVertexShader::Initialise(BEDirectXDevice& device)
 	HRESULT hr;
 
 	wrl::ComPtr<ID3DBlob> pBlob = nullptr;
-	hr = D3DReadFileToBlob(filename.c_str(), &pBlob);
+	hr = D3DReadFileToBlob(BEUtil::ToWString(filename).c_str(), &pBlob);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
 

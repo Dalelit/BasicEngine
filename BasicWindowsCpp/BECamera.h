@@ -51,6 +51,7 @@ public:
 		        (y >= -1.0f && y <= 1.0f))    //  y in the screen)
 			   && DirectX::XMVectorGetZ(_v) > 0.0f; }  // and infront of screen
 
+	void ShowImgui();
 
 private:
 	float viewPortRatioY = 4.0f / 3.0f;
@@ -67,6 +68,7 @@ private:
 
 	float mYaw = 0.0f;
 	float mPitch = 0.0f;
+	float pitchBound = DirectX::XM_PI / 2.0f - 0.001f;
 
 	DirectX::XMMATRIX projectionMatrix;
 	DirectX::XMMATRIX viewMatrix;

@@ -16,11 +16,11 @@ void MiniPlanet::CreateScene(BEScene& scene)
 	pLight->position = { 4,4,4,1 };
 	pLight->color = { 0.5f,0.5f,0.5f,1.0f };
 
-	BEModel* pModel = new BEModel();;
+	BEModel* pModel = new BEModel("Land");
 	pModel->pMesh = BEMeshPrimatives::Icosphere(3);
 	pModel->pMesh->material.Randomise();
 	pModel->pMesh->material.specularExponent = 1.0f;
-	pModel->pMesh->name = L"Land";
+	pModel->pMesh->name = "Land";
 	scene.models.push_back(pModel);
 
 	// randomise the radius of the vertecies.
@@ -41,12 +41,12 @@ void MiniPlanet::CreateScene(BEScene& scene)
 	pModel->CreateInstance();
 
 	// create the ocean
-	pModel = new BEModel();;
+	pModel = new BEModel("Ocean");
 	pModel->pMesh = BEMeshPrimatives::Icosphere(3);
 	pModel->pMesh->material.Randomise();
 	pModel->pMesh->material.ambientColor.m128_f32[2] = 1.0f; // blueish
 	pModel->pMesh->material.diffuseColor.m128_f32[2] = 1.0f; // blueish
-	pModel->pMesh->name = L"Ocean";
+	pModel->pMesh->name = "Ocean";
 	scene.models.push_back(pModel);
 	pModel->CreateInstance();
 }

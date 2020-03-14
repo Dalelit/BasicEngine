@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "BEDXPixelShader.h"
+#include "BEUtil.h"
 
-BEDXPixelShader::BEDXPixelShader(BEDirectXDevice& device, std::wstring filename)
+BEDXPixelShader::BEDXPixelShader(BEDirectXDevice& device, std::string filename)
 	:
 	filename(filename)
 {
 	HRESULT hr;
 
 	wrl::ComPtr<ID3DBlob> pBlob = nullptr;
-	hr = D3DReadFileToBlob(filename.c_str(), &pBlob);
+	hr = D3DReadFileToBlob(BEUtil::ToWString(filename).c_str(), &pBlob);
 
 	BEDXRESOURCE_ERRORCHECK(hr)
 

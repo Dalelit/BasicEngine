@@ -12,10 +12,10 @@ public:
 protected:
 
 	template <class T>
-	static std::wstring GenerateUniqueId(std::wstring str) {
+	static std::string GenerateUniqueId(std::string str) {
 		std::string tname(typeid(T).name());
-		std::wstring id(tname.begin() + 6, tname.end()); // convert to wstring and remove "class ". To do: A better way?
-		id += L"#";
+		std::string id(tname.begin() + 6, tname.end()); // convert to wstring and remove "class ". To do: A better way?
+		id += "#";
 		id += str;
 		return id;
 	};

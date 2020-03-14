@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -37,55 +29,72 @@
     <Filter Include="Resource Files\Models">
       <UniqueIdentifier>{c32dbf43-308d-48eb-915e-c08b73d048b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BE Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="BE Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Submodules">
+      <UniqueIdentifier>{295ec7f6-4914-437d-86f7-c20a4bc77733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\FastNoise">
+      <UniqueIdentifier>{eb74848d-0a2b-480d-9ff5-d590c4a3d94b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\imgui">
+      <UniqueIdentifier>{2c760dda-86b2-4d15-9ffa-dcc4d9e97899}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BECamera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMesh.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEEntity.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BELight.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BERenderRaytrace.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshPrimatives.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BETexture.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BESampler.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEBounds.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshLoaderSTL.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEModel.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMaterial.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BERaytrace.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BERenderProgrammablePipeline.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEDirectX.cpp">
       <Filter>BEDirectX Source Files</Filter>
@@ -130,99 +139,126 @@
       <Filter>Scenes</Filter>
     </ClCompile>
     <ClCompile Include="BEEntitySystems.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEInput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshLoaderPLY.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEMeshLoaderOBJ.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEDXScene.cpp">
       <Filter>BEDirectX Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BERenderRaytraceThread.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BEWindow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BELogger.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>BE Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MiniPlanet.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Submodules\FastNoise\FastNoise.cpp">
+      <Filter>Submodules\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_demo.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_draw.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\imgui_widgets.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\examples\imgui_impl_dx11.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Submodules\imgui\examples\imgui_impl_win32.cpp">
+      <Filter>Submodules\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="BEDXimgui.cpp">
+      <Filter>BEDirectX Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BEUtil.cpp">
+      <Filter>BE Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BECamera.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMesh.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEEntity.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BELight.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEScene.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMeshPrimatives.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEVertex.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BETimer.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BETexture.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BESampler.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEBounds.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMeshLoaderSTL.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEModel.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMaterial.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEEntityComponents.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BERaytrace.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BESurface2D.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BERenderProgrammablePipeline.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BERenderRaytrace.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEDirectX.h">
       <Filter>BEDirectX Header Files</Filter>
@@ -273,19 +309,19 @@
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="BEEntitySystems.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMath.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEInput.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMeshLoaderPLY.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEMeshLoaderOBJ.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEDirectXResourceManager.h">
       <Filter>BEDirectX Header Files</Filter>
@@ -294,19 +330,52 @@
       <Filter>BEDirectX Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BERenderRaytraceThread.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BEWindow.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BELogger.h">
-      <Filter>Header Files</Filter>
+      <Filter>BE Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MiniPlanet.h">
       <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\FastNoise\FastNoise.h">
+      <Filter>Submodules\FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imconfig.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imgui.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imgui_internal.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imstb_rectpack.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imstb_textedit.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\imstb_truetype.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\examples\imgui_impl_dx11.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Submodules\imgui\examples\imgui_impl_win32.h">
+      <Filter>Submodules\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="BEDXimgui.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BEUtil.h">
+      <Filter>BE Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -25,6 +25,9 @@
 #include "BESceneTests.h"
 #include "BEInput.h"
 #include "MiniPlanet.h"
+#include "Submodules/imgui/imgui.h"
+#include "Submodules/imgui/examples/imgui_impl_win32.h"
+#include "Submodules/imgui/examples/imgui_impl_dx11.h"
 
 // global control variables
 bool running = true;
@@ -33,6 +36,7 @@ bool raytraceStarted = false;
 
 bool toggleRaytraceWindow = false;
 bool toggleDirectXWindow = false;
+bool changeWindows = false;
 
 bool debugDoSomething = false;
 
@@ -45,9 +49,12 @@ BETimer loopTimer;
 /////////////////////////////////
 // windows code
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
+	if (BEDXimgui::WndProcHandler(hWnd, msg, wParam, lParam))
+		return 0;
+
+	switch (msg)
 	{
 	/////// Keyboard
 	case WM_KEYUP:
@@ -67,10 +74,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			raytraceRun = true;
 			break;
 		case VK_F1:
-			toggleRaytraceWindow = true;
+			toggleRaytraceWindow = !toggleRaytraceWindow;
+			changeWindows = true;
 			break;
 		case VK_F2:
-			toggleDirectXWindow = true;
+			toggleDirectXWindow = !toggleDirectXWindow;
+			changeWindows = true;
 			break;
 		case 'Z':
 			debugDoSomething = true;
@@ -78,16 +87,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-	/////// Mouse buttons
-	case WM_LBUTTONDOWN:
-		BELOG_DEBUG("Mouse left button down");
-		break;
-	case WM_RBUTTONDOWN:
-		BELOG_DEBUG("Mouse right button down");
-		break;
-	case WM_MBUTTONDOWN:
-		BELOG_DEBUG("Mouse middle button down");
-		break;
 		/////// Raw mouse
 	case WM_INPUT:
 	{
@@ -117,7 +116,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
 	return 0;
@@ -208,12 +207,12 @@ int WINAPI WinMain(
 	camera.SetPosition(0, 1, 4);
 	camera.LookAt(0, 0, 0);
 
-	//BESceneTests::CreateSceneTest0(scene);
+	BESceneTests::CreateSceneTest0(scene);
 	//BESceneTests::CreateSceneTest1(scene);
 	//BESceneTests::CreateSceneTest2(scene);
 	//BESceneTests::CreateSceneTest3(scene);
 	//BESceneTests::CreateBoxWorld(scene, camera);
-	MiniPlanet::CreateScene(scene);
+	//MiniPlanet::CreateScene(scene);
 
 	scene.Update(0);
 
@@ -243,7 +242,7 @@ int WINAPI WinMain(
 	dx.Initialise(wndDirectX.GetHandle());
 	dx.LoadScene(&scene, &camera);
 
-	// ready to go...
+		// ready to go...
 
 	BETimer deltaTime;
 	clock_t frametime = 1000 / 60; // 60 frames a second
@@ -266,6 +265,8 @@ int WINAPI WinMain(
 		// update loop
 		float dt = deltaTime.DeltaTime();
 		clock_t updateStartTime = clock();
+
+		if (dx.imgui.WantCaptureKeyboard()) input.Clear(); // to do: hack?
 
 		if (!input.keyEvents.empty())
 		{
@@ -301,56 +302,56 @@ int WINAPI WinMain(
 		}
 
 		input.Update(dt, camera);
-		if (!input.paused) scene.Update(dt);
+		if (input.paused) scene.Update(0);
+		else scene.Update(dt);
 
 		totalUpdateTime += updateStartTime - clock();
 		frameCount++;
 
-		if (toggleRaytraceWindow || toggleDirectXWindow)
+		if (changeWindows)
 		{
-			if ((toggleDirectXWindow && wndDirectX.IsFullScreenVisible()) ||
-				(toggleRaytraceWindow && wndRaytrace.IsFullScreenVisible()))
-			{
-				wndPoints.Restore();
-				wndWireframe.Restore();
-				wndFullrender.Restore();
-				dx.MakeWindowed();
-				wndDirectX.Restore();
-				dx.Resize();
+			changeWindows = false; // reset flag
 
-				wndRaytrace.Restore();
+			if (toggleDirectXWindow)
+			{
+				wndPoints.Hide();
+				wndWireframe.Hide();
+				wndFullrender.Hide();
+				wndRaytrace.Hide();
+
+				wndDirectX.ShowMaximised();
+				dx.Resize();
+				camera.SetViewPortAspectRatio(wndDirectX.GetAspectRatio());
+
+				//wndDirectX.ShowFullScreen();
+				//dx.MakeFullScreen();
+				//camera.SetViewPortAspectRatio(dx.device.GetAspectRatio());
+			}
+			else if (toggleRaytraceWindow)
+			{
+				wndPoints.Hide();
+				wndWireframe.Hide();
+				wndFullrender.Hide();
+				wndDirectX.Hide();
+
+				raytracingThread.StopAndWait();
+				wndRaytrace.ShowMaximised();
+				//wndRaytrace.ShowFullScreen();
+				raytraceRun = true;
 
 				camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio());
 			}
 			else
 			{
-				wndPoints.Hide();
-				wndWireframe.Hide();
-				wndFullrender.Hide();
+				wndPoints.Restore();
+				wndWireframe.Restore();
+				wndFullrender.Restore();
+				wndDirectX.Restore();
+				dx.Resize();
+				wndRaytrace.Restore();
 
-				if (toggleDirectXWindow)
-				{
-					wndDirectX.ShowFullScreen();
-					dx.MakeFullScreen();
-					dx.Resize();
-					wndRaytrace.Hide();
-
-					camera.SetViewPortAspectRatio(dx.device.GetAspectRatio());
-				}
-
-				if (toggleRaytraceWindow)
-				{
-					raytracingThread.StopAndWait();
-					wndRaytrace.ShowFullScreen();
-					wndDirectX.Hide();
-					raytraceRun = true;
-
-					camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio());
-				}
+				camera.SetViewPortAspectRatio(wndRaytrace.GetAspectRatio()); // picking any window
 			}
-
-			toggleRaytraceWindow = false;
-			toggleDirectXWindow = false;
 		}
 
 		//
@@ -412,6 +413,13 @@ int WINAPI WinMain(
 		//
 		if (wndDirectX.IsVisible())
 		{
+			// Imgui is only on the directx window
+			dx.imgui.NewFrame();
+			ImGui::ShowDemoWindow();
+			camera.ShowImgui();
+			scene.ShowImguiEnvironment();
+			scene.ShowImguiEntities();
+
 			dx.DoFrame();
 		}
 

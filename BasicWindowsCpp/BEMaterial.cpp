@@ -1,11 +1,18 @@
 #include "pch.h"
 #include "BEMaterial.h"
+#include "Submodules/imgui/imgui.h"
 
 using namespace DirectX;
 
-BEMaterial::BEMaterial(std::wstring name)
+unsigned int BEMaterial::materialCount = 0;
+
+BEMaterial::BEMaterial(std::string name) : name(name)
 {
-	id = L"BEMaterial" + name + std::to_wstring(++instanceCounter);
+	materialCount++;
+}
+
+BEMaterial::BEMaterial() : BEMaterial("Material" + std::to_string(materialCount))
+{
 }
 
 BEMaterial& BEMaterial::Randomise(bool normalizeColor)
@@ -29,4 +36,20 @@ BEMaterial& BEMaterial::Randomise(bool normalizeColor)
 	specularExponent = rng() * 100.0f;
 
 	return *this;
+}
+
+void BEMaterial::ShowImguiTreeNode()
+{
+	if (ImGui::TreeNode(name.c_str()))
+	{
+		ImGui::ColorEdit3("Ambient", ambientColor.m128_f32);
+		ImGui::ColorEdit3("Diffuse", diffuseColor.m128_f32);
+		ImGui::ColorEdit3("Specular", specularColor.m128_f32);
+		ImGui::DragFloat("Specular power", &specularExponent);
+		
+		if (IsTextured()) ImGui::Text(("Is textured: " + pTextureSampler->texture.name).c_str());
+		else ImGui::Text("Is not textured");
+
+		ImGui::TreePop();
+	}
 }

@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "BETexture.h"
-#include <wincodec.h>
-#include <wrl.h>
+#include "BEUtil.h"
 
 using namespace DirectX;
 
 #define BE_HR_CHECK(hr) if (FAILED(hr)) throw hr; // to do: proper error checking
 
 BETexture::BETexture(std::wstring filename) :
-	name(filename)
+	name(BEUtil::ToString(filename))
 {
 	Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory = nullptr;
 

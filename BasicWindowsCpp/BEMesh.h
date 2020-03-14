@@ -21,7 +21,7 @@ public:
 	BEMeshTopology topology = BEMeshTopology::TRIANGLE_LIST;
 	BEMaterial material;
 
-	std::wstring name;
+	std::string name;
 
 	BEVertex* verticies = nullptr;
 	unsigned int vertCount = 0;
