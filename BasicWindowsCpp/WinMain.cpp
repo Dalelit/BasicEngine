@@ -208,7 +208,7 @@ int WINAPI WinMain(
 	camera.LookAt(0, 0, 0);
 
 	// temp - default dx maximised and mouse movement off
-	toggleDirectXWindow = true;
+	//toggleDirectXWindow = true;
 	changeWindows = true;
 	input.mouseInputEnabled = false;
 

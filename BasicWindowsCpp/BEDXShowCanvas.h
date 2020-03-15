@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BEVertex.h"
 #include "BEDirectX.h"
 #include "BEDXTextureUpdateable.h"
 #include "BEDXVertexBuffer.h"
@@ -16,8 +15,6 @@ public:
 	void Draw(BEDirectXDevice& device);
 
 private:
-	BETexVertex verticies[6];
-
 	// To do: updateable bool and 2 pointers is a hack for now
 	std::unique_ptr<BEDXTexture> pTex;
 	std::unique_ptr<BEDXTextureUpdateable> pTexUpdt;

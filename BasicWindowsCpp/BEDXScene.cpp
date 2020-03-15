@@ -105,16 +105,25 @@ BEDXMesh::BEDXMesh(BEDirectXResourceManager& resourceMgr, BEMesh* pMesh) :
 {
 	assert(pMesh);
 
+	BEDXVertexShader* pVS;
+	BEDXPixelShader* pPS;
+
 	if (pMesh->material.IsTextured())
 	{
-		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShaderTex.cso"));
-		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, "PixelShaderTex.cso"));
+		pVS = resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShaderTex.cso");
+		pPS = resourceMgr.AccessResource<BEDXPixelShaderFile>(resourceMgr.device, "PixelShaderTex.cso");
+
+		resources.push_back(pVS);
+		resources.push_back(pPS);
 		resources.push_back(resourceMgr.AccessResource<BEDXTexture>(resourceMgr.device, pMesh->material.pTextureSampler->texture));
 	}
 	else
 	{
-		resources.push_back(resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShader.cso"));
-		resources.push_back(resourceMgr.AccessResource<BEDXPixelShader>(resourceMgr.device, "PixelShader.cso"));
+		pVS = resourceMgr.AccessResource<BEDXVertexShaderPosNorColTex>(resourceMgr.device, "VertexShader.cso");
+		pPS = resourceMgr.AccessResource<BEDXPixelShaderFile>(resourceMgr.device, "PixelShader.cso");
+
+		resources.push_back(pVS);
+		resources.push_back(pPS);
 	}
 
 	if (pMesh->topology == BEMesh::BEMeshTopology::TRIANGLE_INDEX)
@@ -122,6 +131,8 @@ BEDXMesh::BEDXMesh(BEDirectXResourceManager& resourceMgr, BEMesh* pMesh) :
 	else
 		vertexBuffer = std::make_unique<BEDXVertexBuffer>(resourceMgr.device, pMesh);
 
+	pVS->LogShader();
+	pPS->LogShader();
 }
 
 void BEDXMesh::Bind(BEDirectXDevice& device)

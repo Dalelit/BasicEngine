@@ -3,10 +3,10 @@
 #include "BEUtil.h"
 
 
-BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::string filename)
-	:
-	filename(filename)
+BEDXVertexShader::BEDXVertexShader(BEDirectXDevice& device, std::string src, BEDXVertexShaderLayout layout)
 {
+	CreateFromSource(device, src);
+	SetLayout(device, *pBlob.Get(), layout);
 }
 
 void BEDXVertexShader::Bind(BEDirectXDevice& device)
@@ -15,11 +15,10 @@ void BEDXVertexShader::Bind(BEDirectXDevice& device)
 	device.pImmediateContext->IASetInputLayout(pInputLayout.Get());
 }
 
-void BEDXVertexShader::Initialise(BEDirectXDevice& device)
+void BEDXVertexShader::CreateFromFile(BEDirectXDevice& device, std::string filename)
 {
 	HRESULT hr;
 
-	wrl::ComPtr<ID3DBlob> pBlob = nullptr;
 	hr = D3DReadFileToBlob(BEUtil::ToWString(filename).c_str(), &pBlob);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
@@ -31,83 +30,45 @@ void BEDXVertexShader::Initialise(BEDirectXDevice& device)
 		&pVertexShader);
 
 	BEDXRESOURCE_ERRORCHECK(hr);
-
-	SetLayout(device, *pBlob.Get());
 }
 
-void BEDXVertexShaderPosNorColTex::SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob)
+void BEDXVertexShader::CreateFromSource(BEDirectXDevice& device, std::string source)
 {
 	HRESULT hr;
 
-	D3D11_INPUT_ELEMENT_DESC inputDesc[4] = {}; // reminder: update CreateIntputLayout number
+	hr = D3DCompile(source.data(), source.length(), NULL, NULL, NULL, "main", "vs_5_0", 0, 0, &pBlob, NULL);
 
-	inputDesc[0].SemanticName = "Position";
-	inputDesc[0].SemanticIndex = 0;
-	inputDesc[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputDesc[0].InputSlot = 0u;
-	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[0].InstanceDataStepRate = 0u;
+	BEDXRESOURCE_ERRORCHECK(hr);
 
-	inputDesc[1].SemanticName = "Normal";
-	inputDesc[1].SemanticIndex = 0;
-	inputDesc[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputDesc[1].InputSlot = 0u;
-	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[1].InstanceDataStepRate = 0u;
+	hr = device.pDevice->CreateVertexShader(
+		pBlob->GetBufferPointer(),
+		pBlob->GetBufferSize(),
+		nullptr,
+		&pVertexShader);
 
-	inputDesc[2].SemanticName = "Color";
-	inputDesc[2].SemanticIndex = 0;
-	inputDesc[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputDesc[2].InputSlot = 0u;
-	inputDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[2].InstanceDataStepRate = 0u;
-
-	inputDesc[3].SemanticName = "Texcoord";
-	inputDesc[3].SemanticIndex = 0;
-	inputDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputDesc[3].InputSlot = 0u;
-	inputDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[3].InstanceDataStepRate = 0u;
-
-	hr = device.pDevice->CreateInputLayout(
-		inputDesc,
-		ARRAYSIZE(inputDesc),
-		shaderBlob.GetBufferPointer(),
-		shaderBlob.GetBufferSize(),
-		&pInputLayout);
-
-	BEDXRESOURCE_ERRORCHECK(hr)
+	BEDXRESOURCE_ERRORCHECK(hr);
 }
 
-void BEDXVertexShaderPosTex::SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob)
+void BEDXVertexShader::SetLayout(BEDirectXDevice& device, ID3DBlob& shaderBlob, BEDXVertexShaderLayout& layout)
 {
 	HRESULT hr;
 
-	D3D11_INPUT_ELEMENT_DESC inputDesc[2] = {}; // reminder: update CreateIntputLayout number
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDesc(layout.size());
 
-	inputDesc[0].SemanticName = "Position";
-	inputDesc[0].SemanticIndex = 0;
-	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputDesc[0].InputSlot = 0u;
-	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[0].InstanceDataStepRate = 0u;
-
-	inputDesc[1].SemanticName = "Texcoord";
-	inputDesc[1].SemanticIndex = 0;
-	inputDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputDesc[1].InputSlot = 0u;
-	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputDesc[1].InstanceDataStepRate = 0u;
+	for (int i = 0; i < layout.size(); i++)
+	{
+		inputDesc[i].SemanticName = layout[i].name.c_str();
+		inputDesc[i].SemanticIndex = 0;
+		inputDesc[i].Format = layout[i].format;
+		inputDesc[i].InputSlot = 0u;
+		inputDesc[i].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		inputDesc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		inputDesc[i].InstanceDataStepRate = 0u;
+	}
 
 	hr = device.pDevice->CreateInputLayout(
-		inputDesc,
-		ARRAYSIZE(inputDesc),
+		inputDesc.data(),
+		(UINT)inputDesc.size(),
 		shaderBlob.GetBufferPointer(),
 		shaderBlob.GetBufferSize(),
 		&pInputLayout);

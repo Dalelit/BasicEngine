@@ -1,19 +1,36 @@
 #pragma once
 
-#include "BEDirectXResource.h"
+#include "BEDirectXShader.h"
 
-class BEDXPixelShader : public BEDirectXResource
+class BEDXPixelShader : public BEDirectXShader
+{
+public:
+	void Bind(BEDirectXDevice& device);
+
+protected:
+	BEDXPixelShader() = default;
+	wrl::ComPtr<ID3D11PixelShader> pPixelShader = nullptr;
+};
+
+
+
+class BEDXPixelShaderFile : public BEDXPixelShader
 {
 public:
 
-	BEDXPixelShader(BEDirectXDevice& device, std::string filename);
+	BEDXPixelShaderFile(BEDirectXDevice& device, std::string filename);
 
-	void Bind(BEDirectXDevice& device);
+	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXPixelShaderFile>(filename); };
 
-	static std::string UniqueId(std::string filename) { return GenerateUniqueId<BEDXPixelShader>(filename); };
-
-private:
-	wrl::ComPtr<ID3D11PixelShader> pPixelShader = NULL;
+protected:
 	std::string filename;
 };
 
+
+
+class BEDXPixelShaderSource : public BEDXPixelShader
+{
+public:
+
+	BEDXPixelShaderSource(BEDirectXDevice& device, std::string source);
+};

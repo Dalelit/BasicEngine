@@ -195,6 +195,9 @@
     <ClCompile Include="BEUtil.cpp">
       <Filter>BE Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BEDirectXShader.cpp">
+      <Filter>BE Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BECanvas.h">
@@ -377,15 +380,12 @@
     <ClInclude Include="BEUtil.h">
       <Filter>BE Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BEDirectXShader.h">
+      <Filter>BEDirectX Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PSPassthrough.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VSPassthrough.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PixelShader.hlsl">

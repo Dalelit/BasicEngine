@@ -141,6 +141,7 @@
     <ClCompile Include="BECamera.cpp" />
     <ClCompile Include="BEDirectX.cpp" />
     <ClCompile Include="BEDirectXDevice.cpp" />
+    <ClCompile Include="BEDirectXShader.cpp" />
     <ClCompile Include="BEDXimgui.cpp" />
     <ClCompile Include="BEDXScene.cpp" />
     <ClCompile Include="BEDXEntityPSConstantBuffer.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="BEDirectXDevice.h" />
     <ClInclude Include="BEDirectXResource.h" />
     <ClInclude Include="BEDirectXResourceManager.h" />
+    <ClInclude Include="BEDirectXShader.h" />
     <ClInclude Include="BEDXimgui.h" />
     <ClInclude Include="BEDXScene.h" />
     <ClInclude Include="BEDXEntityPSConstantBuffer.h" />
@@ -308,14 +310,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(DefiningProjectDirectory)%(Filename).cso</ObjectFileOutput>
     </FxCompile>
-    <FxCompile Include="PSPassthrough.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(DefiningProjectDirectory)%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(DefiningProjectDirectory)%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -335,14 +329,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="VertexShaderTex.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(DefiningProjectDirectory)%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(DefiningProjectDirectory)%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
-    <FxCompile Include="VSPassthrough.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
